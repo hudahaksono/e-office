@@ -1,0 +1,325 @@
+﻿using iText.Html2pdf;
+using iText.IO.Font;
+using iText.IO.Source;
+using iText.Kernel.Colors;
+using iText.Kernel.Events;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using Surat.Models;
+using Surat.Models.Entities;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Web;
+using System.Web.Mvc;
+
+
+namespace Surat.Codes.TataNaskah
+{
+    public class SuratPengantarPersuratan
+    {
+        DataMasterModel dataMasterModel = new DataMasterModel();
+        NaskahDinasModel nd = new NaskahDinasModel();
+        SuratModel mdl = new SuratModel();
+        internal MemoryStream prepare(string nomorSurat, string tanggalSurat, string listSuratId, string profileTtd, string pathx, string unitkerja, string kantorid, string tujuanukid)
+        {
+            MemoryStream ms = new MemoryStream();
+            PdfWriter pw = new PdfWriter(ms);
+            PdfDocument pdfDocument = new PdfDocument(pw);
+            Document doc;
+            doc = new Document(pdfDocument, PageSize.A4);
+            doc.SetMargins(40, 10, 75, 10);
+
+            Table _table;
+            Cell _cell;
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            //KopSurat kopsurat = new KopSurat();
+            //kopsurat.UnitKerjaId = "020102";
+            //kopsurat.UnitKerjaName = "Sekretariat Jenderal";
+            //kopsurat.NamaKantor_L1 = "SEKRETARIAT JENDERAL";
+            //kopsurat.Alamat = "Jalan Sisingamangaraja Nomor 2 Jakarta Selatan 12014 Kotak Pos 1403";
+            //kopsurat.Telepon = "021-7228901";
+            //kopsurat.Email = "surat@atrbpn.go.id";
+            //kopsurat.FontSize = 11;
+
+            //cari kop sesuai
+            string strKop = unitkerja;
+            if (tipekantorid == 1)
+            {
+                var induk = nd.GetIndukUnitKerjaId(unitkerja);
+                if(string.IsNullOrEmpty(induk) && unitkerja.Length > 6)
+                {
+                    strKop = unitkerja.Substring(0, 6);
+                } else if (!string.IsNullOrEmpty(induk))
+                {
+                    strKop = induk;
+                }
+            }
+
+            var kopsurat = nd.getKopDetail(strKop);
+
+            KopSuratAlamat kop = new KopSuratAlamat();
+            kop.generate(doc, pathx, kopsurat, kantorid, unitkerja);
+
+            FontProgram fontProgramBokos = FontProgramFactory.CreateFont(pathx + "\\pdf\\fonts\\BOOKOS.TTF");
+            PdfFont fontBokos = PdfFontFactory.CreateFont(fontProgramBokos, PdfEncodings.IDENTITY_H, true);
+
+            int jarakitem = -1;
+            Style styledalem = new Style()
+                .SetFont(fontBokos)
+                .SetFontSize(11)
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetMarginBottom(0)
+                .SetPaddingBottom(0);
+
+            _table = new Table(1).SetWidth(560).SetPaddingLeft(20).SetMargin(0).SetHorizontalAlignment(HorizontalAlignment.CENTER); //table buat badan
+            _cell = new Cell().Add(new Paragraph("").SetMultipliedLeading(1.0f).SetFontSize(11).SetFont(fontBokos).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER);
+            _cell.SetPaddingTop(6f).SetMargin(0f);
+            _table.AddCell(_cell);
+
+            Table tabledalem = new Table(new float[] { 160, 20, 343 }).UseAllAvailableWidth().SetHorizontalAlignment(HorizontalAlignment.CENTER).SetBorder(Border.NO_BORDER).SetMarginTop(10);
+            Cell celldalem = new Cell().Add(new Paragraph("NO. SURAT PENGANTAR").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph(":").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph(nomorSurat)
+               .SetFont(fontBokos)
+               .SetFontSize(10)
+               .SetMarginBottom(0)
+               .SetPaddingBottom(0)
+               .SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph("TANGGAL").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph(":").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+
+            DateTime TglSuratRaw = DateTime.ParseExact(tanggalSurat, "dd/MM/yyyy", null);
+
+            celldalem = new Cell().Add(new Paragraph(TglSuratRaw.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"))).AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+
+            var tujuan = "<Tujuan>";
+            if (tujuanukid == "H0000001" || tujuanukid == "H0000002")
+            {
+                tujuan = mdl.GetNamaJabatan(tujuanukid);
+            }
+            else
+            {
+                tujuan = dataMasterModel.GetNamaUnitKerjaById(tujuanukid);
+            }
+
+            celldalem = new Cell().Add(new Paragraph("KEPADA YTH").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph(":").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+            celldalem = new Cell().Add(new Paragraph(tujuan).AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER).SetPaddingTop(jarakitem);
+            tabledalem.AddCell(celldalem);
+
+            _cell.Add(tabledalem);
+            _table.AddCell(_cell);
+
+            string[] listsurat = listSuratId.Split('|');
+            PersuratanModel persuratanmodel = new PersuratanModel();
+
+            string html = $@"<link rel='stylesheet' type='text/css' href='{pathx}/pdf/PdfStyle.css'>
+                             <table style='border: 1px solid black; width: 100%; word-wrap:break-word;table-layout: fixed;'>
+                                 <tbody>
+                                    <tr>
+                                        <td style = 'text-align:center; width: 5%;border: 1px solid #363636; font-size: 8pt;' > NO </td>              
+                                        <td style = 'text-align:center; width: 15%;border: 1px solid #363636; font-size: 8pt;' > ASAL</td>                   
+                                        <td style = 'text-align:center;border: 1px solid #363636; font-size: 8pt;' > PERIHAL </td>
+                                        <td style = 'text-align:center; width: 20%;border: 1px solid #363636; font-size: 8pt;' >NO & TGL</td>
+                                        <td style = 'text-align:center; width: 10%;border: 1px solid #363636; font-size: 8pt;' >SIFAT</td>
+                                        <td style = 'text-align:center; width: 13%;border: 1px solid #363636; font-size: 8pt;' >REDAKSI</td>
+                                        <td style = 'text-align:center; width: 10%;border: 1px solid #363636; font-size: 8pt;' >KET</td>
+                                     </tr>
+                            ";
+            int nomor = 1;
+            bool segera = false;
+            foreach (var surat in listsurat)
+            {
+                Models.Entities.Surat findsurat = persuratanmodel.GetSuratBySuratId(surat, unitkerja);
+                List<Models.Entities.SuratInbox> result = persuratanmodel.GetSuratHistory(surat, "", unitkerja);
+
+                var redaksi = "-";
+
+                bool ismenteri = false;
+                if (tujuanukid == "H0000001" || tujuanukid == "H0000002")
+                {
+                    ismenteri = true;
+                }
+                var profileidTu = persuratanmodel.GetProfileidTuFromUnitKerja(tujuanukid, ismenteri);
+
+                foreach (var lst in result)
+                {
+                    if (lst.ProfilePenerima == profileidTu)
+                    {
+                        redaksi = lst.Redaksi;
+                        break;
+                    }
+                }
+
+                TglSuratRaw = DateTime.ParseExact(findsurat.TanggalSurat, "dd/MM/yyyy", null);
+
+                var sifat = findsurat.SifatSurat;
+                if(findsurat.SifatSurat == "Undangan" || findsurat.SifatSurat == "Sangat Segera" || findsurat.SifatSurat == "Penting")
+                {
+                    //sifat = "Segera";
+                    if(tipekantorid == 1)
+                    {
+                        segera = true;
+                    }
+                }
+                html += $@"<tr>
+                              <td style = 'text-align:center;border: 1px solid #363636;font-size: 8pt;'>{nomor.ToString()}</td>
+                              <td style = 'text-align:left;border: 1px solid #363636;font-size: 8pt;'>{findsurat.PengirimSurat}</td>
+                              <td style = 'text-align:left;border: 1px solid #363636;font-size: 8pt;'>{findsurat.Perihal}<br>{(findsurat.TipeSurat == "Surat Undangan" ? $"Tgl Undangan {findsurat.InfoTanggalUndangan}" : "")}</td>
+                              <td style = 'text-align:center;border: 1px solid #363636;font-size: 8pt;'>{(string.IsNullOrEmpty(findsurat.NomorSurat) ? null : findsurat.NomorSurat + "<br>")}{TglSuratRaw.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"))}</td>
+                              <td style = 'text-align:center;border: 1px solid #363636;font-size: 8pt;'>{sifat}</td>
+                              <td style = 'text-align:center;border: 1px solid #363636;font-size: 8pt;'>{redaksi}</td>
+                              <td style = 'text-align:center;border: 1px solid #363636;font-size: 8pt;'>{findsurat.KeteranganSurat}</td>
+                           </tr>
+                    ";
+
+                nomor++;
+
+            }
+            html += "</tbody></table>";
+
+            foreach (IElement element in HtmlConverter.ConvertToElements(html))
+            {
+                _cell = new Cell().Add((IBlockElement)element);
+                _cell.SetMarginBottom(0).SetBorder(Border.NO_BORDER);
+                _table.AddCell(_cell);
+            }
+
+
+
+            _cell = new Cell().Add(new Paragraph("")).SetBorder(Border.NO_BORDER);
+            _cell.SetPaddingBottom(10f);
+            _table.AddCell(_cell);
+
+            //Kolom Penandatangan
+
+            var penandatangan = dataMasterModel.GetPegawaiByProfileId(profileTtd)[0];
+            string nama;
+            nama = profileTtd == "H2081000" ? penandatangan.Nama : penandatangan.NamaLengkap;
+            string nip = penandatangan.PegawaiId;
+
+            tabledalem = new Table(new float[] { 250, 273 }).UseAllAvailableWidth();
+            celldalem = new Cell(10, 1).Add(new Paragraph("").AddStyle(styledalem).SetMultipliedLeading(1.0f)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+
+
+            string namajabatan;
+            namajabatan = mdl.GetNamaJabatan(profileTtd);
+
+
+            celldalem = new Cell(1, 1).Add(new Paragraph(namajabatan).AddStyle(styledalem).SetMultipliedLeading(1.0f).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+
+            var ttdloc = "dwqd1213edwq1";
+
+            celldalem = new Cell(1, 1).Add(new Paragraph(ttdloc).AddStyle(styledalem).SetMultipliedLeading(1.0f).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER).SetFontColor(ColorConstants.WHITE);
+
+            tabledalem.AddCell(celldalem);
+
+            celldalem = new Cell(1, 1).Add(new Paragraph(nama).AddStyle(styledalem).SetMultipliedLeading(1.0f).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER);
+            tabledalem.AddCell(celldalem);
+            if (nip.Length > 12)
+            {
+                celldalem = new Cell(1, 1).Add(new Paragraph("NIP " + nip).AddStyle(styledalem).SetMultipliedLeading(1.0f).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER);
+                tabledalem.AddCell(celldalem);
+            }
+
+            _cell = new Cell(1, 1).Add(tabledalem).SetBorder(Border.NO_BORDER);
+            _table.AddCell(_cell);
+
+
+            doc.Add(_table);
+
+            doc.Close();
+            pdfDocument.Close();
+            pw.Close();
+
+            if (segera)
+            {
+
+                byte[] byteArray = CapSifat(ms.ToArray(), fontBokos);
+
+                MemoryStream mss = new MemoryStream();
+
+                mss.Write(byteArray, 0, byteArray.Length);
+                mss.Position = 0;
+
+                return mss;
+            } else
+            {
+                MemoryStream mss = new MemoryStream();
+
+                mss.Write(ms.ToArray(), 0, ms.ToArray().Length);
+                mss.Position = 0;
+
+                return mss;
+            }           
+        }
+
+        internal byte[] CapSifat(byte[] byteArray, PdfFont fontBokos)
+        {
+
+
+            IRandomAccessSource source = new RandomAccessSourceFactory().CreateSource(byteArray);
+            MemoryStream baos = new MemoryStream();
+            var reader = new PdfReader(source, new ReaderProperties());
+
+            var writer = new PdfWriter(baos);
+
+            PdfDocument pdfDoc = new PdfDocument(reader, writer);
+            PdfDocumentInfo info = pdfDoc.GetDocumentInfo();
+            Document doc2 = new Document(pdfDoc);
+            int numberOfPages = pdfDoc.GetNumberOfPages();
+            var wi = pdfDoc.GetPage(1).GetPageSize().GetWidth();
+            var hi = pdfDoc.GetPage(1).GetPageSize().GetHeight();
+            for (int page = 1; page == 1; page++)
+            {           
+                if (page ==1)
+                {
+                    PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc, page);
+                    Rectangle rectangle = new Rectangle(450, hi - 65, 570, 30);
+                    Canvas can = new Canvas(pdfCanvas, rectangle);
+                    Table t = new Table(1).SetBorder(Border.NO_BORDER);
+
+                    string cont = "<p style='font-size:18pt;border: 5px solid red;padding:5px;color:red;font-weight:bold'>SEGERA</p>";
+                    foreach (IElement element in HtmlConverter.ConvertToElements(cont))
+                    {
+                        Cell c = new Cell().SetBorder(Border.NO_BORDER).Add((IBlockElement)element);
+                        t.AddCell(c);
+                    }
+                    can.Add(t);
+                    can.Close();
+                }
+
+            }
+
+            writer.SetCloseStream(false);
+            doc2.Close();
+
+            byte[] byteResult = baos.ToArray();
+
+            return byteResult;
+        }
+    }
+}

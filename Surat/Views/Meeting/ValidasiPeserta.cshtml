@@ -1,0 +1,52 @@
+﻿<link href='@Url.Content("~/resources/css/qrCodeScanner.css")' rel="stylesheet" />
+
+<script src='@Url.Content("~/resources/js/qr_packed.js")'></script>
+
+<div class="row" id="dynamic_content" style="background: black;min-height: 700px;">
+    <div id="container" style="background: black;min-height: 700px;">
+        <h4>
+            Validasi Peserta
+        </h4><hr />
+        <div class="form-group col-md-12 col-sm-12 col-xs-12" id="qr-manual" style="display:none;">
+            <p>Kode Peserta</p>
+            <div class='input-group' style="max-width: 240px; margin: 0 auto;">
+                @Html.TextBox("txtKode", "", new { @class = "form-control", @maxlength = "20" })
+                <span class="input-group-addon" onclick="doValidasi()" style="cursor:pointer;">
+                    <span class="fa fa-sign-in"></span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <a id="btn-scan-qr">
+                <p>Klik Untuk Membuka Pembaca Kode Peserta</p>
+                <img src="@Url.Content("~/resources/images/qr_icon.svg")" title="Klik Untuk Membuka Pembaca Kode Peserta"><br />
+            </a>
+
+            <canvas hidden="" id="qr-canvas"></canvas><br />
+            <button class="btn btn-default" onclick="closeReader()" style="display:none;margin-bottom:15px;" id="btnClose"><i class="fa fa-arrow-left"></i>&nbsp;Kembali</button>
+            <p id="pGeoLocation" style="display:none;">Anda melakukan presensi dari lokasi ini :</p>
+
+        </div>
+    </div>
+    <div id="qr-result" class="col-md-12 col-sm-12 col-xs-12" hidden>
+        <b>Latitude:</b><span id="latData"></span><br />
+        <b>Longitude:</b><span id="lonData"></span><br />
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/qrCodeScanner.js")'></script>
+<script type="text/javascript">
+    var CekPesertaUrl = '@Url.Action("ValidasiPeserta", "Meeting")';
+    var rapatonlineid = "";
+    var tipe = "validasi";
+
+    $(document).ready(function () {
+        getPosition();
+    });
+
+    $("#txtKodeRapat").keyup(function (event) {
+        if (event.keyCode == 13) {
+            doValidasi();
+        }
+    });
+</script>

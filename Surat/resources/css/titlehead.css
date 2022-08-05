@@ -1,0 +1,19 @@
+﻿@media (max-width: 1200px) {
+	.x_title h2 {
+		width: 100%;
+	}
+}
+
+.x_title h2 {
+	float: none;
+	text-align: center !important;
+}
+
+table > thead > tr > th {
+	text-align: center;
+}
+@media only screen and (max-width: 800px) {
+    #flip-scroll th {
+        border-top: 1px solid #ddd;
+    }
+}

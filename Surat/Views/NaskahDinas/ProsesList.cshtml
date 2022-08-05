@@ -1,0 +1,308 @@
+﻿@model Surat.Models.Entities.CariDraftSurat
+
+<style>
+    #TableList_filter, #TableList_info, #TableList2_filter, #TableList2_info, #TableList3_filter, #TableList3_info {
+        display: none
+    }
+
+    #TableList_wrapper, #TableList2_wrapper, #TableList3_wrapper {
+        overflow: hidden
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Konsep dalam Proses
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariSurat" method="post">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @id = "metadata", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <ul id="UlTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" @if (ViewBag.Persetujuan.Count > 0) { <text> class="active" </text> }><a href="#PersetujuanKonsep" aria-controls="PersetujuanKonsep" role="tab" data-toggle="tab">Persetujuan Konsep @if (ViewBag.Persetujuan.Count > 0) { <span class="badge badge-pill badge-danger" style="background-color:red">@ViewBag.Persetujuan.Count</span> }</a></li>
+        <li role="presentation" @if (ViewBag.Persetujuan.Count == 0 && ViewBag.Disetujui.Count > 0) { <text> class="active" </text> }><a href="#KonsepSetuju" aria-controls="KonsepSetuju" role="tab" data-toggle="tab">Konsep Disetujui</a></li>
+        <li role="presentation" @if (ViewBag.Persetujuan.Count == 0 && ViewBag.Disetujui.Count == 0) { <text> class="active" </text> }><a href="#KonsepProses" aria-controls="KonsepProses" role="tab" data-toggle="tab">Konsep Dalam Proses</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane @if (ViewBag.Persetujuan.Count > 0) { <text> active </text> }" id="PersetujuanKonsep">
+            <div class="table-responsive">
+                <table id="TableList" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Tipe Surat</th>
+                            <th style="text-align:center; width: 8%;">Sifat Surat</th>
+                            <th style="text-align:center; min-width:40%">Perihal</th>
+                            <th style="text-align:center; width: 22%;">Status</th>
+                            <th style="text-align:center; width: 80px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{var countPersetujuan = 0;}
+                        @foreach (var item in ViewBag.Persetujuan)
+                        {
+                            <tr @(item.Open == 0 ? "style=font-weight:bold" : "")>
+                                <td style="text-align:center;">@(countPersetujuan += 1)</td>
+                                <td>@item.TipeSurat</td>
+                                <td>@item.SifatSurat</td>
+                                <td>
+                                    @Html.Raw(item.Perihal)
+                                </td>
+                                <td>
+                                    @item.Keterangan
+                                    @if (item.Notifikasi == "1" || item.PerjalananKonsep == "REVISI")
+                                    {<span class="label label-danger pull-right">Revisi</span>}
+                                </td>
+                                <td>
+                                    @{string notif = ""; }
+                                    @if (item.Notifikasi == "1") { notif = "HapusNotif"; }
+                                    <i class="fa fa-eye" style="cursor: pointer;" title="Lihat Konsep" onclick="Tampilan('@item.DraftCode')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <i class="fa fa-external-link blue" style="cursor: pointer;" title="Menunggu Persetujuan" onclick="Detail('@item.DraftCode','@notif')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    @if (item.Keterangan == "Pengolah Surat")
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Pengajuan" onclick="hapusDraft('@item.DraftCode')"></i>
+                                    }
+                                    else
+                                    {
+                                        <i>&nbsp;&nbsp;&nbsp;&nbsp;</i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane @if (ViewBag.Persetujuan.Count == 0 && ViewBag.Disetujui.Count > 0) { <text> active </text> }" id="KonsepSetuju">
+            <div class="table-responsive">
+                <table id="TableList2" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Tipe Surat</th>
+                            <th style="text-align:center; width: 8%;">Sifat Surat</th>
+                            <th style="text-align:center; min-width:40%">Perihal</th>
+                            <th style="text-align:center; width: 22%;">Status</th>
+                            <th style="text-align:center; width: 80px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{var countDisetujui = 0;}
+                        @foreach (var item in ViewBag.Disetujui)
+                        {
+                            <tr @(item.Open == 0 ? "style=font-weight:bold" : "")>
+                                <td style="text-align:center;">@(countDisetujui += 1)</td>
+                                <td>@item.TipeSurat</td>
+                                <td>@item.SifatSurat</td>
+                                <td>
+                                    @Html.Raw(item.Perihal)
+                                </td>
+                                <td>
+                                    @item.Keterangan
+                                    @if (item.Notifikasi == "1" || item.PerjalananKonsep == "REVISI")
+                                    {<span class="label label-danger pull-right">Revisi</span>}
+                                </td>
+                                <td>
+                                    @{string notif = ""; }
+                                    @if (item.Notifikasi == "1") { notif = "HapusNotif"; }
+                                    <i class="fa fa-eye" style="cursor: pointer;" title="Lihat Konsep" onclick="Tampilan('@item.DraftCode')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <i class="fa fa-external-link blue" style="cursor: pointer;" title="Menunggu Persetujuan" onclick="Detail('@item.DraftCode','@notif')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    @if (item.Keterangan == "Pengolah Surat")
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Pengajuan" onclick="hapusDraft('@item.DraftCode')"></i>
+                                    }
+                                    else
+                                    {
+                                        <i>&nbsp;&nbsp;&nbsp;&nbsp;</i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane @if (ViewBag.Persetujuan.Count == 0 && ViewBag.Disetujui.Count == 0) { <text> active </text> }" id="KonsepProses">
+            <div class="table-responsive">
+                <table id="TableList3" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Tipe Surat</th>
+                            <th style="text-align:center; width: 8%;">Sifat Surat</th>
+                            <th style="text-align:center; min-width:40%">Perihal</th>
+                            <th style="text-align:center; width: 22%;">Status</th>
+                            <th style="text-align:center; width: 80px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{var countPengolah = 0;}
+                        @foreach (var item in ViewBag.Pengolah)
+                        {
+                            <tr @(item.Open == 0 ? "style=font-weight:bold" : "")>
+                                <td style="text-align:center;">@(countPengolah += 1)</td>
+                                <td>@item.TipeSurat</td>
+                                <td>@item.SifatSurat</td>
+                                <td>
+                                    @Html.Raw(item.Perihal)
+                                </td>
+                                <td>
+                                    @item.Keterangan
+                                    @if (item.Notifikasi == "1" || item.PerjalananKonsep == "REVISI")
+                                    {<span class="label label-danger pull-right">Revisi</span>}
+                                </td>
+                                <td>
+                                    @{string notif = ""; }
+                                    @if (item.Notifikasi == "1") { notif = "HapusNotif"; }
+                                    <i class="fa fa-eye" style="cursor: pointer;" title="Lihat Konsep" onclick="Tampilan('@item.DraftCode')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <i class="fa fa-external-link blue" style="cursor: pointer;" title="Menunggu Persetujuan" onclick="Detail('@item.DraftCode','@notif')"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    @if (item.Keterangan == "Pengolah Surat")
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Pengajuan" onclick="hapusDraft('@item.DraftCode')"></i>
+                                    }
+                                    else
+                                    {
+                                        <i>&nbsp;&nbsp;&nbsp;&nbsp;</i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalCetak'></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#TableList").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $("#TableList2").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $("#TableList3").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $('#metadata').on('keyup', function () {
+        var table = $('#TableList').DataTable();
+        table.search(this.value).draw();
+    });
+    var Tampilan = function (id,tp) {
+        if (id)
+        {
+            var objurl = '@Url.Action("JoinNdLampiran", "NaskahDinas")?draftcode=' + String(id);
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalCetak').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    };
+
+    var Detail = function (id,notif) {
+        if (notif == "HapusNotif") {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("HapusNotif", "NaskahDinas")?draftcode=' + id,
+                success: function (data) {
+                     window.location.href = '@Url.Action("KoordinasiDraft", "NaskahDinas")?id=' + id
+                }
+            });
+        }
+        else {
+            window.location.href = '@Url.Action("KoordinasiDraft", "NaskahDinas")?id=' + id
+        }
+    }
+
+    var hapusDraft = function (id) {
+        if (id !== null && id !== '') {
+            swal({
+                title: "Konfirmasi Penghapusan Dokumen yang Sedang di Proses",
+                text: "Kode Konsep : " + id + "\nHarap masukkan alasan",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                inputPlaceholder: "Alasan",
+                showLoaderOnConfirm: true
+            },
+                function (inputValue) {
+                    if (inputValue === false) return false;
+                    var frm = {
+                        id: id,
+                        alasan: inputValue
+                    };
+                    $.ajax({
+                        url: '@Url.Action("HapusDraft", "Surat")',
+                        type: "POST",
+                        data: frm,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data && data.Status) {
+                                swal("Informasi", data.Pesan, "success")
+                                location.reload();
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                    });
+                });
+        } else {
+            swal("Peringatan", "File tidak ditemukan", "warning")
+        }
+    }
+
+    $(document).ready(function () {
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+    });
+</script>

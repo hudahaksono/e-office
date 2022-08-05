@@ -1,0 +1,33 @@
+﻿@model Dictionary<int, Surat.Models.Entities.LampiranPengaduan>
+
+@{
+    var niplogin = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+    var isProfileTataUsaha = ViewBag.IsProfileTataUsaha;
+}
+
+@foreach (var lst in Model)
+{
+    <li>
+        <div style="font-family: 'Varela Round', sans-serif;">
+            <a style="color: #1abb9c;" href="#" onclick="BukaFileLampiran('@lst.Value.LampiranPengaduanId','@lst.Value.NamaFile','@lst.Value.UnitKerjaId');">&nbsp;&nbsp;@lst.Value.NamaFile</a>
+        </div>
+        <div style="font-family: 'Varela Round', sans-serif;">
+            (Diupload oleh:&nbsp;&nbsp;@lst.Value.NamaPegawai&nbsp;&nbsp;)
+        </div>
+        @if (@niplogin == @lst.Value.Nip)
+        {
+            <div class="links" style="padding-left:10px;" id="DivHapusLampiran">
+                <a href="#" style="color: #dd6136; font-size:smaller;" onclick="HapusFileLampiran('@lst.Value.LampiranPengaduanId', '@lst.Value.NamaFile');">Hapus</a>
+            </div>
+        }
+        else
+        {
+            if (@isProfileTataUsaha == "1")
+            {
+                <div class="links" style="padding-left:10px;" id="DivHapusLampiran">
+                    <a href="#" style="color: #dd6136; font-size:smaller;" onclick="HapusFileLampiran('@lst.Value.LampiranPengaduanId', '@lst.Value.NamaFile', '@lst.Value.Nip');">Hapus</a>
+                </div>
+            }
+        }
+    </li>
+}

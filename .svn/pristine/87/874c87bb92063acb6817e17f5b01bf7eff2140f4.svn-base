@@ -1,0 +1,688 @@
+﻿@model Surat.Models.Entities.FindUserLogin
+@{
+    var lstnull = new List<SelectListItem>();
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style type="text/css">
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(46px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 24px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .swal-wide {
+        width: 800px !important;
+    }
+
+    .start {
+        filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+        filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        filter: gray; /* IE6-9 */
+        -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
+
+        .start:hover {
+            filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+            filter: grayscale(0%);
+            -moz-filter: grayscale(0%);
+            -ms-filter: grayscale(0%);
+            -o-filter: grayscale(0%);
+            filter: none; /* IE6-9 */
+            zoom: 1; /* needed to trigger "hasLayout" in IE if no width or height is set */
+            -webkit-filter: grayscale(0%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+
+    .textright {
+        text-align: right;
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Akses Profile KKP
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    <div class="form-group pull-right top_search" style="width:250px">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="nip" placeholder="Masukkan NIP/NIK" data-html="true" data-toggle="tooltip" data-placement="left" title="Masukkan NIP/NIK" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btnCari" onclick="cariData()"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        <div id="tab-content" class="tab-content">
+                            <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="cariakun-tab">
+                                <div id="Starting" class="text-center" style="margin-top:30px;margin-bottom:30px;">
+                                    <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG" class="start">
+                                </div>
+                                <div id="UserDetail">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PEGAWAI</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">NIK</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("nik", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("namalengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Email</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("email", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">No.HP</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("nomorhp", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Tipe</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("tipeakun", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama Pengguna</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("namapengguna", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PROFILE KKP</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="padding-right:10px;">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Satuan Kerja</label>
+                                                <div class="col-md-10 col-sm-10 col-xs-12">
+                                                    @Html.TextBox("satker", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                                </div>
+                                            </div>
+                                            <table id="UserProfiles" class="table table-striped col-md-12" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Profile</th>
+                                                        <th style="width: 60px;">&nbsp;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divProfile">
+                                                <span class="btn btn-primary" id="btnTambahProfile" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-key" style="font-size:20pt"></span><br />Tambah Profile
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='UserLoginEditorModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Tambah Jabatan</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="form-horizontal form-label-left">
+                                @Html.HiddenFor(m => m.PegawaiId)
+                                @Html.HiddenFor(m => m.UserId)
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Jabatan</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.DropDownListFor(model => model.ProfileId, lstnull, "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbEditProfiles" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">SK</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <div class="input-group" style="margin-bottom:0px">
+                                            @Html.TextBox("FileName", "", new { @class = "form-control", id = "namafile", type = "text", @readonly = "readonly", @onclick = "$('#btnUploadFile').click();" })
+                                            <div class="input-group-btn">
+                                                <label class="btn btn-success btn-file">
+                                                    <i class="fa fa-search"></i><input class="" type="file" name="filename" id="btnUploadFile" accept=".pdf" hidden style="width:70px;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var dfFileDokumen = null;
+                                    $("#btnUploadFile").on("change", function (e) {
+                                        var input = $(this),
+                                            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+                                        if (numFiles > 0) {
+                                            var file = dfFileDokumen = input.get(0).files[0];
+
+                                            if (file.size > 20000 * 1024) {
+                                                dfFileDokumen = null;
+                                                swal("Peringatan", "File maksimum 20Mb", "warning")
+                                                $("#namafile").val("");
+                                                return false;
+                                            }
+                                            else {
+                                                if (dfFileDokumen == null) {
+                                                    swal("Peringatan", "File tidak ditemukan", "warning")
+                                                    $("#namafile").val("");
+                                                    return false;
+                                                }
+                                                var namafile = dfFileDokumen.name;
+                                                $("#namafile").val(namafile);
+                                                var filedokumen = dfFileDokumen;
+                                                var tipefile = filedokumen.type;
+
+                                                if (tipefile == 'application/pdf') {
+
+                                                } else {
+                                                    dfFileDokumen = null;
+                                                    swal("Peringatan", "File bukan PDF", "warning")
+                                                    $("#namafile").val("");
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Bisa Booking</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("isBooking", false)
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">PLT/H</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("isPLT", false, new { @onchange = "chkPLT()" })
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="jbtValidSampai">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Hingga</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12" style="max-width:200px;">
+                                        <div class='input-group date' style="margin-bottom: 0px;">
+                                            @Html.TextBox("JabatanValidSampai", "", new { @class = "form-control" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="ln_solid"></div>*@
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-4">
+                                        <button type="button" class="btn btn-success" id="btnsimpandataprofile">SIMPAN</button>
+                                        <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myDocContent'></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    var tipeuser = '';
+
+    var chkPLT = function () {
+        var chk = $("#isPLT").prop('checked');
+        $("div#jbtValidSampai").hide();
+        if (chk) {
+            $('#JabatanValidSampai').val("");
+            $("div#jbtValidSampai").show();
+        }
+    }
+
+    $(document).ready(function () {
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $('#myModalAksesKKP').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '80%',
+                height: '98%',
+                'max-height': '98%'
+            });
+        });
+
+        $('.select2_single').select2({ width: 'resolve' });
+        $('#JabatanValidSampai').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+        });
+        $("div#jbtValidSampai").hide();
+
+        $("div#Starting").show();
+        $("div#UserDetail").hide();
+        createPagingUserProfiles();
+        $('#nip').tooltip({ trigger: 'manual' }).tooltip('show');
+    });
+
+    $('#nip').keyup(function (e) {
+        if (e.keyCode == 13) {
+            cariData();
+        } else {
+            if ($(this).val() != "") {
+                $(this).tooltip('hide');
+            } else {
+                $(this).tooltip('show');
+            }
+        }
+    });
+
+    function cariData() {
+        var val = $('#nip').val().trim().replace(/\s/g, '');
+        $('#nip').val(val);
+        loadIsi(val);
+    }
+
+    var dtableUserProfiles;
+    var createPagingUserProfiles = function () {
+        dtableUserProfiles = $('#UserProfiles').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 5,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarProfileKKP", "Admin")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmUserProfiles').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "nip", value: $('#PegawaiId').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "NamaProfile" },
+                {
+                    "data": null,
+                    "className": "textright",
+                    "width": "60px",
+                    render: function (data, type, row) {
+                        var link = "";
+                        if (data.NomorSK != null && data.NomorSK != "") link = '<i class="fa fa-eye" style="cursor: pointer;" title="Lihat SK Pengangkatan"></i>&nbsp;&nbsp;&nbsp;';
+                        return link + '<d class="fa fa-trash" style="cursor: pointer;" title="Hapus Profile"></d>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#UserProfiles tbody').delegate('tr d', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableUserProfiles.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus",
+            text: "Yakin Anda mau menghapus Profile : \n" + data.NamaProfile.replace("<br>","\n") + " ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                var frm = new FormData();
+                frm.append("id", data.ProfilePegawaiId);
+                $.ajax({
+                    url: '@Url.Action("HapusProfileKKP", "Admin")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableUserProfiles.ajax.reload(null, true);
+                            swal("Informasi", data.Pesan, "success");
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            }
+        });
+    });
+
+    $('#UserProfiles tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var options = { "backdrop": "static", keyboard: true };
+        var data = dtableUserProfiles.row($(this).closest('tr')).data();
+        var id = data.ProfilePegawaiId;
+        if (data.ProfilePegawaiId !== null && data.ProfilePegawaiId !== '') {
+            showloading("Menyiapkan Dokumen");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("cekDokumen", "Admin")',
+                data: { id: id, tip: "AksesKKP", x: "ProfileKKP" },
+                success: function (data) {
+                    if (data.Status === false) {
+                        swal("Peringatan", data.Pesan, "warning")
+                    }
+                    else {
+                        var objurl = '@Url.Action("getDokumen", "Admin")?id=' + id + '&tip=AksesKKP&x=ProfileKKP';
+                        objpdf = objurl;
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("DocViewer", "Konten")',
+                            success: function (data) {
+                                $('#myDocContent').html(data);
+                                $('#myModalDocViewer').modal(options);
+                                $('#myModalDocViewer').modal('show');
+                                closeloading();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                            }
+                        });
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                }
+            });
+        } else {
+            swal("Peringatan", "File tidak ditemukan", "warning")
+        }
+    });
+
+    function loadIsi(nip) {
+        $("div#Starting").show();
+        $("div#UserDetail").hide();
+        if (nip != "") {
+            showloading("Mencari Data Akun");
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetPegawaiDetail", "Admin")',
+                data: { pegawaiid: nip },
+                success: function (rst, textStatus, XMLHttpRequest) {
+                    if (rst.PesanError != "" && rst.PesanError != null) {
+                        $('#PegawaiId').val("");
+                        $('#nip').val("");
+                        $('#nip').tooltip('show');
+                        swal("Peringatan", rst.PesanError, "warning");
+                    } else {
+                        $('#UserId').val(rst.UserId);
+                        $('#PegawaiId').val(rst.PegawaiId);
+                        $('#nik').val(rst.NIK);
+                        $('#namalengkap').val(rst.Nama);
+                        $('#email').val(rst.Email);
+                        $('#nomorhp').val(rst.NomorHP);
+                        $('#namapengguna').val(rst.Username);
+                        $('#tipeakun').val(rst.TipeAkun);
+                        $('#satker').val(rst.Satker);
+                        $("div#Starting").hide();
+                        $("div#UserDetail").show();
+                        dtableUserProfiles.ajax.reload(null, true);
+                        closeloading();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                }
+            });
+        }
+    }
+
+    $("#btnTambahProfile").click(function (e) {
+        var pid = $('#PegawaiId').val();
+        var tip = $('#tipeakun').val();
+        if (pid != "" && pid != null) {
+            showloading("Menyiapkan List Profile");
+            $('#cmbEditProfiles').html("");
+            $.ajax({
+                url: '@Url.Action("GetListProfileKKP", "Admin")',
+                type: "GET",
+                dataType: "JSON",
+                data: { pid: pid, tip: tip },
+                success: function (data) {
+                    $('#cmbEditProfiles').append($('<option disabled></option>').val("").html("Pilih Profile Jabatan"));
+                    $.each(data, function (i, data) {
+                        $('#cmbEditProfiles').append(
+                            $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                    });
+                    $('#cmbEditProfiles').val("").trigger('change');
+                    $('#UserLoginEditorModal').modal('show');
+                    closeloading();
+                }
+            });
+            $("#isPLT").prop('checked', false);
+            $("#isBooking").prop('checked', false);
+            $("div#jbtValidSampai").hide();
+            $('#JabatanValidSampai').val("");
+            dfFileDokumen = null;
+            $("#namafile").val("");
+        } else {
+            swal("Peringatan", "Data Pegawai Belum Dipilih", "warning");
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnsimpandataprofile").click(function (e) {
+        var vcheck_nip = $('#PegawaiId').val();
+        var vcheck_profile = $('#cmbEditProfiles').val();
+
+        if (vcheck_nip == '' ||
+            vcheck_profile == '' || vcheck_profile == null) {
+            swal("Peringatan", "Data input wajib belum Anda masukkan", "warning");
+            return false;
+        }
+        var frmdata = new FormData();
+        if (dfFileDokumen !== null) {
+            var namafile = dfFileDokumen.name;
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+            if (fileExt !== null && fileExt !== '') {
+                if (fileExt != ".pdf") {
+                    dfFileDokumen = null;
+                    $("#namafile").val("");
+                    swal("Peringatan", "File harus pdf", "warning");
+                    return false;
+                }
+                frmdata.append("NamaFile", namafile);
+                frmdata.append("Ekstensi", fileExt);
+                frmdata.append("file", dfFileDokumen);
+            }
+            else {
+                dfFileDokumen = null;
+                $("#namafile").val("");
+                swal("Peringatan", "File tidak diketemukan", "warning");
+                return false;
+            }
+        }
+        else {
+            swal("Peringatan", "File wajib dipilih", "warning");
+            return false;
+        }
+        var pTitle = "Tambah Profile PLT/PLH";
+        if (!$("#isPLT").is(":checked")) {
+            pTitle = "Tambah Profile Definitif"
+        }
+        swal({
+            title: pTitle,
+            text: "sebagai : " + $("#cmbEditProfiles option:selected").text(),
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    frmdata.append("nip", vcheck_nip);
+                    frmdata.append("unit", $('#cmbEditUnitKerja').val());
+                    frmdata.append("pid", vcheck_profile);
+                    frmdata.append("plt", $("#isPLT").is(":checked"));
+                    frmdata.append("bbk", $("#isBooking").is(":checked"));
+                    frmdata.append("jbt", $("#cmbEditProfiles option:selected").text());
+                    frmdata.append("nap", $('#namalengkap').val());
+                    frmdata.append("vsp", $('#JabatanValidSampai').val());
+                    frmdata.append("tip", $('#tipeakun').val());
+                    frmdata.append("uid", $('#UserId').val());
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("AddProfileKKP", "Admin")',
+                        data: frmdata,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                loadIsi($('#PegawaiId').val());
+                                $('#UserLoginEditorModal').modal('hide');
+                                swal("Informasi", data.Pesan, "success");
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    });
+</script>

@@ -1,0 +1,161 @@
+﻿@model Surat.Models.DataToken
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Aplikasi Persuratan - Konfirmasi Kode Unik</title>
+    <link rel="shortcut icon" href='@Url.Content("~/resources/images/logo.png")' type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+
+    <link rel="stylesheet" href='@Url.Content("~/resources/css/login.css")' media="screen">
+    <script src='@Url.Content("~/resources/js/jquery.min.js")'></script>
+    <link href='@Url.Content("~/resources/sweetalert/sweetalert.css")' rel="stylesheet" />
+    <script src='@Url.Content("~/resources/sweetalert/sweetalert.min.js")'></script>
+    <style>
+        .field-validation-error {
+            color: #ff0000;
+        }
+
+        .field-validation-valid {
+            display: none;
+        }
+
+        .input-validation-error {
+            border: 1px solid #ff0000 !important;
+            background-color: #ffeeee !important;
+        }
+
+        .validation-summary-errors {
+            font-weight: bold !important;
+            color: #ff0000 !important;
+        }
+
+        .validation-summary-valid {
+            display: none;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 34px;
+        }
+
+        body {
+            background: url(@Url.Content("~/resources/images/3.jpg"));
+            background-color: #515151;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header bordered">
+            <h4 style="margin-top:0;margin-bottom:0">2-Step Verification</h4>
+            <span id="demo"></span>
+            <div id="divHabis">
+                <p style="color:red">Waktu Konfirmasi Telah Habis</p>
+            </div>
+            <div id="divBerhasil">
+                <p style="color:blue">IP Berhasil Didaftarkan</p>
+            </div>
+            <div id="divInput">
+                @if (Model.Status)
+                {
+                    <p>Harap Masukkan Kode Unik yang telah dikirimkan ke email anda<br />@Model.Email</p>
+                    <span id="demo"></span>
+                    @Html.HiddenFor(m => m.UserId)
+                    @Html.HiddenFor(m => m.Email)
+                    @Html.HiddenFor(m => m.Tipe)
+                    @Html.HiddenFor(m => m.PegawaiId)
+                    @Html.HiddenFor(m => m.PublicIp)
+                    @Html.HiddenFor(m => m.Durasi)
+                    @Html.HiddenFor(m => m.NamaPegawai)
+                    <div class="form-group position-relative mb-3">
+                        @Html.TextBoxFor(m => m.iToken, new { @class = "form-control ", @placeholder = "Kode Unik", @autocomplete = "off", @maxlength = "6" })
+                    </div>
+                    <input type="button" id="btn-login" class="btn btn-primary" onclick="KirimToken()" value="Kirim">
+
+                    <script>
+                        var countDownDate = new Date().getTime() + (1000 * @Model.Durasi);
+                        var x = setInterval(function () {
+                            var now = new Date().getTime();
+                            var distance = countDownDate - now;
+
+                            var hours = Math.floor((distance % (1000 * 24 * 60 * 60)) / (1000 * 60 * 60));
+                            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                            document.getElementById("demo").innerHTML = "Batas Waktu (" + (hours < 10 ? "0" : "") + hours + ":" +(minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + ")";
+
+                            if (distance < 0) {
+                                clearInterval(x);
+                                $('#divInput').hide();
+                                $('#divBerhasil').hide();
+                                $('#divHabis').show();
+                            }
+                        }, 1000);
+
+                        function KirimToken() {
+                            swal({
+                                title: "Harap Tunggu...",
+                                text: "Mengecek OTP",
+                                imageUrl: "@Url.Content("~/resources/images/proses.gif")",
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false
+                            });
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("KirimToken", "Account")',
+                                data: {
+                                    id: $('#UserId').val(),
+                                    ip: $('#PublicIp').val(),
+                                    it: $('#iToken').val()
+                                },
+                                success: function (data) {
+                                    if (data.Status === false) {
+                                        swal("Peringatan", data.Pesan, "warning")
+                                    } else {
+                                        $('#divInput').hide();
+                                        $('#divHabis').hide();
+                                        $('#divBerhasil').show();
+                                        swal.close();
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                }
+                            });
+                        }
+                    </script>
+                }
+                else
+                {
+                    <p style="color:red">@Model.Pesan</p>
+                }
+            </div>
+
+            <script>
+                jQuery(document).ready(function () {
+                    var alertmess = "@Model.Pesan";
+                    if (alertmess !== null && alertmess !== '') {
+                        swal("Peringatan", alertmess, "warning");
+                    }
+                    $('#divInput').show();
+                    $('#divBerhasil').hide();
+                    $('#divHabis').hide();
+                });
+            </script>
+        </div>
+        <p class="copyright">
+            © 2021 Kementerian Agraria Dan Tata Ruang / Badan Pertanahan Nasional
+        </p>
+    </div>
+</body>
+</html>

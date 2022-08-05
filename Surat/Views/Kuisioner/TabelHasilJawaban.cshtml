@@ -1,0 +1,251 @@
+﻿@*@model IEnumerable<Surat.Models.Entities.KuisionerJawaban>*@
+@model Surat.Models.Entities.KuisionerJawaban
+
+
+<style>
+    #TableList_filter, #TableList_info {
+        display: none
+    }
+
+    #TableList_wrapper {
+        overflow: hidden;
+    }
+</style>
+
+
+<!-- Nav tabs -->
+<ul id="UlTab" class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active "><a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Jawaban Kuisioner 1</a></li>
+    <li role="presentation"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Jawaban Kuisioner 2</a></li>
+</ul>
+
+<div class="tab-content">
+    <!--Kotak Masuk dari Loket-->
+    <div role="tabpanel" class="tab-pane active" id="tab1" style="background-color:white; padding:10px">
+
+        @*<button id="btnReset" type="button" class="btn btn-warning">Reset</button>*@
+        <button id="btnReset1" type="button" class="btn btn-warning">Reset </button>
+
+        <div class="" id="dynamic_content">
+            <div class="clearfix"></div>
+            <table id="TableList1" class="table table-striped table-bordered" style="width:100%;">
+                <thead>
+                    <tr>
+                        @*<th style="text-align:center;width:120px;vertical-align:middle"><input type="checkbox" id="select_all"></th>*@
+                        <th style="text-align:center;width:120px;vertical-align:middle">No</th>
+                        <th style="text-align: center; vertical-align: middle">Pertanyaan</th>
+                        <th style="text-align: center; vertical-align: middle">Nama Jawaban</th>
+                    </tr>
+                </thead>
+                <tbody id="listJawaban">
+                    @{ var count = 0;}
+                    @foreach (var all in Model.ListKuisionerJawaban1)
+                    {
+
+                        <tr>
+                            @*<td style="width:5%;text-align:center;vertical-align:middle"><input type="checkbox" class="jwbn_checkbox" data-emp-id="@item.Jawaban_ID"></td>*@
+                            <td style="width:5%;text-align:center;vertical-align:middle">@(count += 1)</td>
+                            <td style="width: 17%; text-align: center; vertical-align: middle">@all.Nama_Pertanyaan</td>
+                            <td style="width: 18%; text-align: center; vertical-align: middle">@all.Nama_Jawaban</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="tab2" style="padding:10px; background-color:white;">
+
+        @*<button id="btnReset" type="button" class="btn btn-warning">Reset</button>*@
+        <button id="btnReset2" type="button" class="btn btn-warning">Reset </button>
+
+        <div class="" id="dynamic_content">
+            <div class="clearfix"></div>
+            <table id="TableList2" class="table table-striped table-bordered" style="width:100%;">
+                <thead>
+                    <tr>
+                        @*<th style="text-align:center;width:120px;vertical-align:middle"><input type="checkbox" id="select_all"></th>*@
+                        <th style="text-align:center;width:120px;vertical-align:middle">No</th>
+                        <th style="text-align: center; vertical-align: middle">Pertanyaan</th>
+                        <th style="text-align: center; vertical-align: middle">Nama Jawaban</th>
+                    </tr>
+                </thead>
+                <tbody id="listJawaban">
+                    @{ var count2 = 0;}
+                    @foreach (var all in Model.ListKuisionerJawaban2)
+                    {
+
+                        <tr>
+                            @*<td style="width:5%;text-align:center;vertical-align:middle"><input type="checkbox" class="jwbn_checkbox" data-emp-id="@item.Jawaban_ID"></td>*@
+                            <td style="width:5%;text-align:center;vertical-align:middle">@(count2 += 1)</td>
+                            <td style="width: 17%; text-align: center; vertical-align: middle">@all.Nama_Pertanyaan</td>
+                            <td style="width: 18%; text-align: center; vertical-align: middle">@all.Nama_Jawaban</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+
+
+    $('#TableList1').DataTable({
+        columnDefs: [
+            { orderable: false, targets: 0 }
+        ]
+    });
+
+    $('#TableList2').DataTable({
+        columnDefs: [
+            { orderable: false, targets: 0 }
+        ]
+    });
+
+
+    @*$("#select_all").click(function () {
+        $(".jwbn_checkbox").prop("checked", this.checked);
+        $("#select_count").html($("input.jwbn_checkbox:checked").length + " Selected");
+    });
+    $("#select_all").click(function () {
+        if ($('.jwbn_checkbox:checked').length == $('.jwbn_checkbox').length) {
+            $('#select_all').prop('checked', true);
+        } else {
+            $('#select_all').prop('checked', false);
+        }
+        $("#select_count").html($("input.jwbn_checkbox:checked").length + " Selected");
+    });
+
+
+     $("#btnReset").click(function (e) {
+        var ids = "";
+        var jsonArr = [];
+         $('#listJawaban').find('tr').each(function () {
+            var row = $(this);
+            if (row.find('input[type="checkbox"]').is(':checked')) {
+                var id = row.find('input[type="checkbox"]').val();
+                jsonArr.push(id);
+                if (ids != "") { ids += "," }
+                ids += id;
+            }
+        });
+
+        if (jsonArr.length == 0) {
+            swal("Perhatian", "Tidak ada yang dipilih", "info")
+            e.preventDefault();
+            return false;
+        }
+
+
+        swal({
+            title: "Konfirmasi Reset",
+            text: "Jawaban Kuisioner akan direset",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue) {
+                    var frm = {
+                        ids: jsonArr
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("HapusTabelHasilJawaban2", "Kuisioner")',
+                        data: frm,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data && data.Status) {
+                                swal("Informasi", data.Pesan, "success")
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+     });*@
+
+     $("#btnReset1").click(function (e) {
+
+        swal({
+            title: "Konfirmasi Reset",
+            text: "Jawaban Kuisioner akan direset (status 1)",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("HapusTabelHasilJawaban1", "Kuisioner")',
+                        success: function (x) {
+                            if (x) {
+                                swal("Informasi", "Telah direset", "success")
+                                setTimeout(function () { location.reload() }, 2000);
+                            }
+                            else {
+                                swal("Peringatan", "Gagal direset", "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+     });
+
+     $("#btnReset2").click(function (e) {
+
+        swal({
+            title: "Konfirmasi Reset",
+            text: "Jawaban Kuisioner akan direset (status 2)",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("HapusTabelHasilJawaban2", "Kuisioner")',
+                        success: function (x) {
+                            if (x) {
+                                swal("Informasi", "Telah direset", "success")
+                                setTimeout(function () { location.reload() }, 2000);
+                            }
+                            else {
+                                swal("Peringatan", "Gagal direset", "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+    });
+
+</script>

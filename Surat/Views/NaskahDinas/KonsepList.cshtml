@@ -1,0 +1,691 @@
+﻿@model Surat.Models.Entities.CariDraftSurat
+@{
+    var lstTipeSurat = new List<SelectListItem>();
+    foreach (var list in ViewBag.listEditor)
+    {
+        if(list.ValueTipeSurat == "1")
+        {
+            lstTipeSurat.Add(new SelectListItem { Text = list.NamaTipeSurat.Split('|')[1], Value = list.NamaTipeSurat.Split('|')[1] });
+        }
+    }
+}
+
+
+<style>
+    #TableList_filter, #TableList_info {
+        display: none
+    }
+
+    #TableList_wrapper {
+        overflow: hidden
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="alert alert-info alert-dismissible" role="alert" style="margin-bottom:0">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        Pastikan Penandatangan dan Verifikator Memiliki Passpharase untuk Tanda Tangan Elektronik 
+    </div>
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                <button id="BtnTambahArr" type="button" class="btn btn-success" style="margin-left:0px;"><i class="fa fa-plus"></i> Buat Baru</button>
+                <button id="BtnLapor" type="button" class="btn btn-warning" style="margin-left:0px;color:red;" title="Melaporkan permasalahan yang terjadi selama mencoba menggunakan fitur Editor Naskah Dinas"><i class="fa fa-flag"></i> Lapor Masalah</button>
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariSurat" method="post">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @id = "metadata", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button id="srchButton" class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <!-- Nav tabs -->
+    <ul id="UlTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#KonsepBaru" aria-controls="KonsepBaru" role="tab" data-toggle="tab">Konsep Baru</a></li>
+        <li role="presentation"><a href="#KonsepDibuat" aria-controls="KonsepDibuat" role="tab" data-toggle="tab">Konsep Dibuat</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="KonsepBaru" style="background-color:white; padding:10px">
+            <div class="table-responsive">
+                <section id="flip-scroll">
+                    <table id="TableList" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center; width: 5%;">Nomor</th>
+                                <th style="text-align:center; width: 10%;">Tipe</th>
+                                <th style="text-align:center; width: 10%;">Sifat</th>
+                                <th style="text-align:center; width: 45%;">Perihal</th>
+                                <th style="text-align:center; width: 10%;">Tanggal Buat</th>
+                                <th style="text-align:center; width: 10%;">Tanggal Ubah</th>
+                                <th style="text-align:center; width: 10%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{var count = 0;}
+                            @foreach (var item in ViewBag.list)
+                            {
+                                <tr>
+                                    <td style="text-align:center;">@(count += 1)</td>
+                                    <td>@item.TipeSurat</td>
+                                    <td>@item.SifatSurat</td>
+                                    <td>@Html.Raw(item.Perihal)</td>
+                                    <td>@item.TanggalBuat</td>
+                                    <td>@item.TanggalUbah</td>
+                                    <td style="text-align:center">
+                                        <i class="fa fa-eye" style="cursor: pointer;color:#198C00" title="Lihat Konsep" onclick="Tampilan('@item.DraftCode','@item.TipeSurat')"></i>&nbsp;&nbsp;&nbsp;
+                                        <b class="fa fa-pencil-square-o" title="Ubah Konsep" style="cursor: pointer;color:darkslateblue" onclick="BukaDraft('@item.DraftCode','@item.TipeSurat')"></b>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;<i class="fa fa-trash" style="cursor: pointer;color:#C80303" title="Hapus Konsep" onclick="hapusDraft('@item.DraftCode')"></i>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="KonsepDibuat">
+            <table id="tableKonsepDibuat" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                <thead>
+                    <tr>
+                        <th style="text-align:center; width: 3%;">#</th>
+                        <th style="text-align:center; width: 13%;">Tipe Surat</th>
+                        <th style="text-align:center; width: 8%;">Sifat Surat</th>
+                        <th style="text-align:center;">Perihal</th>
+                        <th style="text-align:center; width: 8%;">Tanggal Buat</th>
+                        <th style="text-align:center; width: 80px;">Proses Konsep</th>
+                        <th style="text-align:center; width: 8px;">Salin</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalCetak'></div>
+        </div>
+    </div>
+</div>
+
+<div id='ModalPilih' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="closeModal()"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id="myModalLabel">Pilih Format Naskah Dinas</h2>
+                </div>
+                <div id="myModalBody">
+                    <div class="x_panel" style="border:0px;">
+                        <div class="x_content form-horizontal form-label-left">
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Jenis Naskah Dinas</label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownList("jeniskonsep", lstTipeSurat, new { @class = "form-control", @id = "tipenas" })
+                                </div>
+                            </div>
+                            <button id="openEditor" type="button" class="btn btn-info pull-right" style="margin-left:0;margin-top:10px;"><i class="fa fa-pencil"></i> Buka Editor</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Pengingat*@
+<!--<div id='ModalAlert' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id=''>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="closeModal()"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id=""><i class="fa fa-exclamation-triangle"></i> &nbsp; Perhatian</h2>
+                </div>
+                <div id="">
+                    <div class="x_panel" style="border:0px;">
+                        <div class="x_content form-horizontal">
+                            <div class="form-group text-center">
+                                <p style="text-align:center;font-size:14px">Fitur Naskah Dinas, masih dalam tahap pengembangan, apabila ada pertanyaan ataupun kendala anda dapat menghubungi Kepala Subbagian Persuratan<br /><b>(Biro Umum dan Layanan Pengadaan)</b></p>-->
+                                <!--<img style="text-align:center" width="400px" src="~/resources/images/animasi-asn.png" />-->
+                            <!--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->
+
+<div id='ModalInfoDraft' class='modal'>
+    <div class="modal-dialog" style="width: 70%">
+        <div class="modal-content" style="padding:10px">
+            <div class="modalTitle" style="font-size:1.5em;color:black; font-weight:bold;padding-bottom:5px;border-bottom: solid 1px #00006D">
+                <h2>Proses Konsep Naskah Dinas</h2>
+                <span style="position:absolute;top:10px;right:10px">
+                    <button class="btn btn-default" data-dc="blank">Lihat Konsep <i class="fa fa-arrow-right"></i></button>
+                </span>
+            </div>
+            <div class="modalContent" style="padding-top:10px">
+                <table id="prosesTable" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Jabatan</th>
+                            <th>Status</th>
+                            <th>Proses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='DetailDokumenTTE' class='modal' style="margin-top:50px;">
+    <div class="modal-dialog" style="width:80%;">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="x_panel" style="padding:20px">
+                    <div class="x_title">
+                        <h2 id="popuptitle">Status Dokumen TTE</h2>
+                        &nbsp;
+                        <button id="viewCatatan" type="button" class="btn btn-info" title="Lihat catatan kordinasi"><i class="fa fa-history"></i></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="table-responsive" style="padding-right:10px;">
+                                <form id="frmHistory"></form>
+                                <table id="myTableHistory" class="table table-striped hover" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:100px">Tanggal</th>
+                                            <th style="width:100px">NIP</th>
+                                            <th style="width:100px">Nama</th>
+                                            <th>Jabatan</th>
+                                            <th style="width:30px">Tipe</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <button id="signedButton" type="button" class="btn btn-info pull-left"> <i class="fa fa-file-pdf-o"></i> Lihat Dokumen</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='ModalSalinKonsep' class='modal'>
+    <div class="modal-dialog" style="width: 70%">
+        <div class="modal-content" style="padding:10px">
+            <div class="modalTitle" style="font-size:1.5em;color:black; font-weight:bold;padding-bottom:5px;border-bottom: solid 1px #00006D">
+                <h2>Salin Konsep Naskah Dinas</h2>
+            </div>
+            <div class="modalContent" style="padding-top:10px">
+                <table id="SalinTable" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th>Jenis</th>
+                            <th>Perihal</th>
+                            <th>Tanggal Dibuat</th>
+                            <th>Salin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='ModalpdfViewContent' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='pdfViewContent'></div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('#ModalAlert').modal('show');
+    $("#TableList").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+
+
+    var Tampilan = function (id,tp) {
+        if (id)
+        {
+            var objurl = '@Url.Action("JoinNdLampiran", "NaskahDinas")?draftcode=' + String(id);
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalCetak').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    };
+
+    var hapusDraft = function (id) {
+        if (id !== null && id !== '') {
+            swal({
+                title: "Konfirmasi Penghapusan Dokumen",
+                text: "Kode Konsep : " + id + "\nHarap masukkan alasan",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                inputPlaceholder: "Alasan",
+                showLoaderOnConfirm: true
+            },
+                function (inputValue) {
+                    if (inputValue === false) return false;
+                    var frm = {
+                        id: id,
+                        alasan: inputValue
+                    };
+                    $.ajax({
+                        url: '@Url.Action("HapusDraft", "Surat")',
+                        type: "POST",
+                        data: frm,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data && data.Status) {
+                                swal("Informasi", data.Pesan, "success")
+                                location.reload();
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                    });
+                });
+        } else {
+            swal("Peringatan", "File tidak ditemukan", "warning")
+        }
+    }
+
+    var BukaDraft = function (id,tipe) {
+             window.location.href = '@Url.Action("OpenEditor", "NaskahDinas")?id='+ id + '&konsep=' + tipe;
+    }
+
+    $("#BtnTambahArr").click(function (e) {
+        $("#ModalPilih").show()
+        e.preventDefault();
+        return false;
+    });
+
+     $("#openEditor").click(function () {
+        var tipeNas = $("#tipenas").val();
+             window.location.href = '@Url.Action("OpenEditor", "NaskahDinas")?konsep='+tipeNas
+     })
+    function closeModal() {
+        $("#ModalPilih").hide()
+    }
+
+    $(document).ready(function () {
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $("#metadata").val('')
+        createPagingKonsepDibuat()
+        createPagingHistory();
+    });
+
+    $("#BtnLapor").click(function (e) {
+        e.preventDefault();
+        swal({
+            title: "Lapor Masalah",
+            text: "Permasalahan yang ditemukan pada Editor Naskah Dinas",
+            type: "input",
+            imageUrl: "@Url.Content("~/resources/images/logobpn.png")",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Penjelasan Singkat",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue === false) return false;
+                var frm = {
+                    id: "C8CE1F6063E4375FE0530C1D140A86E0",
+                    txt: inputValue
+                };
+                $.ajax({
+                    url: '@Url.Action("LaporMasalah", "Admin")',
+                    type: "POST",
+                    data: frm,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            swal("Informasi", "Terima Kasih untuk informasinya", "success")
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            });
+        return false;
+    });
+
+    //paging konsep dibuat
+    var dtKonsepDibuat;
+    var createPagingKonsepDibuat = function () {
+        dtKonsepDibuat = $('#tableKonsepDibuat').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("GetKonsepDibuat", "NaskahDinas")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmCariSurat').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "searchKey", value: $("#metadata").val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn"},
+                { "data": "TipeSurat" },
+                { "data": "SifatSurat", "className": "centertaligncolumn" },
+                { "data": "Perihal" },
+                { "data": "TanggalBuat", "className": "centertaligncolumn" },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "render": function (data, type) {
+                        if (data.Status == "W") {
+                            return `<i class="fa fa-clock-o" style="cursor: pointer; color:red;" title="Konsep Dalam Proses Koordinasi" onclick="OpenProses('${data.DraftCode}','${data.Status}')"> &nbsp; Proses Konsep</i><br>`
+                        }
+                        else if (data.Status == "A") {
+                            return `<i class="fa fa-book" style="cursor: pointer; color:rgb(98, 98, 1);" title="Konsep Sudah Disetujui Dalam Proses Penomoran" onclick="OpenProses('${data.DraftCode}','${data.Status}')"> &nbsp; Penomoran oleh TU</i>`
+                        } else if (data.Status == "F") {
+                            return `<i class="fa fa-pencil" style="cursor: pointer; color:green;" title="Konsep Sudah Diajukan Untuk TTE" onclick="OpenLogTTE('${data.DraftCode}','F')"> &nbsp; Proses TTE</i>`
+                        } else if (data.Status == "S") {
+                            return `<i class="fa fa-check" style="cursor: pointer; color:rgb(0, 20, 255);" title="Sudah TTE" onclick="OpenLogTTE('${data.DraftCode}','S','${data.DokumenElektronikId}')"> &nbsp; Sudah TTE</i>`
+                        }
+                        else {
+                            return ""
+                        }
+                    }
+                },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "render": function (data, type) {
+                        return `<i class="fa fa-copy" style="cursor: pointer;" title="Salin Konsep" onclick="SalinKonsep('${data.DraftCode}','${data.TipeSurat}')"> &nbsp;</i><br>`
+                    }
+                }
+            ]
+        });
+    };
+
+    function OpenProses(dc,stat) {
+        $("#ModalInfoDraft .modalTitle h2").html('Proses Konsep Naskah Dinas')
+        if (stat == 'A') {
+            $("#ModalInfoDraft .modalTitle span").hide()
+        } else {
+            $("#ModalInfoDraft .modalTitle span button").attr("data-dc", dc)
+            $("#ModalInfoDraft .modalTitle span").show()
+        }
+        $("#ModalInfoDraft #prosesTable tbody").html("")
+        $.ajax({
+            url: '@Url.Action("GetListProsesKoordinasi", "NaskahDinas")?dc=' + dc,
+            type: "POST",
+            success: function (rsp) {
+                if (rsp.Status) {
+
+                    for (var r of rsp.data) {
+                        var statusInfo = ""
+                        var peran = ""
+                        if (r.Status) {
+                            if (r.Status == "W") {
+                                statusInfo = `<span style="color:blue">Pengajuan`
+                            } else if (r.Status == "A") {
+                                statusInfo = `<span style="color:green">Disetujui`
+                            } else if (r.Status == "X") {
+                                statusInfo = `<span style="color:red">Revisi`
+                            } else if (r.Status == "Y") {
+                                statusInfo = `<span style="color:silver">Belum diajukan`
+                            }
+
+                        } else {
+                            statusInfo = `<span style="color:silver">-`
+                        }
+
+                        if (r.Tipe) {
+                            if (r.Tipe == '0') {
+                                peran = 'Verifikator'
+                            } else if (r.Tipe == '1') {
+                                peran = 'Penandatangan'
+                            } else if (r.Tipe == 'TU') {
+                                peran = 'TU Penandatangan'
+                            }
+                        }
+
+                        $("#ModalInfoDraft #prosesTable tbody").append(`
+                            <tr>
+                                <td>${r.Nama}</td>
+                                <td>${r.Jabatan}</td>
+                                <td>${peran}</td>
+                                <td>
+                                    ${statusInfo}
+                                </td>
+                            </tr>
+                        `)
+                    }
+                }
+            }
+        });
+
+        $("#ModalInfoDraft").modal('show')
+    }
+
+    $("#ModalInfoDraft .modalTitle span button").click(function () {
+        var dc = $(this).attr("data-dc")
+        window.open('@Url.Action("KoordinasiDraft", "NaskahDinas")?id=' + dc);
+    })
+
+    var dtableHistory;
+    var createPagingHistory = function () {
+        dtableHistory = $('#myTableHistory').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("GetDetailDokumen", "TandaTanganElektronik")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmHistory').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "dokid", value: dokid }); return ftp; }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    "className": "",
+                    "width": "120px",
+                    "render": function (data, type) {
+                        if (data.status != "W") {
+                            return data.tanggal;
+                        } else {
+                            return '<span style="cursor: pointer;"><i class="fa fa-refresh"></i> Belum Melakukan Paraf</span>';
+                        }
+                    }
+                },
+                { "data": "nip", "width": "100px" },
+                { "data": "nama", "width": "100px" },
+                { "data": "jabatan" },
+                { "data": "tipe", "width": "30px" }
+            ]
+        });
+    };
+
+
+
+
+    var dokid = "";
+    var OpenLogTTE = function (dc, status, dtte = dc) {
+        $.ajax({
+            url: '@Url.Action("GetIdDokumenTTE", "NaskahDinas")?dc=' + dtte,
+            type: "POST",
+            success: function (rsp) {
+                if (rsp.Status) {
+                    dokid = rsp.data
+                    dtableHistory.ajax.reload(null, true);
+                    if (status == "S") {
+                        $("#signedButton").removeAttr("data-dokid")
+                        $("#signedButton").attr("data-dokid", dtte)
+                        $("#viewCatatan").attr("data-drafcode", status + "|" + dc)
+                        $("#signedButton").show()
+                    } else {
+                        $("#signedButton").removeAttr("data-dokid")
+                        $("#viewCatatan").attr("data-drafcode", status + "|" + dc)
+                        $("#signedButton").hide()
+                    }
+                    $('#DetailDokumenTTE').modal('show');
+                    $('.modal-backdrop').hide();
+                }
+            }
+        })
+
+    }
+
+    $("#viewCatatan").click(function () {
+        let thisdc = $(this).attr("data-drafcode")
+        window.location.href = '@Url.Action("KoordinasiDraft", "NaskahDinas")?id='+ encodeURI(thisdc);
+    })
+
+    $("#signedButton").click(function () {
+        let id = $(this).attr("data-dokid")
+        var options = { "backdrop": "static", keyboard: true };
+        $('#DetailDokumenTTE').modal('hide');
+        showloading("Menyiapkan Dokumen");
+        if (id) {
+            $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("cekDokumen", "TandaTanganElektronik")',
+                    data: { id: id },
+                    success: function (data) {
+                        if (data.Status === false) {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                        else {
+                            var objurl = '@Url.Action("getDokumen", "TandaTanganElektronik")?id=' + id;
+                            objpdf = objurl;
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("DocViewer", "Konten")',
+                                success: function (data) {
+                                    $('#pdfViewContent').html(data);
+                                    $('#ModalpdfViewContent').modal(options);
+                                    $('#ModalpdfViewContent').modal('show');
+                                    closeloading();
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                }
+                            });
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+        } else {
+            swal("Peringatan", "File tidak ditemukan", "warning")
+        }
+    })
+
+    $('#ModalpdfViewContent').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: '98%',
+            height: '98 %',
+            'max-height': '98%'
+        });
+    });
+
+
+    // search
+    var activeTab = "#KonsepBaru";
+    $('#UlTab li').click(function () {
+        activeTab = $(this).find("a").attr("href")
+        $('#metadata').val("")
+    })
+
+    $('#srchButton').on('click', function () {
+        var value = $('#metadata').val()
+        if (activeTab == "#KonsepBaru") {
+            var table = $('#TableList').DataTable();
+            table.search(value).draw();
+        } else if (activeTab == "#KonsepDibuat") {
+            dtKonsepDibuat.ajax.reload(null, true);
+        }
+    });
+
+    $("#frmCariSurat").submit(function (e) {
+        e.preventDefault()
+        $('#srchButton').click()
+        $('#srchButton').trigger('click')
+    })
+
+
+    function SalinKonsep(dc,tipe) {
+        if (dc) {
+            window.location.href = `@Url.Action("OpenEditor", "NaskahDinas")?id=${dc}&konsep=${tipe}&salin=true`
+        }
+    }
+</script>

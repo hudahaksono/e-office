@@ -1,0 +1,933 @@
+﻿@model Surat.Models.Entities.DokumenTTE
+
+@{
+    var lstJenisDokumen = new List<SelectListItem>();
+    lstJenisDokumen.Add(new SelectListItem { Text = "Biasa", Value = "Biasa" });
+    lstJenisDokumen.Add(new SelectListItem { Text = "Rahasia", Value = "Rahasia" });
+    var lstPosisiTTE = new List<SelectListItem>();
+    lstPosisiTTE.Add(new SelectListItem { Text = "Halaman Pertama", Value = "pertama" });
+    lstPosisiTTE.Add(new SelectListItem { Text = "Halaman Terakhir", Value = "terakhir" });
+    var lstnull = new List<SelectListItem>();
+
+
+    var lstunitkerja = new List<SelectListItem>();
+    foreach (var uk in ViewBag.listUnitKerja)
+    {
+        lstunitkerja.Add(new SelectListItem { Text = uk.NamaUnitKerja, Value = uk.UnitKerjaId, Selected = (uk.UnitKerjaId == ViewBag.selfUnitKerja) });
+    }
+}
+            <script src='@Url.Content("~/resources/js/jquery.form.js")' type="text/javascript"></script>
+
+            <style>
+                .formisian {
+                    max-width: 350px;
+                }
+
+                .date {
+                    max-width: 200px;
+                }
+
+                .btn-file {
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                    .btn-file input[type=file] {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        font-size: 100px;
+                        text-align: right;
+                        filter: alpha(opacity=0);
+                        opacity: 0;
+                        background: red;
+                        cursor: inherit;
+                        display: block;
+                    }
+
+                .switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 80px;
+                    height: 34px;
+                }
+
+                    .switch input {
+                        display: none;
+                    }
+
+                .slider {
+                    position: absolute;
+                    cursor: pointer;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #ccc;
+                    transition: .4s;
+                }
+
+                    .slider:before {
+                        position: absolute;
+                        content: "";
+                        height: 26px;
+                        width: 26px;
+                        left: 4px;
+                        bottom: 4px;
+                        background-color: white;
+                        transition: .4s;
+                    }
+
+                /* include generated hidden field here */
+                input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+                input[type="checkbox"]:checked + .slider {
+                    background-color: #2196F3;
+                }
+
+                /* include generated hidden field here */
+                input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+                input[type="checkbox"]:focus + .slider {
+                    box-shadow: 0 0 1px #2196F3;
+                }
+
+                /* include generated hidden field here */
+                input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+                input[type="checkbox"]:checked + .slider:before {
+                    transform: translateX(46px);
+                }
+
+                /* Rounded sliders */
+                .slider.round {
+                    border-radius: 24px;
+                }
+
+                    .slider.round:before {
+                        border-radius: 50%;
+                    }
+
+                .error {
+                    color: #ad1010;
+                    font-family: 'Varela Round', sans-serif;
+                    font-style: oblique;
+                }
+            </style>
+            <script type="text/javascript">
+                $(function () {
+                    $.validator.unobtrusive.parse(this);
+                });
+            </script>
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left"><h2 style="width:100%"><span id="LabelTitle">Entri Dokumen Elektronik - <b>@ViewBag.Judul</b></span></h2></div>
+                    <div class="title_right" style="text-align:right;">
+                        <div class="pull-right">
+                            <span class="input-group-btn" style="padding-right:2px;">
+                                @if (@OtorisasiUser.isTU())
+                                {
+                                    if (string.IsNullOrEmpty(Model.DokumenElektronikId))
+                                    {
+                                        <button type="button" id="btnsimpandankirim" class="btn btn-primary">Kirim Pengajuan</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" id="btnsetujudankirim" class="btn btn-primary"><i class="fa fa-check-square-o"></i>&nbsp;Terima Pengajuan</button>
+                                        <button type="button" id="btntolak" class="btn btn-danger"><i class="fa fa-check-square-o"></i>&nbsp;Tolak Pengajuan</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <button type="button" id="btnsimpan" class="btn btn-primary">Kirim Pengajuan</button>
+                                }
+                                <button id="cancel-btn" type="button" class="btn btn-warning" onclick="history.back();">Kembali</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row x_panel tile" style="padding-top:7px; border:1px solid #E6E9ED;">
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                        <div class="x_title">
+                            <h2>Pengenal Dokumen</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="">
+                                <div class="x_panel">
+                                    <form data-parsley-validate id="frmPengajuanTTE" role="form" method="post">
+                                        @Html.HiddenFor(m => m.DokumenElektronikId)
+                                        <div class="form-group">
+                                            <label class="control-label" for="tanggalsurat">Tanggal <span style="color:red">*</span></label>
+                                            <div class='input-group date' style="margin-bottom: 0px;">
+                                                @Html.TextBoxFor(model => model.TanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @required = "required" })
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            <small>@Html.ValidationMessageFor(model => model.TanggalSurat, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="nomorsurat">Nomor Surat <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control formisian", @id = "nomorsurat", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.NomorSurat, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="perihal">Hal <span style="color:red">*</span></label>
+                                            @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control formisian", @id = "perihal", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.Perihal, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group" style="max-width: 350px">
+                                            <label class="control-label" for="posisitte">Posisi TTE <span style="color:red">*</span></label>
+                                            @Html.DropDownListFor(model => model.PosisiTTE, lstPosisiTTE, new { @class = "form-control formisian select2_single", @id = "posisitte", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.PosisiTTE, "", new { @class = "error" })</small>
+                                        </div>
+                                        @*<div class="form-group">
+                                <label class="control-label" for="perihal">Sifat Surat <span style="color:red">*</span></label>
+                                @Html.HiddenFor(m => m.SifatSurat)
+                                <br />
+                                <label class="switch">
+                                    @Html.CheckBox("sifat")
+                                    <div class="slider round">
+                                    </div>
+                                </label>
+                            </div>*@
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*@if (@OtorisasiUser.isTU())
+                    {*@
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <div class="x_title">
+                                <h2>Penandatangan Dokumen</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="x_content">
+                                <div class="">
+                                    <div class="x_panel">
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered" style="width:100%;margin-bottom:0px;">
+                                                <tr>
+                                                    <th style="width:152px">NIP</th>
+                                                    @*<th style="width:123px">Nama</th>*@
+                                                    <th>Nama</th>
+                                                    @*<th>Jabatan</th>*@
+                                                    <th style="width:100px">Tipe</th>
+                                                    <th style="width:100px">Meterai</th>
+                                                    <th style="width:40px"></th>
+                                                </tr>
+                                            </table>
+                                            <div class="table-responsive" style="margin-bottom:0px;overflow-y:scroll;height:200px;">
+                                                <table id="tblPenandatangan" class="table table-striped table-bordered" style="width:100%;">
+                                                    <tbody id="datatte">
+                                                        @if (!string.IsNullOrEmpty(Model.DokumenElektronikId) && Model.TTE.Count > 0)
+                                                        {
+                                                            foreach (var t in Model.TTE)
+                                                            {
+                                                                var tipetxt = t.Tipe == "1" ? "Tanda Tangan" : "Paraf";
+                                                                <tr>
+                                                                    <td style="width: 152px">
+                                                                        <label style="display:none;">@t.PegawaiId,@t.Tipe</label>
+                                                                            @t.PegawaiId
+                                                                    </td>
+                                                                    <td>@t.Nama</td><td style="width: 100px">
+                                                                            @tipetxt
+                                                                    </td>
+                                                                    <td style="width: 100px"></td>
+                                                                    <td style="width: 40px;cursor: pointer;" onclick="hapusPenandatangan(this)"><i class="fa fa-trash"></i></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td colspan="5" style="text-align:center;">Penandatangan Kosong</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            @Html.Hidden("UserTTE")
+                                            <button id="BtnTambahTandaTangan" type="button" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tanda Tangan</button>
+                                            <button id="BtnTambahParaf" type="button" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Paraf</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @*}*@
+                </div>
+            </div>
+
+            <div class="row x_panel tile" style="padding-top:7px; border:1px solid #E6E9ED;">
+                <div class="x_title">
+                    <h2>File Surat</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    @if (string.IsNullOrEmpty(Model.DokumenElektronikId))
+                    {
+                        <div class="form-group" id="divUpload">
+                            <div class="input-group" style="margin-bottom:0px">
+                                @Html.TextBoxFor(model => model.FileDokumen, new { @class = "form-control", id = "namafile", type = "text", @readonly = "readonly", @onclick = "$('#btnUploadFile').click();" })
+                                <div class="input-group-btn">
+                                    <label class="btn btn-success btn-file">
+                                        <i class="fa fa-search"></i><input class="" type="file" name="filename" id="btnUploadFile" accept=".pdf" hidden style="width:70px;">
+                                    </label>
+                                </div>
+                            </div>
+                            <small><span id="validFile" class="error"></span></small>
+                        </div>
+                        <div class="form-group">* Catatan kaki akan dibuat secara otomatis setelah pengajuan di kirim (v 1.03)</div>
+                    }
+                    <div id='fileDokumen'></div>
+                </div>
+            </div>
+
+            <div id='ListPegawaiModal' class='modal'>
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div id='myModalContent'>
+
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel" style="padding:20px">
+                                    <div class="x_title">
+                                        <h2 id="popuptitle">Daftar Pegawai</h2>
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        <div class="row">
+                                            <div class="table-responsive" style="padding-right:10px;">
+                                                <form id="frmDaftarPegawai">
+                                                    <div class="form-group">
+                                                        <label class="control-label" for="txtUnitKerja">Satuan Kerja</label>
+                                                        @Html.DropDownList("txtUnitKerja", lstunitkerja, new { @class = "form-control" })
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label class="control-label" for="txtJabatan">Jabatan</label>
+                                                                @Html.TextBox("txtJabatan", "", new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label class="control-label" for="txtNama">Nama</label>
+                                                                @Html.TextBox("txtNama", "", new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+                                                    </div>                                                  
+                                                    <div class="form-group">
+                                                        <button type="button" class="btn btn-success" id="btncaripegawai">Cari</button>
+                                                        <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
+                                                    </div>
+                                                </form>
+                                                <table id="myTableDaftarPegawai" class="table table-striped hover" style="width:100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:5%">#</th>
+                                                            <th>NIP</th>
+                                                            <th>Nama</th>
+                                                            <th>Jabatan</th>
+                                                            <th style="width:10%">Pilih</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+            <script type="text/javascript">
+                $(function () {
+                    $("div#loading").hide();
+                });
+                var dfFileDokumen = null;
+                var tte = "0";
+
+                $("#BtnTambahParaf").on("click", function (e) {
+                    tte = "0"
+                    $("#txtJabatan").val("");
+                    $("#txtNama").val("");
+                    dtableDaftarPegawai.ajax.reload(null, true);
+                    $('#popuptitle').html('Daftar Pegawai');
+                    $('#ListPegawaiModal').modal('show');
+
+                    e.preventDefault();
+                    return false;
+                });
+
+                $("#BtnTambahTandaTangan").on("click", function (e) {
+                    tte = "1"
+                    $("#txtJabatan").val("");
+                    $("#txtNama").val("");
+                    dtableDaftarPegawai.ajax.reload(null, true);
+                    $('#popuptitle').html('Daftar Pegawai');
+                    $('#ListPegawaiModal').modal('show');
+
+                    e.preventDefault();
+                    return false;
+                });
+
+                $("#btncaripegawai").on("click", function (e) {
+                    dtableDaftarPegawai.ajax.reload(null, true);
+                });
+
+                $('#txtUnitKerja').change(function () {
+                    dtableDaftarPegawai.ajax.reload(null, true);
+                });
+
+                $("#btnsimpan").on("click", function (e) {
+                    if ($("#namafile").val() == "") {
+                        $("#validFile").html("File harus dipilih");
+                    } else {
+                        $("#validFile").html("");
+                    }
+
+                    if ($("#frmPengajuanTTE").valid()) {
+                        var frmdata = new FormData();
+                        frmdata.append("NomorSurat", $('#nomorsurat').val());
+                        frmdata.append("TanggalSurat", $('#tanggalsurat').val());
+                        frmdata.append("Perihal", $('#perihal').val());
+                        frmdata.append("PosisiTTE", $('#posisitte').val());
+
+                        if (dfFileDokumen !== null) {
+                            var namafile = dfFileDokumen.name;
+                            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+                            if (fileExt !== null && fileExt !== '') {
+                                if (fileExt != ".pdf") {
+                                    $.unblockUI();
+                                    showalert("File harus pdf");
+                                    return false;
+                                }
+                                frmdata.append("NamaFile", namafile);
+                                frmdata.append("Ekstensi", fileExt);
+                                frmdata.append("file", dfFileDokumen);
+                            }
+                            else {
+                                $.unblockUI();
+                                showalert("File tidak diketemukan");
+                                return false;
+                            }
+                        }
+                        else {
+                            $.unblockUI();
+                            showalert("File wajib dipilih");
+                            return false;
+                        }
+                        recheckPenandatangan();
+                        var metadata = $('#UserTTE').val();
+                        if (metadata != "") {
+                            frmdata.append("listTTE", metadata);
+                        }
+
+                        swal({
+                            title: "Konfirmasi Pembuatan Dokumen",
+                            text: "Simpan No. Surat : " + $('#nomorsurat').val(),
+                            type: "info",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            showLoaderOnConfirm: true
+                        },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    frmdata.append("GenerateFooter", false);
+                                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '@Url.Action("SimpanPengajuan", "TandaTanganElektronik")',
+                                        data: frmdata,
+                                        contentType: false,
+                                        processData: false,
+                                        success: function (data, textStatus, XMLHttpRequest) {
+                                            if (data.Status) {
+                                                swal("Informasi", "Pembuatan Dokumen Berhasil", "success")
+                                                window.location.href = '@Url.Action("PengajuanTTE", "TandaTanganElektronik")';
+                                            }
+                                            else {
+                                                swal("Peringatan", data.Pesan, "warning")
+                                                $.unblockUI();
+                                            }
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                                    });
+                                }
+                            });
+                    }
+                    else { console.log('Data input wajib belum Anda masukkan'); }
+
+                    e.preventDefault();
+                    return false;
+                });
+
+                $("#btnsetujudankirim").on("click", function (e) {
+                    if ($("#frmPengajuanTTE").valid()) {
+                        var frmdata = new FormData();
+                        frmdata.append("DokumenElektronikId", $('#DokumenElektronikId').val());
+                        frmdata.append("NomorSurat", $('#nomorsurat').val());
+                        frmdata.append("TanggalSurat", $('#tanggalsurat').val());
+                        frmdata.append("Perihal", $('#perihal').val());
+                        frmdata.append("PosisiTTE", $('#posisitte').val());
+
+                        recheckPenandatangan();
+                        var metadata = $('#UserTTE').val();
+                        if (metadata == "") {
+                            $.unblockUI();
+                            showalert("Penandatangan Harus Dipilih");
+                            return false;
+                        }
+                        frmdata.append("listTTE", metadata);
+
+                        swal({
+                            title: "Konfirmasi Setuju Pengajuan",
+                            text: "No. Surat : " + $('#nomorsurat').val() + "\nHarap masukkan PassPhrase anda",
+                            type: "input",
+                            inputType: "password",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            inputPlaceholder: "Kosongkan untuk kirim tanpa memberikan paraf",
+                            showLoaderOnConfirm: true
+                        },
+                            function (inputValue) {
+                                if (inputValue === false) return false;
+                                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                                frmdata.append("Pass", inputValue);
+                                frmdata.append("GenerateFooter", true);
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("SetujuiPengajuan", "TandaTanganElektronik")',
+                                    data: frmdata,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (data, textStatus, XMLHttpRequest) {
+                                        if (data.Status) {
+                                            swal("Informasi", "Persetujuan Dokumen Berhasil", "success")
+                                            window.location.href = '@Url.Action("PersetujuanTTE", "TandaTanganElektronik")';
+                                        }
+                                        else {
+                                            swal("Peringatan", data.Pesan, "warning")
+                                            $.unblockUI();
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                                });
+                            });
+                    }
+                    else { console.log('Data input wajib belum Anda masukkan'); }
+
+                    e.preventDefault();
+                    return false;
+                });
+
+                $("#btnsimpandankirim").on("click", function (e) {
+
+                    if ($("#namafile").val() == "") {
+                        $("#validFile").html("File harus dipilih");
+                    } else {
+                        $("#validFile").html("");
+                    }
+
+                    if ($("#frmPengajuanTTE").valid()) {
+
+                        var frmdata = new FormData();
+                        frmdata.append("NomorSurat", $('#nomorsurat').val());
+                        frmdata.append("TanggalSurat", $('#tanggalsurat').val());
+                        frmdata.append("Perihal", $('#perihal').val());
+                        frmdata.append("PosisiTTE", $('#posisitte').val());
+
+                        if (dfFileDokumen !== null) {
+                            var namafile = dfFileDokumen.name;
+                            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+                            if (fileExt !== null && fileExt !== '') {
+                                if (fileExt != ".pdf") {
+                                    swal("Peringatan", "File harus pdf", "warning");
+                                    return false;
+                                }
+                                frmdata.append("NamaFile", namafile);
+                                frmdata.append("Ekstensi", fileExt);
+                                frmdata.append("file", dfFileDokumen);
+                            }
+                            else {
+                                swal("Peringatan", "File tidak diketemukan", "warning");
+                                return false;
+                            }
+                        }
+                        else {
+                            swal("Peringatan", "File wajib dipilih", "warning");
+                            return false;
+                        }
+                        recheckPenandatangan();
+                        var metadata = $('#UserTTE').val();
+                        if (metadata == "") {
+                            swal("Peringatan", "Penandatangan Harus Dipilih", "warning");
+                            return false;
+                        }
+                        frmdata.append("listTTE", metadata);
+
+                        swal({
+                            title: "Konfirmasi Pembuatan Dokumen",
+                            text: "No. Surat : " + $('#nomorsurat').val() + "\nHarap masukkan PassPhrase anda",
+                            type: "input",
+                            inputType: "password",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            inputPlaceholder: "Kosongkan untuk kirim tanpa memberikan paraf",
+                            showLoaderOnConfirm: true
+                        },
+                            function (inputValue) {
+                                if (inputValue === false) return false;
+                                frmdata.append("GenerateFooter", true);
+                                frmdata.append("Pass", inputValue);
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("SimpanPengajuan", "TandaTanganElektronik")',
+                                    data: frmdata,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (data, textStatus, XMLHttpRequest) {
+                                        if (data.Status) {
+                                            swal("Informasi", "Pembuatan Dokumen Berhasil", "success")
+                                            window.location.href = '@Url.Action("PengajuanTTE", "TandaTanganElektronik")';
+                                        }
+                                        else {
+                                            swal("Peringatan", data.Pesan, "warning")
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                    }
+                                });
+                            });
+                    }
+                    else {
+                        swal("Peringatan", "Data input wajib belum Anda masukkan", "warning")
+                    }
+
+                    e.preventDefault();
+                    return false;
+                });
+
+                $("#btntolak").on("click", function (e) {
+                    var dokid = $('#DokumenElektronikId').val();
+                    if (dokid !== null && dokid !== '') {
+                        swal({
+                            title: "Konfirmasi Tolak Pengajuan",
+                            text: "No. Surat : " + $('#nomorsurat').val() + "\nHarap masukkan alasan",
+                            type: "input",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            inputPlaceholder: "Alasan",
+                            showLoaderOnConfirm: true
+                        },
+                            function (inputValue) {
+                                if (inputValue === false) return false;
+                                var frm = {
+                                    id: dokid,
+                                    alasan: inputValue
+                                };
+                                $.ajax({
+                                    url: '@Url.Action("TolakPengajuan", "TandaTanganElektronik")',
+                                    type: "POST",
+                                    data: frm,
+                                    success: function (data, textStatus, jqXHR) {
+                                        if (data && data.Status) {
+                                            window.location.href = '@Url.Action("PersetujuanTTE", "TandaTanganElektronik")';
+                                            swal("Informasi", data.Pesan, "success")
+                                        }
+                                        else {
+                                            swal("Peringatan", data.Pesan, "warning")
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                    }
+                                });
+                            });
+                    } else {
+                        swal("Peringatan", 'Dokumen tidak ditemukan', "warning");
+                    }
+                });
+
+                // FILE Dokumen -------------------------------
+                $("#btnUploadFile").on("change", function (e) {
+                    var input = $(this),
+                        numFiles = input.get(0).files ? input.get(0).files.length : 1;
+                    if (numFiles > 0) {
+                        var file = dfFileDokumen = input.get(0).files[0];
+
+                        if (file.size > 20000 * 1024) {
+                            dfFileDokumen = null;
+                            showmsg('Peringatan', 'File maksimum 20Mb');
+                            $("#namafile").val("");
+                            $('#fileDokumen').html("");
+                            return false;
+                        }
+                        else {
+                            $("#validFile").html("");
+
+                            if (dfFileDokumen == null) {
+                                return false;
+                            }
+                            var namafile = dfFileDokumen.name;
+                            $("#namafile").val(namafile);
+                            var filedokumen = dfFileDokumen;
+                            var tipefile = filedokumen.type;
+
+                            if (tipefile == 'application/pdf') {
+                                var reader = new FileReader();
+                                reader.readAsBinaryString(dfFileDokumen);
+                                reader.onloadend = function () {
+                                    var count = reader.result.match(/\/Type[\s]*\/Page[^s]/g).length;
+                                    var posisi = $("#posisitte").val();
+                                    //if (posisi != "terakhir") posisi = "pertama";
+                                    $("#posisitte").html("");
+                                    $('#posisitte').append($('<option></option>').val("pertama").html("Halaman Pertama"));
+                                    if (count > 1) {
+                                        $('#posisitte').append($('<option></option>').val("terakhir").html("Halaman Terakhir"));
+                                        var i = 1;
+                                        for (i = 1; i <= count; i++) {
+                                            $('#posisitte').append(
+                                                $('<option></option>').val(i).html("Halaman " + i));
+                                        }
+                                        $('#posisitte').val("pertama").trigger('change');
+                                    }
+                                }
+
+                                var blob = new Blob([dfFileDokumen], { type: "application/pdf;base64" }),
+                                    objurl = window.URL.createObjectURL(blob);
+                               objpdf = objurl;
+
+                                if ($("#fileDokumen").height() < 500) $("#fileDokumen").height(500);
+                               PDFObject.embed(objpdf, $("#fileDokumen"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+                            }
+                        }
+                    }
+                });
+
+                // LIST PEGAWAI -------------------------------
+
+                var dtableDaftarPegawai;
+                var createPagingPenandatangan = function () {
+                    dtableDaftarPegawai = $('#myTableDaftarPegawai').DataTable({
+                        "bLengthChange": false,
+                        "paging": true,
+                        "pageLength": 10,
+                        "bFilter": false,
+                        "ordering": false,
+                        "info": false,
+                        "processing": true,
+                        "serverSide": true,
+                        "ajax": {
+                            url: '@Url.Action("GetPegawaiByJabatanNama", "TandaTanganElektronik")',
+                            type: "POST",
+                            data: function (data) {
+                                var ftp = $('#frmDaftarPegawai').serializeArray();
+                                data.form = ftp; ftp.push(
+                                    { name: "draw", value: data.draw },
+                                    { name: "start", value: data.start },
+                                    { name: "length", value: data.length },
+                                    { name: "metadata", value: $('#UserTTE').val() },
+                                    { name: "namajabatan", value: $('#txtJabatan').val() },
+                                    { name: "namapegawai", value: $('#txtNama').val() },
+                                    { name: "unitkerjaid", value: $('#txtUnitKerja').val() },
+                                    { name: "tipe", value: tte }
+                                ); return ftp;
+                            }
+                        },
+                        "columns": [
+                            { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                            { "data": "PegawaiId" },
+                            { "data": "Nama" },
+                            { "data": "Jabatan" },
+                            {
+                                "data": "Pilih",
+                                "className": "centertaligncolumn",
+                                "width": "10%",
+                                render: function () {
+                                    return '<i class="fa fa-check" style="cursor: pointer; color:#b72a2a;"></i>';
+                                }
+                            }
+                        ]
+                    });
+                };
+
+                $('#myTableDaftarPegawai tbody').delegate('tr i', 'click', function (e) {
+                    e.preventDefault();
+                    var data = dtableDaftarPegawai.row($(this).closest('tr')).data();
+                    var metadata = data.PegawaiId;
+                    if ($('#datatte').html().indexOf("Penandatangan Kosong") != -1) {
+                        $('#datatte').html("");
+                    }
+                    var tipe = "Paraf";
+                    if (tte == "1") {
+                        $('#BtnTambahParaf').hide();
+                        //$('#BtnTambahTandaTangan').hide();
+                        $('#btnsetujudankirim').prop('disabled', false);
+                        $('#btnsimpandankirim').prop('disabled', false);
+                        tipe = "Tanda Tangan";
+                        //$('#datatte').append("<tr><td style='width: 152px'><label style='display:none;'>" + data.PegawaiId + "," + tte + "</label>" + data.PegawaiId + "</td><td style='width: 123px'>" + data.Nama + "</td><td>" + data.Jabatan + "</td><td style='width: 100px'>" + tipe + "</td><td style='width: 100px'><input type='checkbox' id='ck" + data.PegawaiId + "' value='" + data.PegawaiId + "'></td><td style='width: 40px;cursor: pointer;' onclick='hapusPenandatangan(this)'><i class='fa fa-trash'></i></td></tr>");
+                    } else {
+                        //$('#datatte').append("<tr><td style='width: 152px'><label style='display:none;'>" + data.PegawaiId + "," + tte + "</label>" + data.PegawaiId + "</td><td style='width: 123px'>" + data.Nama + "</td><td>" + data.Jabatan + "</td><td style='width: 100px'>" + tipe + "</td><td style='width: 100px'></td><td style='width: 40px;cursor: pointer;' onclick='hapusPenandatangan(this)'><i class='fa fa-trash'></i></td></tr>");
+                    }
+                    /*$('#datatte').append("<tr><td style='width: 152px'><label style='display:none;'>" + data.PegawaiId + "," + tte + "</label>" + data.PegawaiId + "</td><td style='width: 123px'>" + data.Nama + "</td><td>" + data.Jabatan + "</td><td style='width: 100px'>" + tipe + "</td><td style='width: 100px'></td><td style='width: 40px;cursor: pointer;' onclick='hapusPenandatangan(this)'><i class='fa fa-trash'></i></td></tr>");*/
+                    $('#datatte').append("<tr><td style='width: 152px'><label style='display:none;'>" + data.PegawaiId + "," + tte + "</label>" + data.PegawaiId + "</td><td>" + data.Nama + "</td><td style='width: 100px'>" + tipe + "</td><td style='width: 100px'></td><td style='width: 40px;cursor: pointer;' onclick='hapusPenandatangan(this)'><i class='fa fa-trash'></i></td></tr>");
+                    metadata += "," + tte;
+                    $('#UserTTE').val($('#UserTTE').val() + "|" + metadata);
+                    $('#ListPegawaiModal').modal('hide');
+                });
+
+                function hapusPenandatangan(e) {
+                    $(e).closest("tr").remove();
+                    recheckPenandatangan();
+                }
+
+                function recheckPenandatangan() {
+                    var $datas = "";
+                    var $tbl = $("#datatte tr");
+                    if ($tbl.length > 0) {
+                        $tbl.each(function () {
+                            var row = $(this);
+                            if ($datas != "") $datas += "|"
+                            var _dt = row.find("label").eq(0).html();
+                            var _sp = _dt.split(',');
+                            var ck = $("#ck" + _sp[0]).is(":checked");
+                            if (ck)
+                                _dt += ",1";
+                            $datas += _dt;
+                        });
+                    }
+                    $('#UserTTE').val($datas);
+
+                    //var $tbltte = $("#datatte label");
+                    //var $datas = "";
+                    //$('#BtnTambahParaf').show();
+                    //$('#BtnTambahTandaTangan').show();
+                    //$('#btnsetujudankirim').prop('disabled', true);
+                    //$('#btnsimpandankirim').prop('disabled', true);
+                    //$.each($tbltte, function (i, item) {
+                    //    if ($datas != "") $datas += "|"
+                    //    $datas += $(this).html();
+                    //    if ($(this).html().indexOf(",1") != -1) {
+                    //        $('#BtnTambahParaf').hide();
+                    //        //$('#BtnTambahTandaTangan').hide();
+                    //        $('#btnsetujudankirim').prop('disabled', false);
+                    //        $('#btnsimpandankirim').prop('disabled', false);
+                    //    }
+                    //});
+                    //$('#UserTTE').val($datas);
+                }
+
+
+                $(document).ready(function () {
+                    $.unblockUI();
+
+                    $.validator.methods.number = function (value, element) {
+                        return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+                    }
+
+                    $('.select2_single').select2({ width: '100%' });
+
+                    $('#tanggalsurat').datetimepicker({
+                        format: 'DD/MM/YYYY',
+                        locale: 'id'
+                    });
+
+                    $('#ListPegawaiModal').on('shown.bs.modal', function () {
+                        $(this).find('.modal-dialog').css({
+                            width: '98%',
+                            height: '98 %',
+                            'max-height': '98%'
+                        });
+                    });
+
+                    createPagingPenandatangan();
+
+                    $(window).scroll(function () {
+                        if ($(this).scrollTop() > 50) {
+                            $('#back-to-top').fadeIn();
+                        } else {
+                            $('#back-to-top').fadeOut();
+                        }
+                    });
+                    // scroll body to 0px on click
+                    $('#back-to-top').click(function () {
+                        $('#back-to-top').tooltip('hide');
+                        $('body,html').animate({
+                            scrollTop: 0
+                        }, 800);
+                        return false;
+                    });
+                    @if (!string.IsNullOrEmpty(Model.DokumenElektronikId) && Model.TTE.Exists(x => x.Tipe == "1"))
+                    {
+                        <text>$('#btnsetujudankirim').prop('disabled', false); </text>
+                    } else
+                    {
+                        <text>$('#btnsetujudankirim').prop('disabled', true); </text>
+                    }
+
+                    $('#btnsimpandankirim').prop('disabled', true);
+                    $('#back-to-top').tooltip('show');
+
+                    var dokid = $('#DokumenElektronikId').val();
+                    if (dokid != "") {
+                        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                        $('#divUpload').hide();
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("cekDokumen", "TandaTanganElektronik")',
+                            data: { id: dokid },
+                            success: function (data) {
+                                if (data.Status === false) {
+                                    showalert(data.Pesan);
+                                    $.unblockUI();
+                                }
+                                else {
+                                    var posisi = data.ReturnValue2;
+                                    $("#posisitte").html("");
+                                    $('#posisitte').append($('<option></option>').val("pertama").html("Halaman Pertama"));
+                                    if (data.ReturnValue > 1) {
+                                        $('#posisitte').append($('<option></option>').val("terakhir").html("Halaman Terakhir"));
+                                        var i = 1;
+                                        for (i = 1; i <= data.ReturnValue; i++) {
+                                            $('#posisitte').append(
+                                                $('<option></option>').val(i).html("Halaman " + i));
+                                        }
+                                        $('#posisitte').val(posisi).trigger('change');
+                                    }
+                                    var objurl = '@Url.Action("getDokumen", "TandaTanganElektronik")?id=' + dokid;
+                                    objpdf = objurl;
+
+                                    if ($("#fileDokumen").height() < 500) $("#fileDokumen").height(500);
+                                    PDFObject.embed(objpdf, $("#fileDokumen"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+                                    $.unblockUI();
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $.unblockUI();
+                            }
+                        });
+                    }
+                });
+
+            </script>

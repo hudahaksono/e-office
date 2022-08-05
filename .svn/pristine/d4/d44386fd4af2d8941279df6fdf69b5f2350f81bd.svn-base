@@ -1,0 +1,68 @@
+﻿@model Dictionary<int, Surat.Models.Entities.PengantarSurat>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+<tr>
+    <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+    <td class="tdnormal">@lst.Value.Nomor</td>
+    <td class="centertaligncolumn">@lst.Value.TanggalDari</td>
+    <td class="tdnormal">@lst.Value.Tujuan</td>
+    <td class="centertaligncolumn" style="width: 120px; font-weight: normal;">@lst.Value.InfoTanggalTerima</td>
+    <td class="tdnormal">@lst.Value.NamaPenerima</td>
+    <td style="text-align:center;cursor: pointer;" onclick="editSuratPengantar('@lst.Value.PengantarSuratId','@lst.Value.Nomor');"><i class="fa fa-pencil"></i></td>
+    <td style="text-align:center;cursor: pointer;" onclick="cetakSuratPengantar('@lst.Value.PengantarSuratId','@lst.Value.Nomor');"><i class="fa fa-print"></i></td>
+</tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editSuratPengantar = function (pengantarsuratid, nomor) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#popuptitle').html('Edit data Surat Pengantar No. ' + nomor);
+
+        $.ajax({
+            url: '@Url.Action("GetSuratPengantarById", "Flow")',
+            type: "GET",
+            dataType: "JSON",
+            data: { id: pengantarsuratid },
+            success: function (data) {
+                //console.log('data[0].UserId: ' + data[0].UserId);
+                $('#frmEditSP')[0].reset();
+                $('#frmEntriSPDetail')[0].reset();
+
+                $('#PengantarSuratId').val(data[0].PengantarSuratId);
+                //$('#PegawaiId').val(data[0].PegawaiId);
+
+                $('#nomoredit').val(data[0].Nomor);
+                $('#tujuanedit').val(data[0].Tujuan);
+                $('#namapenerimaedit').val(data[0].NamaPenerima);
+                $('#tanggaldariedit').val(data[0].TanggalDari);
+                //$('#tanggalsampaiedit').val(data[0].TanggalSampai);
+                $('#tanggalterimaedit').val(data[0].TanggalTerima);
+
+                dtableDetilPengantar.ajax.reload(null, true);
+
+                $.unblockUI();
+            }
+        });
+
+        $('#SPEditorModal').modal('show');
+    }
+
+    var cetakSuratPengantar = function (pengantarsuratid, nomor) {
+
+        PrintSuratPengantar(pengantarsuratid);
+
+        @* window.location.href = '@Url.Action("ViewSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;*@
+        @* $.pjax({
+            container: '#dynamic_content',
+            type: "POST",
+            url: '@Url.Action("ViewSurat", "Flow")',
+            data: JSON.stringify({ 'suratid': s, 'nomorsurat': n }),
+            dataType: 'html',
+            contentType: "application/json; charset=utf-8"
+        });*@
+    }
+</script>

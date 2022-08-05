@@ -1,0 +1,126 @@
+﻿@{ 
+    var log = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+}
+<div class="row" style="font-family: 'Ubuntu', sans-serif;">
+    <style>
+        .start {
+            filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+            filter: grayscale(100%);
+            -moz-filter: grayscale(100%);
+            -ms-filter: grayscale(100%);
+            -o-filter: grayscale(100%);
+            filter: gray; /* IE6-9 */
+            -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+
+            .start:hover {
+                filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+                filter: grayscale(0%);
+                -moz-filter: grayscale(0%);
+                -ms-filter: grayscale(0%);
+                -o-filter: grayscale(0%);
+                filter: none; /* IE6-9 */
+                zoom: 1; /* needed to trigger "hasLayout" in IE if no width or height is set */
+                -webkit-filter: grayscale(0%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+                opacity: 0.4;
+                filter: alpha(opacity=40);
+            }
+    </style>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <h4 style="margin-bottom: 30px; color: #1abb9c; font-weight: bold; letter-spacing: 1px; word-spacing: 2px; font-family: 'Droid'">SELAMAT DATANG DI APLIKASI E-OFFICE ATR/BPN</h4>
+    </div>
+    <!--<div class="col-md-3 col-sm-4 col-xs-12" style="max-width:300px;">
+        <div class="row">
+            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding: 10px; border: 1px solid #E6E9ED; border-radius: 15px;">
+                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;text-align: center;">
+                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;float:none !important;"><b>Rakernas 2022</b></h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="flex-container" style="text-align:justify;">-->
+    @*<small>Untuk melakukan registrasi Peserta Rakernas 2022 yang hadir di 'Hotel Shangri La', Gunakan Tombol Berikut pada saat pembukaan Rakernas 2022;</small>
+        <div class="flex-item-mini" style="background-color: limegreen; padding: 15px; margin-bottom: 30px;margin-top: 15px;" title="Untuk melakukan registrasi Peserta Raker yang hadir di 'Hotel Shangri La', Gunakan Tombol Berikut"><a href="@Url.Action("PendaftaranPeserta", "Meeting")" target="_blank" style="color: azure; margin: 10px;"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp;Pendaftaran Peserta</a></div>*@
+    <!--<small>Untuk melakukan presensi Peserta Rakernas 2022, Gunakan Tombol Berikut;</small>
+                                <div class="flex-item-mini" style="background-color: dodgerblue; padding: 15px; margin-bottom: 30px; margin-top: 15px; " title="Untuk melakukan presensi Peserta Rakernas 2022, Gunakan Tombol Berikut"><a href="@Url.Action("PresensiPeserta", "Meeting")" target="_blank" style="color: azure; margin: 10px;"><i class="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;Presensi Peserta</a></div>
+                                <small>Untuk membuka panduan Pendaftaran dan Presensi Peserta Rakernas 2022, Gunakan Tombol Berikut</small>
+                                <div class="flex-item-mini" style="background-color: yellowgreen; padding: 15px; margin-bottom: 30px; margin-top: 15px; " title="Panduan Pendaftaran dan Presensi Peserta Rakernas 2022, Gunakan Tombol Berikut"><a onclick="openManual()" style="color: azure; margin: 10px; cursor: pointer;"><i class="fa fa-book" aria-hidden="true"></i>&nbsp;Panduan Peserta</a></div>
+                                <small>Untuk membuka Panduan Elektronik Rakernas 2022, Gunakan Tombol Berikut</small>
+                                <div class="flex-item-mini" style="background-color: palevioletred; padding: 15px; margin-top: 15px; " title="Panduan Elektronik Rakernas 2022, Gunakan Tombol Berikut"><a href="https://bit.ly/3qjYz2z" target="_blank" style="color: azure; margin: 10px;"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Panduan Elektronik</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    <div class="col-md-3 col-sm-4 col-xs-12" style="max-width:300px;">
+        <div class="row">
+            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding: 10px; border: 1px solid #E6E9ED; border-radius: 15px;">
+                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;text-align: center;">
+                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;float:none !important;"><b>Presensi Pegawai</b></h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="flex-container" style="text-align:justify;">
+                                <small>Untuk melakukan uji coba presensi daring,<br />Gunakan Tombol Berikut;</small>
+                                <div onclick="window.open('@Url.Action("FaceRecogV3", "Account")','_self')" class="flex-item-mini" style="background-color: dodgerblue; color: azure; padding: 10px; margin-bottom: 30px; margin-top: 15px; text-align: center; font-size:larger; cursor:pointer;" title="Untuk melakukan presensi kerja, Gunakan Tombol Berikut"><i class="fa fa-camera" aria-hidden="true"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div id="Starting" class="text-center" style="margin-top:30px;margin-bottom:30px;">
+            <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG" class="start">
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Support Center</h2>
+        <p>Apakah Anda punya permasalah tentang aplikasi ini? Silahkan menghubungi support center (ITSM).</p>
+        <p><a class="btn btn-default" href="http://itsm.atrbpn.go.id" target="_blank">Hubungi Kami &raquo;</a></p>
+    </div>
+</div>
+<div id='myModalVideo' class='modal'>
+    <div class="modal-dialog">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2>Panduan Pendaftaran dan Presensi</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="$('#playerManual').attr('src', '');"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <iframe id="playerManual" style="width:100%;height:600px" title="Panduan Pendaftaran dan Presensi" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#myModalVideo').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: '95%',
+            "max-width": '800px',
+            height: '600px'
+        });
+    });
+
+    function openManual() {
+        var options = { "backdrop": "static", keyboard: true };
+        $('#myModalVideo').modal(options);
+        $('#myModalVideo').modal('show');
+        $("#playerManual").attr("src", "https://www.youtube.com/embed/h-aqqpTrAwg");
+    }
+</script>

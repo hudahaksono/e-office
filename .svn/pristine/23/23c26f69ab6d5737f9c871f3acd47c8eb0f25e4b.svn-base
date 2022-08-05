@@ -1,0 +1,72 @@
+﻿@model Dictionary<int, Surat.Models.Entities.SuratInbox>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+        <td><input type="checkbox" name="pilihSurat" value="@lst.Value.SuratId,@lst.Value.SuratInboxId"></td>
+        <td class="tdnormal">@lst.Value.NomorSurat</td>
+        <td class="tdnormal">@lst.Value.NomorAgendaSurat</td>
+        <td class="tdnormal">@lst.Value.PengirimSurat</td>
+        <td class="tdnormal">@lst.Value.PenerimaSurat</td>
+        <td class="tdnormal">@lst.Value.Perihal</td>
+        <td class="tdnormal">@lst.Value.SifatSurat</td>
+        <td class="centertaligncolumn" style="width: 120px; font-weight: normal;">@lst.Value.TanggalTerima</td>
+        <td class="tdnormal">@lst.Value.NamaProfilePengirim</td>
+        <td class="tdnormal">@lst.Value.Sumber_Keterangan</td>
+        <td style="text-align:center;cursor: pointer;" onclick="viewSurat('@lst.Value.SuratInboxId','@lst.Value.NomorSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-pencil"></i></td>
+        <td style="text-align:center;cursor: pointer;" onclick="prosesSurat('@lst.Value.SuratId','@lst.Value.SuratInboxId','@lst.Value.NomorAgendaSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-check"></i></td>
+        @*<td class="tdnormal">@lst.Value.lstSumberSurat</td>*@
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var viewSurat = function (s, n) {
+        window.location.href = '@Url.Action("ViewSuratByTU", "Flow")?suratinboxid=' + s + '&nomorsurat=' + n;
+    }
+
+    var prosesSurat = function (suratid, suratinboxid, nomoragenda) {
+
+        swal({
+            title: "Konfirmasi Persetujuan Surat",
+            text: "No. Agenda : " + nomoragenda + "\nApakah anda mau memproses/menyetujui surat ini ?",
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Catatan"
+        },
+            function (inputValue) {
+            if (inputValue === false) return false;
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            var frm = new FormData();
+            frm.append("SuratId", suratid);
+            frm.append("SuratInboxId", suratinboxid);
+            frm.append("CatatanAnda", inputValue);
+            $.ajax({
+                url: '@Url.Action("ProsesSuratMasuk", "Flow")',
+                type: "POST",
+                data: frm,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, jqXHR) {
+                    if (data && data.Status) {
+                        loadData();
+                        showinfo('Surat berhasil diproses');
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+            });
+        });
+
+    }
+</script>

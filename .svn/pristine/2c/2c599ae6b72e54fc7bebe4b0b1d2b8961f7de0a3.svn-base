@@ -1,0 +1,651 @@
+﻿@model Surat.Models.Entities.CariDokumenTTE
+<style>
+    .ck {
+        margin-top: -10px;
+    }
+</style>
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Daftar Dokumen Dalam Proses
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariDokumenTTE" method="post">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <button type="button" class="btn btn-success" id="btnTTE">Proses</button>
+    </div>
+
+    <div class="clearfix">
+        <span style="font-size:small;font-style:oblique;color:orangered;">*Sesuai Dengan Surat Edaran Menteri ATR/BPN Nomor 9 Tahun 2022, Tanda Tangan Elektronik Harus dilakukan Sesuai dengan Tanggal Surat yang tertera</span>
+    </div>
+    <table id="tblSuratTTE" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+        <thead>
+            <tr>
+                <th style="text-align:right;width:40px;">#<input type="checkbox" id="listCheck" class="ck pull-left"></th>
+                <th style="text-align:center;width:150px">Tanggal Dibuat</th>
+                <th style="width:200px">Nomor Surat</th>
+                <th style="text-align:center;width:100px">Tanggal Surat</th>
+                <th>Hal</th>
+                <th style="width:150px">Sifat Surat</th>
+                <th style="text-align:center;width:50px;">Keterangan</th>
+                @*<th style="text-align:center;width:50px;">Posisi</th>*@
+                <th style="text-align:center;width:50px;"></th>
+            </tr>
+        </thead>
+        <tbody id="listSurat"></tbody>
+    </table>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2 id="docTitle">Dokumen Elektronik</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-left">
+                            <div class="col-md-12" style="margin-bottom:10px;">
+                                <button class="pull-right btn btn-warning" id="btnTolak" style="height:35px" title="Tolak TTE"><i class="fa fa-reply"></i>&nbsp;Tolak</button>
+                                <button class="pull-right btn btn-primary" id="btnProses" style="height:35px" title="Proses TTE"><i class="fa fa-pencil-square-o"></i>&nbsp;Proses</button>
+                                <button class="pull-right btn btn-default" id="btnInfo" style="height:35px" title="Informasi"><i class="fa fa-info-circle"></i></button>
+                            </div>
+                            <div id='myModalContent'></div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12 form-group pull-right">
+                            <table id="tblTTE" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+                                <thead>
+                                    <tr style="height:35px;">
+                                        <th style="text-align:right;width:20px;">#</th>
+                                        <th style="width:150px">Tanggal</th>
+                                        <th>Nama</th>
+                                        <th style="width:150px">Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listTTE"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='DetailDokumenTTE' class='modal' style="margin-top:50px;z-index:10000;">
+    <div class="modal-dialog" style="width:80%;">
+        <div class="modal-content">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2 id="popuptitle">Status Dokumen TTE</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="table-responsive" style="padding-right:10px;">
+                            <form id="frmHistory"></form>
+                            <table id="myTableHistory" class="table table-striped hover" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:100px">Tanggal</th>
+                                        <th style="width:100px">NIP</th>
+                                        <th style="width:100px">Nama</th>
+                                        <th>Jabatan</th>
+                                        <th style="width:30px">Tipe</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalTTE' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:left;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                <h2 class="modal-title">Konfirmasi Penandatangan</h2>
+            </div>
+            <div class="x_panel" style="padding:20px">
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 20px;">
+                            <span style="color: red; font-size: 14px; display: inline-block;text-align: justify">
+                                <ul style="padding-left: 10px;">
+                                    <li>
+                                        Berdasarkan UNDANG-UNDANG REPUBLIK INDONESIA NOMOR 11 TAHUN 2008 pasal 12 ayat 2
+                                        "Dalam hal Sertifikat Elektronik digunakan untuk mendukung Tanda Tangan Elektronik, Penanda Tangan harus memastikan kebenaran dan keutuhan semua informasi yang terkait dengan Sertifikat Elektronik tersebut."
+                                    </li>
+                                    <li>
+                                        Berdasarkan PERATURAN PEMERINTAH REPUBLIK INDONESIA NOMOR 82 TAHUN 2012 pasal 52 ayat 2
+                                        "Tanda Tangan Elektronik dalam Transaksi Elektronik merupakan persetujuan Penanda Tangan atas Informasi Elektronik dan/atau Dokumen Elektronik yang ditandatangani dengan Tanda Tangan Elektronik tersebut."
+                                    </li>
+                                </ul>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Passphrase</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <div class="input-group">
+                                    @Html.TextBox("txtPassphrase", new { @class = "form-control", @type = "Password", @style = "height: 37px;", @autocomplete = "new-password" })
+                                    <span class="input-group-addon checkbox icheck-success sr" style="height: 37px; padding-left: 10px">
+                                        <input type="checkbox" id="someCheckboxId" onclick="showPassword()" />
+                                        <label for="someCheckboxId">abc</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-3">
+                                <button id="btnprosestte" class="btn btn-success" style="margin-bottom: 10px">Proses</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function showPassword() {
+        var key_attr = $('#txtPassphrase').attr('type');
+        if (key_attr != 'text') { $('#txtPassphrase').attr('type', 'text'); } else { $('#txtPassphrase').attr('type', 'password'); }
+    }
+    var dtableDaftarSuratTTE;
+    var createPagingSuratTTE = function () {
+        dtableDaftarSuratTTE = $('#tblSuratTTE').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 15,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarDokumen", "TandaTanganElektronik")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmCariDokumenTTE').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "tipe", value: "proses" }); return ftp; }
+            },
+            "columns": [
+                {
+                    "data": null, "className": "numeric", "width": "40px",
+                    "render": function (data, type) {
+                        return '<input type="checkbox" name="pilihSurat" value="' + data.DokumenElektronikId + '" class="ck pull-left">' + data.RNumber;
+                    }
+
+                },
+                { "data": "TanggalDibuat", "className": "centertaligncolumn", "width": "100px" },
+                {
+                    "data": "NomorSurat",
+                    "width": "200px"
+                    //"render": function (data, type) {
+                    //    if (data.isExpired) {
+                    //        return `${data.NomorSurat}<span class="badge badge-warning pull-right" style="background-color:red;">Kedaluwarsa</span>`;
+                    //    }
+                    //    else {
+                    //        return `${data.NomorSurat}`;
+                    //    }
+                    //}
+                },
+                { "data": "TanggalSurat", "className": "centertaligncolumn", "width": "100px" },
+                { "data": "Perihal", "width": "50px" },
+                { "data": "SifatSurat", "width": "50px" },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "width": "80px",
+                    "render": function (data, type) {
+                        if (data.isExpired) {
+                            return `<span class="badge badge-warning" style="background-color:red;">Kedaluwarsa</span>`;
+                        }
+                        else {
+                            return `<span class="badge badge-primary" style="background-color:green;">Aktif</span>`;
+                        }
+                    }
+                },
+                //{
+                //    "data": null,
+                //    "className": "centertaligncolumn",
+                //    "width": "50px",
+                //    "render": function (data, type) {
+                //        var pos = data.PosisiTTE;
+                //        if (pos == "pertama") {
+                //            pos = "Halaman Ke 1";
+                //        } else if (pos == "terakhir") {
+                //            pos = "Halaman Terakhir";
+                //        } else {
+                //            pos = "Halaman Ke " + pos;
+                //        }
+                //        return pos;
+                //    }
+                //},
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "width": "40px",
+                    "render": function (data, type) {
+                        //return '<i class="fa fa-eye" style="cursor: pointer;" title="Lihat Dokumen" ></i>&nbsp;&nbsp;&nbsp;<b class="fa fa-pencil-square-o" title="Proses TTE" style="cursor: pointer;"></b>&nbsp;&nbsp;&nbsp;<r class="fa fa-reply" title="Tolak TTE" style="cursor: pointer;"></r>';
+                        if (!data.isExpired) {
+                            return '<i class="fa fa-pencil-square-o" title="Proses TTE" style="cursor: pointer;"></i>&nbsp;&nbsp;&nbsp;<r class="fa fa-reply" title="Tolak TTE" style="cursor: pointer;"></r>';
+                        } else {
+                            return '<r class="fa fa-reply" title="Kembalikan" style="cursor: pointer;"></r>';
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#listCheck').change(function () {
+        $('tbody tr td input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+    });
+
+    $("#btnTTE").click(function (e) {
+        var ids = "";
+        var jsonArr = [];
+        $('#listSurat').find('tr').each(function () {
+            var row = $(this);
+            if (row.find('input[type="checkbox"]').is(':checked')) {
+                var id = row.find('input[type="checkbox"]').val();
+                jsonArr.push(id);
+                if (ids != "") { ids += "," }
+                ids += id;
+            }
+        });
+
+        if (jsonArr.length == 0) {
+            swal("Perhatian", "Tidak ada yang dipilih", "info")
+            e.preventDefault();
+            return false;
+        }
+
+
+        swal({
+            title: "Konfirmasi TTE",
+            text: "Dokumen yang dipilih akan diproses,\nHarap masukkan PassPhrase anda",
+            type: "input",
+            inputType: "password",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "PassPhrase",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue) {
+                    var frm = {
+                        ids: jsonArr,
+                        pps: inputValue
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("ProsesPenandatangananBanyak", "TandaTanganElektronik")',
+                        data: frm,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data && data.Status) {
+                                dtableDaftarSuratTTE.ajax.reload(null, true);
+                                swal("Informasi", data.Pesan, "success")
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+    });
+
+    $('#tblSuratTTE tbody').delegate('tr b', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarSuratTTE.row($(this).closest('tr')).data();
+        var id = data.DokumenElektronikId;
+        var nmr = data.NomorSurat;
+        swal({
+            title: "Konfirmasi TTE",
+            text: "No. Surat : " + nmr + "\nHarap masukkan PassPhrase anda",
+            type: "input",
+            inputType: "password",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "PassPhrase",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue === false) return false;
+                var frm = {
+                    id: id,
+                    pps: inputValue
+                };
+                $.ajax({
+                    url: '@Url.Action("ProsesPenandatanganan", "TandaTanganElektronik")',
+                    type: "POST",
+                    data: frm,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableDaftarSuratTTE.ajax.reload(null, true);
+                            swal("Informasi", "Dokumen berhasil diproses", "success")
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            });
+    });
+
+    var nmrDok = "";
+    var idDok = "";
+
+    $('#tblSuratTTE tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarSuratTTE.row($(this).closest('tr')).data();
+        idDok = data.DokumenElektronikId;
+        nmrDok = data.NomorSurat;
+        $("#listTTE").html("");
+        if (idDok !== null && idDok !== '') {
+            var options = { "backdrop": "static", keyboard: true };
+            showloading("Membuka Dokumen Elektronik");
+            $('#docTitle').html("Dokumen Elektronik : " + data.NomorSurat);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("cekDokumenElektronik", "TandaTanganElektronik")',
+                data: { id: idDok },
+                success: function (data) {
+                    if (data.Status === false) {
+                        swal("Peringatan", data.Pesan, "warning");
+                    }
+                    else {
+                        if (data.TTE) {
+                            var ct = 0;
+                            for (var _dt of data.listTTE) {
+                                ct++;
+                                $("#listTTE").append(`
+                                    <tr>
+                                        <td>${ct}</td>
+                                        <td>${_dt.tanggal}</td>
+                                        <td>${_dt.nama}</td>
+                                        <td>${_dt.info}</td>
+                                    </tr>
+                                `)
+                            }
+                        } else {
+                            $("#listTTE").append(`
+                                <tr>
+                                    <td colspan="4" style="text-align:center;">Belum ada Tanda Tangan Elektronik</td>
+                                </tr>
+                            `)
+                        }
+                        var objurl = '@Url.Action("getDokumen", "TandaTanganElektronik")?id=' + idDok;
+                        objpdf = objurl;
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                            success: function (data) {
+                                $('#myModalContent').html(data);
+                                $('#myModalDocViewer').modal(options);
+                                $('#myModalDocViewer').modal('show');
+                                closeloading();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                            }
+                        });
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                }
+            });
+        } else {
+            swal("Peringatan", "Surat belum dipilih", "warning");
+        }
+    });
+
+    $('#tblSuratTTE tbody').delegate('tr r', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarSuratTTE.row($(this).closest('tr')).data();
+        var id = data.DokumenElektronikId;
+        var nmr = data.NomorSurat;
+        swal({
+            title: "Konfirmasi Penolakan Dokumen",
+            text: "No. Surat : " + nmr + "\nHarap masukkan alasan",
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Alasan",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue === false) return false;
+                var frm = {
+                    id: id,
+                    alasan: inputValue
+                };
+                $.ajax({
+                    url: '@Url.Action("TolakPengajuan", "TandaTanganElektronik")',
+                    type: "POST",
+                    data: frm,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableDaftarSuratTTE.ajax.reload(null, true);
+                            swal("Informasi", "Dokumen telah ditolak", "success")
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            });
+    });
+
+    $("#btnInfo").click(function (e) {
+        dtableHistory.ajax.reload(null, true);
+        $('#DetailDokumenTTE').modal('show');
+    });
+
+    var dtableHistory;
+    var createPagingHistory = function () {
+        dtableHistory = $('#myTableHistory').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("GetDetailDokumen", "TandaTanganElektronik")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmHistory').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "dokid", value: idDok }); return ftp; }
+            },
+            "columns": [
+                { "data": "tanggal", "width": "100px" },
+                { "data": "nip", "width": "100px" },
+                { "data": "nama", "width": "100px" },
+                { "data": "jabatan" },
+                { "data": "tipe", "width": "30px" }
+            ]
+        });
+    };
+
+    $("#btnProses").click(function (e) {
+        e.preventDefault();
+        swal({
+            title: "Konfirmasi TTE",
+            text: "No. Surat : " + nmrDok + "\nHarap masukkan PassPhrase anda",
+            type: "input",
+            inputType: "password",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "PassPhrase",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue === false) return false;
+                var frm = {
+                    id: idDok,
+                    pps: inputValue
+                };
+                $.ajax({
+                    url: '@Url.Action("ProsesPenandatanganan", "TandaTanganElektronik")',
+                    type: "POST",
+                    data: frm,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableDaftarSuratTTE.ajax.reload(null, true);
+                            $('#myModalDocViewer').modal('hide');
+                            swal("Informasi", "Dokumen berhasil diproses", "success")
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            });
+    });
+
+    $("#btnTolak").click(function (e) {
+        e.preventDefault();
+
+        swal({
+            title: "Konfirmasi Penolakan Dokumen",
+            text: "No. Surat : " + nmrDok + "\nHarap masukkan alasan",
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Alasan",
+            showLoaderOnConfirm: true
+        },
+            function (inputValue) {
+                if (inputValue === false) return false;
+                var frm = {
+                    id: idDok,
+                    alasan: inputValue
+                };
+                $.ajax({
+                    url: '@Url.Action("TolakPengajuan", "TandaTanganElektronik")',
+                    type: "POST",
+                    data: frm,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableDaftarSuratTTE.ajax.reload(null, true);
+                            swal("Informasi", "Dokumen telah ditolak", "success")
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            });
+    });
+
+    $("#frmCariDokumenTTE").submit(function (e) {
+        dtableDaftarSuratTTE.ajax.reload(null, true);
+        e.preventDefault();
+        return false;
+    });
+    $("#MetaData").keyup(function (event) {
+        if (event.keyCode == 13) {
+            dtableDaftarSuratTTE.ajax.reload(null, true);
+        }
+    });
+
+    $(document).ready(function () {
+        createPagingSuratTTE();
+        createPagingHistory();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+
+        $('#myModalTTE').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '75%',
+                height: '75 %',
+                'max-height': '75%'
+            });
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+</script>

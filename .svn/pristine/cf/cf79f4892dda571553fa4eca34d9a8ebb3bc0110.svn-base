@@ -1,0 +1,385 @@
+﻿@model Surat.Models.Entities.FindUnitKerja
+
+@{ 
+    var lstunitkerja = new List<SelectListItem>();
+    lstunitkerja.Add(new SelectListItem { Text = "Pilih..", Value = "" });
+    try
+    {
+        foreach (var unit in ViewBag.ListUnitKerja)
+        {
+            lstunitkerja.Add(new SelectListItem { Text = unit.NamaUnitKerja, Value = unit.UnitKerjaId });
+        }
+    }
+    catch
+    {
+        lstunitkerja.Add(new SelectListItem { Text = "Terdapat Kendala dalam mengambil data", Value = "" });
+    }
+}
+
+<link href='@Url.Content("~/resources/switchery/switchery.min.css")' rel="stylesheet" />
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+<script src='@Url.Content("~/resources/switchery/switchery.min.js")'></script>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Unit Kerja
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    <h4><i class="fa fa-search"></i>&nbsp;&nbsp;Pencarian Data</h4>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        @Html.HiddenFor(m => m.CariTampil, new { @id = "CariTampil" })
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">ID : </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(model => model.CariUnitKerjaId, new { @class = "form-control", @id = "cariunitkerjaid" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Nama : </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(model => model.CariNamaUnitKerja, new { @class = "form-control", @id = "carinamaunitkerja" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode : </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(model => model.CariKode, new { @class = "form-control", @id = "carikode" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Tingkat Kantor : </label>
+                            <div class="col-md-1 col-sm-12 col-xs-12">
+                                <span class="input-group checkbox icheck-primary sr">
+                                    @Html.CheckBoxFor(model => model.IsSatkerPusat, new { @class = "form-control input-md", @id = "checksatkerpusat" })
+                                    @Html.LabelFor(model => model.IsSatkerPusat)
+                                </span>
+                            </div>
+                            <div class="col-md-1 col-sm-12 col-xs-12">
+                                <span class="input-group checkbox icheck-primary sr">
+                                    @Html.CheckBoxFor(model => model.IsSatkerKanwil, new { @class = "form-control input-md", @id = "checksatkerkanwil" })
+                                    @Html.LabelFor(model => model.IsSatkerKanwil)
+                                </span>
+                            </div>
+                            <div class="col-md-1 col-sm-12 col-xs-12">
+                                <span class="input-group checkbox icheck-primary sr">
+                                    @Html.CheckBoxFor(model => model.IsSatkerKantah, new { @class = "form-control input-md", @id = "checksatkerkantah" })
+                                    @Html.LabelFor(model => model.IsSatkerKantah)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Tampil ? </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div id="gender" class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default" id="LabelOpTampil">
+                                        @Html.RadioButtonFor(model => model.CariTampil, "1", new { id = "OpTampil" })
+                                        @Html.Label("OpTampil", "Ya", new { @style = "font-family: 'Varela Round', sans-serif; font-weight: normal;" })
+                                    </label>
+                                    <label class="btn btn-default" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default" id="LabelOpTidakTampil">
+                                        @Html.RadioButtonFor(model => model.CariTampil, "0", new { id = "OpTidakTampil" })
+                                        @Html.Label("OpTidakTampil", "Tidak", new { @style = "font-family: 'Varela Round', sans-serif; font-weight: normal;" })
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                <button id="search-btn" type="submit" class="btn btn-success">Cari</button>
+                                <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="x_panel">
+
+                <div class="">
+
+                    <table id="myTableUnitKerja" class="table table-striped table-bordered dt-responsive infinite-scroll">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">#</th>
+                                <th>ID</th>
+                                <th>Nama Unit Kerja</th>
+                                <th>Kode</th>
+                                <th style="text-align:center;">Tampil ?</th>
+                                <th style="text-align:center;">Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataplaceholder"></tbody>
+                    </table>
+                </div>
+                @Html.Partial("_Loading")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='EditorModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Edit data Unit Kerja</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="x_panel">
+                                <form class="form-horizontal form-label-left" id="frmEditUnitKerja" role="form">
+                                    @Html.HiddenFor(m => m.SelectedUnitKerjaId, new { @id = "SelectedUnitKerjaId" })
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">ID</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.UnitKerjaId, new { @class = "form-control", @id = "editunitkerjaid", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Nama</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.NamaUnitKerja, new { @class = "form-control", @id = "editnamaunitkerja" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Induk</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.DropDownListFor(m => m.Induk, lstunitkerja, new { @class = "form-control", @id = "editindukunitkerja" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Kode, new { @class = "form-control", @id = "editkodeunitkerja" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Apakah ditampilkan ?</label>
+                                        <div class="col-md-2 col-sm-12 col-xs-12">
+                                            <span class="input-group checkbox">
+                                                @Html.CheckBoxFor(model => model.IsSatkerTampil, new { @class = "js-switch", @id = "editsaktertampil" })
+                                                @*@Html.LabelFor(model => model.IsSatkerTampil)*@
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                            <button type="submit" class="btn btn-success" id="btnsimpandataprofile">SIMPAN</button>
+                                            <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $('#EditorModal').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    $("#LabelOpTampil").on("click", function (e) {
+        $("#LabelOpTampil").attr('class', 'btn btn-primary active');
+        $("#LabelOpTidakTampil").attr('class', 'btn btn-default');
+
+        $('#CariTampil').val('1');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#LabelOpTidakTampil").on("click", function (e) {
+        $("#LabelOpTampil").attr('class', 'btn btn-default');
+        $("#LabelOpTidakTampil").attr('class', 'btn btn-primary active');
+
+        $('#CariTampil').val('0');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#reset-btn").on("click", function (e) {
+        $('#frmCariData')[0].reset();
+        $("#LabelOpTampil").attr('class', 'btn btn-default');
+        $("#LabelOpTidakTampil").attr('class', 'btn btn-default');
+        $('#CariTampil').val('');
+
+        $("#checksatkerpusat").prop("checked", true);
+        $("#checksatkerkanwil").prop("checked", true);
+        $("#checksatkerkantah").prop("checked", true);
+    });
+
+    var loadData = function () {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariData');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarUnitKerja", "Admin")',
+            data: $('#frmCariData').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#frmCariData").submit(function (e) {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariData');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarUnitKerja", "Admin")',
+            data: $('#frmCariData').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmEditUnitKerja").submit(function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var isTampilChecked = $("#editsaktertampil").prop("checked");
+
+        var frm = this, frmdata = new FormData(this);
+        frmdata.append("unitkerjaid", $('#SelectedUnitKerjaId').val());
+        frmdata.append("tampil", (isTampilChecked) ? "1" : "0");
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateUnitKerja", "Admin")',
+            data: frmdata,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+
+                    loadData();
+
+                    $('#EditorModal').modal('hide');
+                }
+                else {
+                }
+                showinfo(data.Pesan);
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        $.unblockUI();
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $("#checksatkerpusat").prop("checked", true);
+        $("#checksatkerkanwil").prop("checked", true);
+        $("#checksatkerkantah").prop("checked", true);
+
+        $('#SelectedUnitKerjaId').val('');
+
+        loadData();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+
+
+    moreRowsUrl = '@Url.Action("DaftarUnitKerja", "Admin")';
+    $(window).scroll(scrollHandler);
+
+</script>

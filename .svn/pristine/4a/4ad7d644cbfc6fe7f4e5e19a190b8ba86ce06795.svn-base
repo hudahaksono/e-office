@@ -1,0 +1,474 @@
+﻿@model Surat.Models.Entities.Surat
+
+<style>
+    .hoverme:hover {
+        background: rgb(255 216 0 / 0.27)
+    }
+
+    #tampilanDokumen {
+        height: 70vh;
+    }
+
+    @@media (max-height:750px) {
+        .attachment {
+            margin-top: 145px
+        }
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_content">
+                <div class="row">
+
+                    <div class="demo col-sm-12 col-xs-12 mail_view">
+                        <div class="inbox-body">
+                            <div class="col-md-12 col-xs-12" style="text-align:center; background-color:beige; font-family: 'Varela Round', sans-serif; margin-bottom:10px;">
+                                <h4>INFORMASI</h4>
+                            </div>
+
+                            <div class="mail_heading row">
+                                <div class="col-md-12 col-xs-12">
+                                    <div class="compose-btn">
+                                        <button id="BtnBuatSuratKeluar" class="btn btn-sm btn-success" type="button"><i class="fa fa-edit"></i>&nbsp;&nbsp;Buat Surat Jawaban</button>
+                                        <button id="BtnBuatNotulen" class="btn btn-sm btn-warning" type="button"><i class="fa fa-plus"></i>&nbsp;&nbsp;Notulen</button>
+                                        @*<button id="BtnCetakInbox" title="" data-placement="top" data-toggle="tooltip" type="button" data-original-title="Cetak" class="btn  btn-sm tooltips"><i class="fa fa-print"></i> </button>*@
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-xs-12">
+                                    <h4>
+                                        @Model.Perihal - <small style="color:#1abb9c; font-size:11px;">@Model.ArahSurat</small>
+                                        @if (@Model.StatusArsip == 1)
+                                        {
+                                            <span style="color:#249c2f; padding-left:5px;"><i class="fa fa-check"></i> Selesai</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#6779e3; padding-left:5px;"><i class="fa fa-pencil-square-o"></i> Aktif</span>
+                                        }
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <form class="form-horizontal form-label-left" style="padding-top:10px;">
+                                @Html.HiddenFor(m => m.SuratId, new { @id = "SuratId" })
+                                <div class="row">
+                                    <div class="" id="detailSurat">
+                                        <div class="row">
+                                            <div class="col-md-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Metode Pengiriman </label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.Sumber_Keterangan, new { @class = "form-control", @id = "cmbSumberSurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group" id="DivAsalSurat">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Asal Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.PengirimSurat, new { @class = "form-control", @id = "pengirimsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="DivTujuanSurat">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Tujuan Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.PenerimaSurat, new { @class = "form-control", @id = "penerimasurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Sifat Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.SifatSurat, new { @class = "form-control", @id = "sifatsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Jenis Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.TipeSurat, new { @class = "form-control", @id = "tipesurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Tanggal Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.InfoTanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="DivTanggalTerima">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Tanggal Terima:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.TanggalTerima, new { @class = "form-control", @id = "tanggalterima", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="DivTanggalUndangan">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Tanggal Undangan:</label>
+                                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                                        <div class='input-group date' id='tglUndangan' style="margin-bottom: 0px;">
+                                                            @Html.TextBoxFor(model => model.InfoTanggalUndangan, new { @class = "form-control", @id = "tanggalundangan", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small; color:#159078; font-weight: bold !important;" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xs-12">
+                                                <div class="form-group" id="DivNomorAgenda">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Nomor Agenda:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.NomorAgendaSurat, new { @class = "form-control", @id = "nomoragendasurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Nomor Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control", @id = "nomorsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Keterangan Surat:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.KeteranganSuratRedaksi, new { @class = "form-control", @id = "keterangansurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Perihal:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control", @id = "perihal", @rows = 2, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Resume:</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextAreaFor(model => model.IsiSingkatSurat, new { @class = "form-control", @id = "isisingkatsurat", @rows = 2, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="" id="detailLampiran" style="display:none">
+                                        <div id="tampilanDokumen"></div>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                            <div class="attachment">
+                                <p>
+                                    <span><i class="fa fa-paperclip"></i> @Model.JumlahLampiran file </span>
+                                </p>
+                                <ul id="dataplaceholder"></ul>
+                            </div>
+
+
+                            <div class="col-md-10 col-sm-10 col-xs-12" style="padding-top: 10px; width: 100%; overflow-x: auto">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 class="mytitleform">PERJALANAN SURAT</h2>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="text-align:left;">Filter data berdasarkan Unit Kerja:</label>
+                                        @Html.DropDownListFor(model => model.UnitKerjaIdHistoriSurat, new SelectList(@Model.ListUnitKerjaHistoriSurat, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaHistoriSurat", @onchange = "UnitKerjaHistoriSuratChanged()" })
+                                    </div>
+                                    <div class="x_content">
+                                        <div class="tree">
+                                            <div id="sortedHistory">
+                                                <ul class="list-unstyled timeline">
+                                                </ul>
+                                            </div>
+                                            <div id="historisuratplaceholder">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<div id='myModalDocViewer' class='modal'>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id='myModalContent'></div>
+            </div>
+        </div>
+    </div>*@
+
+<script src='@Url.Content("~/resources/js/printThis.js")'></script>
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script type="text/javascript">
+    var objpdf = null;
+    $('#tampilanDokumen').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $("#DivAsalSurat").hide();
+        $("#DivSumberSurat").hide();
+        //$("#DivTujuanSurat").hide();
+        $("#DivNomorAgenda").hide();
+        $("#DivTanggalTerima").hide();
+        var arahsurat = '@Model.Arah';
+        if (arahsurat == 'Masuk') {
+            $("#DivSumberSurat").show();
+            $("#DivAsalSurat").show();
+            $("#DivNomorAgenda").show();
+            $("#DivTanggalTerima").show();
+        }
+        else if (arahsurat == 'Keluar') {
+            //$("#DivTujuanSurat").show();
+        }
+
+        $("#DivTanggalUndangan").hide();
+        var tipesurat = '@Model.TipeSurat';
+        if (tipesurat == 'Surat Undangan') {
+            $("#DivTanggalUndangan").show();
+        }
+
+        loadLampiranSurat();
+
+        loadSuratHistory(true);
+
+        $.unblockUI();
+    });
+
+    function loadLampiranSurat() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = $('#SuratId').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarLampiranSuratView", "Flow")',
+            data: { suratid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                //    let frist = $(data).find('div:first-child a:first-child')[0]
+                //    $(frist).trigger('click')
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    let isexpand = false
+    var BukaFileLampiran = function (id, namafile, kantorid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFileSurat", "Flow")?id=' + id + '&kantorid=' + kantorid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+
+                        if (!isexpand) {
+                            $("#detailSurat").children(".row").children('div').removeClass()
+                            $("#detailSurat").addClass("col-md-4 col-xs-12")
+                            $("#detailLampiran").addClass("col-md-8 col-xs-12")
+                            $("#detailLampiran").show()
+                            isexpand = true
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".jpg" || fileExt == ".png") {
+                // Display Image
+                var objurl = '@Url.Action("GetFileSuratWithExt", "Flow")?id=' + id + '&kantorid=' + kantorid + '&extension=' + fileExt;
+                objfile = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewer", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".doc" || fileExt == ".docx") {
+                // Download Word
+                //fileExt = ".doc";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+            else if (fileExt == ".xls" || fileExt == ".xlsx") {
+                // Download Excel
+                //fileExt = ".xls";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+        }
+    }
+
+    function UnitKerjaHistoriSuratChanged() {
+        if ($('#cmbUnitKerjaHistoriSurat').val() == "") {
+            $("#sortedHistory").show()
+        } else {
+            $("#sortedHistory").hide()
+            $("#historisuratplaceholder").show()
+            loadSuratHistory(false);
+        }
+    };
+
+    function loadSuratHistory(bool) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+        var id = $('#SuratId').val();
+        var unitkerjaidhistorisurat = $('#cmbUnitKerjaHistoriSurat').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratHistory", "Flow")',
+            data: { suratid: id, unitkerjaid: unitkerjaidhistorisurat },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#historisuratplaceholder').html('');
+                }
+                else {
+                    $('#historisuratplaceholder').html(data);
+                    if (bool) {
+                        sortedUpItem()
+                    }
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#BtnCetakInbox").on("click", function (e) {
+        $('.demo').printThis({
+            debug: false,
+            importCSS: false,
+            importStyle: false,
+            printContainer: true,
+            pageTitle: "Pencetakan Surat",
+            header: "<h1>Pencetakan Surat</h1>",
+            removeInline: false,
+            footer: null,
+            formValues: true,
+            canvas: false,
+            doctypeString: '<!DOCTYPE html>',
+            removeScripts: false,
+            copyTagClasses: false,
+            base: false
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#BtnBuatSuratKeluar").on("click", function (e) {
+        var suratid = $('#SuratId').val();
+        var nomorsurat = "";
+        var pengirimsurat = "";
+
+        // Buat Surat Keluar Berdasarkan Surat Masuk
+        window.location.href = '@Url.Action("BuatSuratKeluar", "Flow")?referensi=' + suratid + '&nomorsuratref=' + nomorsurat + '&refpengirimsurat=' + pengirimsurat;
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    $("#BtnBuatNotulen").click(function (e) {
+        var suratid = '@Model.SuratId';
+        var tanggalsurat = '@Model.TanggalSurat';
+        var nomorsurat = '@Model.NomorSurat';
+
+        window.location.href = '@Url.Action("EntriDataNotulen", "Notulen")?suratid=' + suratid + '&tanggalsurat=' + tanggalsurat + '&nomorsurat=' + nomorsurat + '&kategori=suratmasuk';
+
+        e.preventDefault();
+        return false;
+    });
+
+    function sortedUpItem() {
+        var items = $("#historisuratplaceholder ul li")
+        var fSorted = $("#sortedHistory ul")
+
+        var count = 0
+        for (var item of items) {
+            var penerima = item.attributes["data-penerima"].nodeValue
+            var pengirim = item.attributes["data-pengirim"].nodeValue
+            var tier = item.attributes["data-tier"].nodeValue
+            console.log(tier)
+            tier = parseInt(tier)
+            var indent = 0
+            if (tier == 1) {
+                indent = 0
+            } else if (tier > 1) {
+                indent = tier * 30
+            }
+            //find frist
+            if (!$(`#${pengirim}`).length) {
+                var div = `<div id='${penerima}' style='padding-left:${indent}px'>
+                    ${item.outerHTML}
+                </div>`
+                fSorted.append(div)
+            } else {
+                var div = `<div id='${penerima}'style='padding-left:${indent}px' class='hoverme'>${item.outerHTML}</div>`
+                if (tier == 1) {
+                    var div = `<div id='${penerima}' style='padding-left:${indent}px' class='hoverme'>
+                    ${item.outerHTML}
+                </div>`
+                }
+                $(`#${pengirim}`).append(div)
+            }
+        }
+        $("#historisuratplaceholder").hide()
+
+    }
+
+
+</script>

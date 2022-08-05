@@ -1,0 +1,115 @@
+﻿@model Dictionary<int, Surat.Models.Entities.Notulen>
+
+@foreach (var lst in Model)
+{
+    if (@lst.Value.RNumber == 1)
+    {
+        <h3 class="title_left" style="padding-left:10px;">
+            Daftar Notulen
+        </h3>
+    }
+}
+
+@foreach (var lst in Model)
+{
+    if (@lst.Value.RNumber == 1)
+    {
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-cyan hover-expand-effect">
+                <div class="icon">
+                    <a href="#" onclick="ViewNotulen('@lst.Value.NotulenId','@lst.Value.Judul');">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </div>
+                <div class="content">
+                    <div class="text"><strong>@lst.Value.JudulShort</strong></div>
+                    <div class="number count-to">@lst.Value.TanggalInfo2</div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (@lst.Value.RNumber == 2)
+    {
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-cyan hover-expand-effect">
+                <div class="icon">
+                    <a href="#" onclick="ViewNotulen('@lst.Value.NotulenId','@lst.Value.Judul');">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </div>
+                <div class="content">
+                    <div class="text"><strong>@lst.Value.JudulShort</strong></div>
+                    <div class="number count-to">@lst.Value.TanggalInfo2</div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (@lst.Value.RNumber == 3)
+    {
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-cyan hover-expand-effect">
+                <div class="icon">
+                    <a href="#" onclick="ViewNotulen('@lst.Value.NotulenId','@lst.Value.Judul');">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </div>
+                <div class="content">
+                    <div class="text"><strong>@lst.Value.JudulShort</strong></div>
+                    <div class="number count-to">@lst.Value.TanggalInfo2</div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (@lst.Value.RNumber == 4)
+    {
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-cyan hover-expand-effect">
+                <div class="icon">
+                    <a href="#" onclick="ViewNotulen('@lst.Value.NotulenId','@lst.Value.Judul');">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                </div>
+                <div class="content">
+                    <div class="text"><strong>@lst.Value.JudulShort</strong></div>
+                    <div class="number count-to">@lst.Value.TanggalInfo2</div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+<script type="text/javascript">
+    var ViewNotulen = function (id, judul) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var pdata = { notulenid: id };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("InformasiNotulenFromList", "Notulen")',
+            data: pdata,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#informasiholder').html(data);
+                    $('#popuptitleInfoNotulen').html('Informasi Notulen');
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log(XMLHttpRequest, textStatus, errorThrown);
+                $.unblockUI();
+            }
+        });
+
+        $('#popuptitleInfoNotulen').text('Data Notulen : ' + judul);
+
+        var options = { "backdrop": "static", keyboard: true };
+        $('#myModalDocViewer').modal(options);
+        $('#myModalDocViewer').modal('show');
+
+        $.unblockUI();
+    }
+
+
+</script>

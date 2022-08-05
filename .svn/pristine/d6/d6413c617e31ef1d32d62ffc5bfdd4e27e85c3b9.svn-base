@@ -1,0 +1,20 @@
+﻿var kategori = {
+    "Pertahanan dan Keamanan Nasional": "Pertahanan dan Keamanan Nasional",
+    "Jalan Umum, Jalan Tol, Terowongan, Jalur Kereta Api, Stasiun Kereta Api, dan Fasilitas Operasi Kereta Api": "Jalan Umum, Jalan Tol, Terowongan, Jalur Kereta Api, Stasiun Kereta Api, dan Fasilitas Operasi Kereta Api",
+    "Waduk, Bendungan, Bendung, Irigasi, Saluran Air Minum, Saluran Pembuangan Air dan Sanitasi, dan Bangunan Pengairan Lainnya": "Waduk, Bendungan, Bendung, Irigasi, Saluran Air Minum, Saluran Pembuangan Air dan Sanitasi, dan Bangunan Pengairan Lainnya",
+    "Pelabuhan, Bandar Udara, dan Terminal": "Pelabuhan, Bandar Udara, dan Terminal",
+    "Infrastruktur Minyak, Gas, dan Panas Bumi": "Infrastruktur Minyak, Gas, dan Panas Bumi",
+    "Pembangkit, Transmisi, Gardu, Jaringan, dan Distribusi Tenaga Listrik": "Pembangkit, Transmisi, Gardu, Jaringan, dan Distribusi Tenaga Listrik",
+    "Jaringan Telekomunikasi dan Informatika Pemerintah": "Jaringan Telekomunikasi dan Informatika Pemerintah",
+    "Tempat Pembuangan dan Pengolahan Sampah": "Tempat Pembuangan dan Pengolahan Sampah",
+    "Rumah Sakit Pemerintah/Pemerintah Daerah": "Rumah Sakit Pemerintah/Pemerintah Daerah",
+    "Fasilitas Keselamatan Umum": "Fasilitas Keselamatan Umum",
+    "Tempat Pemakaman Umum Pemerintah/Pemerintah Daerah": "Tempat Pemakaman Umum Pemerintah/Pemerintah Daerah",
+    "Fasilitas Sosial, Fasilitas Umum, dan Ruang Terbuka Hijau Publik": "Fasilitas Sosial, Fasilitas Umum, dan Ruang Terbuka Hijau Publik",
+    "Cagar Alam dan Cagar Budaya": "Cagar Alam dan Cagar Budaya",
+    "Kantor Pemerintah/Pemerintah Daerah/Desa": "Kantor Pemerintah/Pemerintah Daerah/Desa",
+    "Penataan Permukiman Kumuh Perkotaan dan/atau Konsolidasi Tanah, serta Perumahan untuk Masyarakat Berpenghasilan Rendah dengan Status Sewa": "Penataan Permukiman Kumuh Perkotaan dan/atau Konsolidasi Tanah, serta Perumahan untuk Masyarakat Berpenghasilan Rendah dengan Status Sewa",
+    "Prasarana Pendidikan atau sekolah Pemerintah/Pemerintah Daerah": "Prasarana Pendidikan atau sekolah Pemerintah/Pemerintah Daerah",
+    "Prasarana Olahraga Pemerintah/Pemerintah Daerah": "Prasarana Olahraga Pemerintah/Pemerintah Daerah",
+    "Pasar Umum dan Lapangan Parkir Umum": "Pasar Umum dan Lapangan Parkir Umum"
+}

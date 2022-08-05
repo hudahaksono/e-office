@@ -1,0 +1,218 @@
+﻿@model Surat.Models.AccountModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aplikasi Persuratan - Sign In</title>
+    @*<link rel="shortcut icon" href="../../favicon.ico" />*@
+
+    <link rel="icon" type="image/png" href='@Url.Content("~/resources/images/logobpn.png")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/fonts/font-awesome-4.7.0/css/font-awesome.min.css")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/css/animate.css")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/css/hamburgers.min.css")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/css/select2.min.css")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/css/util.css")' />
+    <link rel="stylesheet" type="text/css" href='@Url.Content("~/resources/css/main.css")' />
+    <link href='@Url.Content("~/resources/css/bootstrap.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/icheck-bootstrap.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.buttons.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.nonblock.css")' rel="stylesheet" />
+
+    <style type="text/css">
+        .field-icon {
+          float: right;
+          margin-left: -25px;
+          margin-right: 15px;
+          margin-top: -35px;
+          position: relative;
+          z-index: 2;
+        }
+
+        .container{
+          padding-top:50px;
+          margin: auto;
+        }
+
+        .field-validation-error {
+            color: #ff0000;
+        }
+
+        .field-validation-valid {
+            display: none;
+        }
+
+        .input-validation-error {
+            border: 1px solid #ff0000 !important;
+            background-color: #ffeeee !important;
+        }
+
+        .validation-summary-errors {
+            font-weight: bold !important;
+            color: #ff0000 !important;
+        }
+
+        .validation-summary-valid {
+            display: none;
+        }
+
+        body {
+            background: url(@Url.Content("~/resources/images/3.jpg"));
+            background-color: #515151;
+        }
+    </style>
+
+    <script src='@Url.Content("~/resources/js/jquery-1.10.2.js")'></script>
+    <script src='@Url.Content("~/resources/js/popper.js")'></script>
+    <script src='@Url.Content("~/resources/js/bootstrap.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/select2.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/tilt.jquery.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/main.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.buttons.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.nonblock.js")'></script>
+</head>
+<body oncontextmenu="return false;">
+    @*<div class="login-container">
+            <div class="login-header bordered">
+                <h4 style="margin-top:0;margin-bottom:0">
+                    Sign In
+                    <img class="pull-right" src='@Url.Content("~/resources/images/bsre.png")' style="height:40px;margin-top:-10px;" />
+                </h4>
+            </div>
+            <hr>
+            @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "form-signin", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="login-field">
+                    <label for="lg_username" class="sr-only">Nama Pengguna</label>
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @id = "lg_username", @placeholder = "Nama pengguna", @style = "height:40px" })
+                    @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error" })
+                </div>
+                <div class="login-field">
+                    <label for="password" class="sr-only">Password</label>
+                    <div class="input-group">
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", @id = "lg_password", @placeholder = "Kata sandi", @style = "height:40px" })
+                        <span class="input-group-addon checkbox icheck-success sr" style="height: 40px; padding-left: 10px">
+                            <input type="checkbox" id="someCheckboxId" onclick="showPassword()" />
+                            <label for="someCheckboxId">abc</label>
+                        </span>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error" })
+                </div>
+                <div class="login-button clearfix">
+                    <button type="submit" id="btn-login" class="btn btn-success pull-right">Sign In</button>
+                </div>
+                <div class="login-field" style="font-style:italic;">
+                    <a href="https://docs.atrbpn.go.id/eoffice" target="_blank">*Panduan Penggunaan</a>
+                </div>
+            }
+        </div>*@
+
+    <div class="limiter">
+        <div class="container-login100" style="background:rgba(0, 0, 0, 0);">
+            <div class="wrap-login100">
+                <div class="login100-pic js-tilt" data-tilt>
+                    <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG">
+                </div>
+                @using (Html.BeginForm("MasukAkun", "Account", FormMethod.Post, new { @class = "login100-form validate-form", role = "form", @style = "display: block;", @autocomplete = "off" }))
+                {
+                    @Html.HiddenFor(m => m.Token, new { @Value = ViewBag.Token })
+                    @Html.HiddenFor(m => m.TokenEx, new { @Value = ViewBag.TokenEx })
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    <span class="login100-form-title">
+                        Member Login
+                    </span>
+                    <div class="wrap-input100 validate-input" data-validate="Nama pengguna harus diisi">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "input100", @id = "txt01", @placeholder = "Nama pengguna", @AutoCompleteType = "Disabled", @autocomplete = "off" })
+                        <span class="focus-input100"></span>
+                        <span class="symbol-input100">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                        </span>
+                        @*@Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error" })*@
+                    </div>
+
+                    <div class="wrap-input100 validate-input" data-validate="Kata sandi harus diisi">
+                        <input id="dummy" type="password" value="" autocomplete="off" style="display:none;" />
+                        @Html.PasswordFor(m => m.Password, new { @class = "input100", @id = "txt02", @placeholder = "Kata sandi", @AutoCompleteType = "Disabled", @autocomplete = "off" })
+                        <span class="focus-input100"></span>
+                        <span class="symbol-input100">
+                            <i class="fa fa-lock" aria-hidden="true"></i>
+                        </span>
+                        <span toggle="#txt02" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                        @*@Html.ValidationMessageFor(m => m.Password, "", new { @class = "error" })*@
+                    </div>
+                    @*<div class="login-button clearfix">
+                <div class="checkbox icheck-success sr pull-left" style="margin-left: 10px;">
+                    @Html.CheckBoxFor(m => m.RememberMe)
+                    @Html.LabelFor(m => m.RememberMe)
+                </div>
+            </div>*@
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn">
+                            Login
+                        </button>
+                    </div>
+                    <div class="login-button clearfix">
+                        <div class="checkbox icheck-success sr pull-left" style="margin-left: 25px;">
+                            <a href="https://app.atrbpn.go.id/Akun/pertanahan/AkunSaya/LupaPassword" target="_blank"><i class="fa fa-lock"></i> Lupa Password Akun</a><br />
+                            <a href="https://registrasi.atrbpn.go.id/" target="_blank"><i class="fa fa-envelope"></i> Lupa Password Email</a>
+                        </div>
+                    </div>
+                    <div class="text-center p-t-136" style="margin-top:-130px;">
+                        <span style="font-size: smaller;"><img src='@Url.Content("~/resources/images/logobsre.png")' /><br />Layanan di dukung oleh BSrE</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var url = window.location.hostname;
+            var alertmess = "@(ViewBag.AlertMess)";
+            if (!url.includes(".atrbpn.go.id") && !url.includes("localhost")) {
+                new PNotify({ title: 'Perhatian', text: 'Halaman yang anda akses tidak resmi', delay: 88000, styling: 'bootstrap3', addclass: 'dark' });
+            } else {
+                if (alertmess !== null && alertmess !== '') {
+                    new PNotify({ title: 'Perhatian', text: alertmess, delay: 2000, styling: 'bootstrap3', addclass: 'dark' });
+                }
+            }
+        });
+        $('.js-tilt').tilt({
+            scale: 1.1
+        })
+        $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            var inputtype = input.attr("type");
+            if (inputtype == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+        $(document).keydown(function (event) {
+            if (event.keyCode == 123) { // Prevent F12
+                return false;
+            } else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) { // Prevent Ctrl+Shift+I        
+                return false;
+            }
+        });
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,414 @@
+﻿@model IEnumerable<Surat.Models.Entities.ListDraft>
+
+<style>
+    #TableList_filter, #TableList_info {
+        display: none
+    }
+
+    #TableList_wrapper {
+        overflow: hidden;
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Konsep disetujui
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariSurat" method="post">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBox("metadata", "", new { @class = "form-control", @id = "metadata", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="table-responsive">
+        <section id="flip-scroll">
+            <table id="TableList" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                <thead>
+                    <tr>
+                        <th style="text-align:center; width: 3%;">#</th>
+                        <th style="text-align:center; width: 13%;">Tipe Surat</th>
+                        <th style="text-align:center; width: 8%;">Sifat Surat</th>
+                        <th style="text-align:center;">Perihal</th>
+                        <th style="text-align:center; width: 12%;">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{var count = 0;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="text-align:center;">@(count += 1)</td>
+                            <td >@item.TipeSurat</td>
+                            <td >@item.SifatSurat</td>
+                            <td >@Html.Raw(item.Perihal)</td>
+                            @if(item.Status != "F")
+                            {
+                                <td style="text-align:center">
+                                    <i class="fa fa-eye" style="cursor: pointer;" title="Lihat Konsep" onclick="Tampilan('@item.DraftCode')"></i>&nbsp;&nbsp;&nbsp;
+                                    <i class="fa fa-arrow-right" style="cursor: pointer;" title="Proses TTE" onclick="ProsesTTE('@item.DraftCode')">&nbsp;&nbsp;&nbsp;&nbsp;</i>
+                                </td>
+                            } else
+                            {
+                                <td style="text-align:center">
+                                    <i class="fa fa-check" style="cursor: pointer;color:green" title="Telah Diajukan" onclick="FinalVersion('@item.DraftCode')"></i>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="optView" class="col-md-12" style="margin-top:10px;display:none">
+                <button class="pull-right btn btn-default" id="btnReproses"><i class="fa fa-recycle" title="Ajukan Kembali" style="cursor: pointer;"></i>&nbsp;Ajukan Kembali</button>
+            </div>
+            <div id='myModalCetak'></div>
+        </div>
+    </div>
+</div>
+
+
+<div id='ModalTTE' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalTTE' style="padding:10px;">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>DETAIL DOKUMEN</h2>
+                        <div class="pull-right">
+                            <button type="button" id="SendTTE" class="btn btn-primary">Proses TTE</button>
+                            <button type="button" id="TTB" class="btn btn-info">Simpan dan Tampilkan Berkas</button>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <form id="forTTE">
+                                @Html.Hidden("DokumenElektronikId")
+                                @Html.Hidden("draftcode")
+                                @Html.Hidden("listTTE")
+                                @Html.Hidden("userpembuat")
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <label class="control-label" for="tanggalsurat">Tanggal <span style="color:red">*</span></label>
+                                        <div class='input-group date' style="margin-bottom: 0px;">
+                                            @{ string now = DateTime.Now.ToString("dd/MM/YYYY"); }
+                                            @Html.TextBox("tanggalsurat", now, new { @class = "form-control", @id = "tanggalsurat", @required = "required" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        <small>@Html.ValidationMessage("tanggalsurat", "", new { @class = "error" })</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="nomorsurat">Nomor Surat <span style="color:red">*</span></label>
+                                        @Html.TextBox("nomorsurat", "", new { @class = "form-control formisian", @id = "nomorsurat", @required = "required" })
+                                        <small>@Html.ValidationMessage("nomorsurat", "Harap Masukan Nomor Surat", new { @class = "error" })</small>
+                                        <div class="keteranganTambahan" style="display:none;">
+                                            <small>*Ganti &lt;Nomor&gt; sesuai dengan urutan nomor surat</small><br />
+                                            <small>**Harap dikoreksi ulang pada bagian Kode Penandatangan</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="perihal">Hal <span style="color:red">*</span></label>
+                                        <div id="perihal" style="border: 1px solid #ccc;min-height:100px; padding:10px; color:black; background-color:#eee">
+
+                                        </div>
+                                        @*@Html.TextArea("perihal", "", new { @class = "form-control formisian", @id = "perihal", @required = "required", @readonly = "true" })*@
+                                        <small>@Html.ValidationMessage("perihal", "", new { @class = "error" })</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label" for="posisitte">Posisi TTE <span style="color:red">*</span></label>
+                                        @Html.TextBox("posisitte","", new { @class = "form-control formisian", @id = "posisitte", @required = "required" ,@readonly = "true"})
+                                        <small>@Html.ValidationMessage("posisitte", "", new { @class = "error" })</small>
+                                    </div>
+                                    <div id="pengolahsurat">Pengolah Surat : <span></span></div>
+                                    <hr />
+                                    <div class="x_title">
+                                        <h2>Penandatangan</h2>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <table id="myTableDaftarPegawai" class="table table-striped hover" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%">#</th>
+                                                <th>NIP</th>
+                                                <th>Nama</th>
+                                                <th>Jabatan</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var ProsesTTE = function (draftcode) {
+        $('#myModalDocViewer').modal('hide');
+        $('#myTableDaftarPegawai tbody').html("")
+        $.ajax({
+            url: '@Url.Action("GetDetailTTE", "NaskahDinas")?draftcode='+draftcode,
+            success: function (data) {
+                if (!data.PosisiTTE || !parseInt(data.PosisiTTE)) {
+                    $('#posisitte').val("Sedang Mecari Data.....");
+                    $.ajax({
+                        url: '@Url.Action("getPosisiTTEInfo", "NaskahDinas")?draftcode=' + draftcode,
+                        success: function (data) {
+                            $('#posisitte').val(data.data);
+                        }
+                    })
+                } else {
+                    $('#posisitte').val(data.PosisiTTE);
+                }
+
+
+                $('#DokumenElektronikId').val(data.LampiranId)
+                $('#perihal').html(data.Perihal);
+                $('#draftcode').val(draftcode);
+                $('#userpembuat').val(data.UserPembuat);
+               
+
+                if (data.NomorSurat) {
+                    $('#nomorsurat').val(data.NomorSurat);
+                    $(".keteranganTambahan").show();
+                }
+
+                if (data.TanggalSurat) {
+                    $('#tanggalsurat').val(data.TanggalSurat);
+                }
+                $('#pengolahsurat span').html(data.NamaPembuat);
+                
+
+                var ct = 0;
+                var indexlen = data.TTE.length
+                var listTTEval = ""
+                for (pegawai of data.TTE) {
+                    ct += 1
+                    $('#myTableDaftarPegawai tbody').prepend(`
+                         <tr>
+                            <td style="width:5%">${ct}</td>
+                            <td>${pegawai.PegawaiId}</td>
+                            <td>${pegawai.Nama}</td>
+                            <td>${pegawai.Jabatan}</td>
+                            <td>${(pegawai.Tipe == 1)?"Penandatangan":"Paraf"}</td>
+                        </tr>
+                    `)
+                    listTTEval += `${pegawai.PegawaiId},${pegawai.Tipe}`
+                    if (ct < indexlen) {
+                        listTTEval += "|"
+                    }
+                }
+                $('#listTTE').val(listTTEval)
+            },
+        })
+        $('#ModalTTE').modal('show');
+    }
+
+    $("#SendTTE").on("click",function () {
+        if ($("#forTTE").valid()) {
+            var frmdata = new FormData();
+            frmdata.append("NomorSurat", $('#nomorsurat').val());
+            frmdata.append("TanggalSurat", $('#tanggalsurat').val());
+            frmdata.append("Perihal", $('#perihal').text());
+            frmdata.append("IsiSurat", $('#draftcode').val());
+            frmdata.append("PosisiTTE", $('#posisitte').val());
+            frmdata.append("isDraft", true);
+            if ($('#myTableDaftarPegawai tbody').html().length == 0) {
+                showalert("Penandatangan Harus Dipilih");
+            } else if ($('#myTableDaftarPegawai tbody').find('td:contains(Penandatangan)').length == 0) {
+                showalert("Tidak Ada Data Penandatangan");
+            } else if ($('#listTTE').val() == "") {
+                showalert("Tidak Ada Data");
+            }
+            frmdata.append("listTTE", $('#listTTE').val());
+            frmdata.append("UserPembuat", $('#userpembuat').val());
+
+            $('#ModalTTE').modal('hide');
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var dataSurat = []
+            dataSurat.push({ name: "NomorSurat", value: $('#nomorsurat').val() })
+            dataSurat.push({ name: "TanggalSurat", value: $('#tanggalsurat').val() })
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveLastDraft", "NaskahDinas")?draftcode=' + ($('#draftcode').val()),
+                data: dataSurat,
+                success: function (data) {
+                    if (data.Status) {
+                        frmdata.append("DokumenElektronikId", data.dokumenId);
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("PengajuanTTEDraft", "NaskahDinas")',
+                            data: frmdata,
+                            contentType: false,
+                            processData: false,
+                            success: function (data, textStatus, XMLHttpRequest) {
+                                if (data.Status) {
+                                    swal({
+                                            title: "Informasi",
+                                            text: " Proses TTE berhasil diajukan",
+                                            type: "success",
+                                            timer: 1000,
+                                            showConfirmButton: false
+                                    },
+                                    function () {
+                                             window.location.href = '@Url.Action("KonsepFinal", "NaskahDinas")';
+                                    });
+                                }
+                                else {
+                                    swal("Peringatan", data.Pesan, "warning")
+                                    $.unblockUI();
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                        });
+                    }
+                    else {
+                        swal("Peringatan", data.Pesan, "warning")
+                        $.unblockUI();
+                    }
+                }
+            })
+        }
+    })
+
+    $("#TTB").on("click", function () {
+        if ($("#forTTE").valid()) {
+            var nomor = $('#nomorsurat').val()
+            var tgl = $('#tanggalsurat').val()
+            var id = $('#draftcode').val()
+            var objurl = `@Url.Action("GetForTTB", "NaskahDinas")?draftcode=${id}&tanggalsurat=${tgl}&nomorsurat=${nomor}`;
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalCetak').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+            $('#ModalTTE').modal('hide');
+        }
+    })
+
+    $("#TableList").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $('#metadata').on('keyup', function () {
+        var table = $('#TableList').DataTable();
+        table.search(this.value).draw();
+    });
+
+    var Tampilan = function (id,tp) {
+        if (id !== null && id !== '')
+        {
+            var objurl = '@Url.Action("JoinNdLampiran", "NaskahDinas")?draftcode=' + id;
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#optView').hide()
+                    $('#myModalCetak').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $('#ModalTTE').modal('hide');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    };
+
+    var FinalVersion = function (id) {
+        if (id !== null && id !== '')
+        {
+            var objurl = '@Url.Action("getFinalVersion", "NaskahDinas")?draftcode=' + id;
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#optView').show()
+                    $('#myModalCetak').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $('#ModalTTE').modal('hide');
+                    $('#btnReproses').attr("data-draftcode", id)
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    };
+
+
+    $('#btnReproses').click(function () {
+        var code = $(this).attr('data-draftcode')
+        ProsesTTE(code)
+    })
+
+
+
+    $(document).ready(function () {
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $('#tanggalsurat').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+        });
+    });
+</script>

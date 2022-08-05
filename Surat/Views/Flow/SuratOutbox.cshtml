@@ -1,0 +1,730 @@
+﻿@model Surat.Models.Entities.FindSurat
+
+@{
+    var lstSortBy = new List<SelectListItem>();
+    //lstSortBy.Add(new SelectListItem { Text = "", Value = "" });
+    lstSortBy.Add(new SelectListItem { Text = "Tanggal Kirim", Value = "TanggalKirim" });
+    lstSortBy.Add(new SelectListItem { Text = "Sifat Surat", Value = "SifatSurat" });
+    //lstSortBy.Add(new SelectListItem { Text = "Jenis Disposisi", Value = "JenisDisposisi" });
+    //lstSortBy.Add(new SelectListItem { Text = "Tanggal Terima", Value = "TanggalTerima" });
+
+    var lstSortType = new List<SelectListItem>();
+    //lstSortType.Add(new SelectListItem { Text = "", Value = "" });
+    lstSortType.Add(new SelectListItem { Text = "Urutan menurun (Descending)", Value = "DESC" });
+    lstSortType.Add(new SelectListItem { Text = "Urutan menaik (Ascending)", Value = "ASC" });
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style>
+    #myTableSuratOutbox tbody tr:hover, #myTableSuratOutbox tbody .rowSelected {
+        background-color: #73879C;
+        color: white;
+    }
+
+    #myTableSuratOutbox tbody tr {
+        cursor: pointer;
+    }
+
+    .panel {
+        margin-bottom: 0;
+    }
+
+    #panelControl .fullView {
+        width: 100% !important;
+    }
+
+    .panel-heading {
+        display: flex;
+        cursor: pointer;
+    }
+
+        .panel-heading .penerima {
+            width: 80%
+        }
+
+        .panel-heading .statuspenerima {
+            width: 20%;
+            text-align: right;
+            font-style: italic;
+        }
+
+    .panel-body {
+        padding: 0;
+        transition: max-height 1s;
+        max-height: 500px;
+    }
+
+    .panel-hide {
+        max-height: 0 !important;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .panel-content {
+        padding: 5px 15px;
+    }
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+    @@-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <form class="form-horizontal" id="frmCariSurat" method="post">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>
+                    Surat Terkirim
+                </h3>
+            </div>
+            <div class="title_right">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.Metadata, new { @class = "form-control", @id = "metadata", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-bottom:0px;">
+            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Urutan data berdasarkan:</label>
+            <div class="col-md-7 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.SortBy, lstSortBy, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortBy", @onchange = "SortByChanged()" })
+            </div>
+            <div class="col-md-3 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.SortType, lstSortType, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortType", @onchange = "SortByChanged()" })
+            </div>
+
+        </div>
+    </form>
+
+    <div class="row" id="panelControl">
+        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 divTable fullView">
+            <div class="table-responsive">
+                <section id="flip-scroll">
+                    <table id="myTableSuratOutbox" class="table table-striped table-bordered dt-responsive infinite-scroll" style="width:100%; background-color:white;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">#</th>
+                                <th>Nomor Surat</th>
+                                @*<th>Asal Surat</th>
+                                    <th>Tujuan Surat</th>*@
+                                <th class="centertaligncolumn">Perihal</th>
+                                <th class="kirimCol" style="text-align:center;">Tanggal Kirim</th>
+                                @*<th>Sifat Surat</th>*@
+                                @*<th style="text-align:center;"></th>*@
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        @*<tbody id="dataplaceholder"></tbody>*@
+                    </table>
+                </section>
+            </div>
+            @*@Html.Partial("_Loading")*@
+        </div>
+        <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 divPanelView" style="display:none;">
+            <div id="panelView" style="margin-top: 6px;">
+                <div class="panelHeader" style="padding: 1px 10px; background-color: #73879C; color:white;width:100%;">
+                    <h5>-</h5>
+                </div>
+                <div class="panelBody" style="border: 1px solid #73879C; min-height: 60vh; padding: 5px 5px;">
+                    <div style="padding-right:5px;">
+                        <span><i>terkirim pada :<span class="timesent">-</span></i></span>
+                        <div class="pull-right">
+                            <a class="ViewSuratBtn"><i class="fa fa-envelope" style="cursor: pointer;color:forestgreen" title="Lihat Surat"></i></a>
+                            &nbsp;
+                            <a onclick="loadSuratHistory()"><b class="fa fa-list-ul" title="Perjalanan Surat" style="cursor: pointer; color: darkblue"></b></a>
+                            &nbsp;
+                            <a class="KirimUlangBtn"><b class="fa fa-reply" title="Kirim Ulang" style="cursor: pointer"></b></a>
+                        </div>
+                    </div>
+                    <h6>Penanggung Jawab :<span id="pjsurat"></span></h6>
+                    <h6 style="display:none">Keterangan :<span id="ketSelesai"></span></h6>
+                    <h5>Dikirimkan Kepada :</h5>
+                    <div style="width:100%;display:flex;justify-content:center"><div class="loader" style="display:none"></div><button type="button" class="btn btn-default refreshbutton" style="display:none" onclick="detailSuratTerkirim()"><i class="fa fa-refresh"></i></button></div>
+                    <div class="toPanel" style="max-height:50vh;overflow-y:auto">
+                        @*<div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <div class="penerima">
+                                        -
+                                    </div>
+                                    <div class="statuspenerima">
+                                        belum dibuka
+                                    </div>
+                                </div>
+                                <div class="panel-body panel-hide">
+                                    <div class="panel-content">
+                                        <p>catatan : <span>-</span></p>
+                                        <p>Tindak Lanjut : <span>-</span></p>
+                                    </div>
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+                <div class="panelFooter attachment" style="border: 1px solid #73879C; min-height: 10vh; padding: 5px 5px;border-top:none;margin-top:0">
+                    <span><b>Lampiran :</b></span>
+                    <ul id="dataplaceholder"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='InboxHistoryModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Perjalanan Surat</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="row">
+                                <div class="x_content">
+                                    <ul class="list-unstyled timeline" id="inboxplaceholder"></ul>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="padding-top:20px;">
+                                    <button type="button" class="btn btn-warning" data-dismiss="modal">TUTUP</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div id="tampilanDokumen"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //$(function () {
+    //    $("div#loading").hide();
+    //});
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    $('#myModalDocViewer').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    var dtableSurat;
+    var createPagingSurat = function () {
+        dtableSurat = $('#myTableSuratOutbox').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 15,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("ListSuratKeluar", "Flow")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariSurat').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NomorSurat", "width": "200px"},
+                //{ "data": "PengirimSurat" },
+                //{ "data": "PenerimaSurat" },
+                { "data": "Perihal" },
+                { "data": "TanggalKirim", "className": "centertaligncolumn kirimCol", "width": "150px" },
+             /*{ "data": "SifatSurat" },*/
+                //{
+                //    "data": null,
+                //    "className": "centertaligncolumn",
+                //    "width": "50px",
+                //    "render": function (data, type) {
+                //        return '<i class="fa fa-eye" style="cursor: pointer;" title="Lihat Surat" ></i>&nbsp;&nbsp;&nbsp;<b class="fa fa-reply" title="Kirim Ulang" style="cursor: pointer;"></b>';
+                //    }
+                //}
+            ],
+            "drawCallback": function () {
+                if (clicked) {
+                    toogleDivRow()
+                    window.scrollTo(0, 0);
+                }
+            }
+        });
+    };
+
+    $('#myTableSuratOutbox tbody').delegate('tr i', 'click', function (e) {
+        var data = dtableSurat.row($(this).closest('tr')).data();
+        var loc = '@Url.Action("ViewSurat", "Flow")?suratid=' + data.SuratId + '&nomorsurat=' + data.NomorSurat;
+        if (e.ctrlKey) {
+            window.open(loc, '_blank');
+        } else {
+            window.location.href = loc;
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    $('#myTableSuratOutbox tbody').delegate('tr b', 'click', function (e) {
+        var data = dtableSurat.row($(this).closest('tr')).data();
+        var loc = '@Url.Action("KirimUlangSurat", "Flow")?suratid=' + data.SuratId + '&nomorsurat=' + data.NomorSurat;
+        if (e.ctrlKey) {
+            window.open(loc, '_blank');
+        } else {
+            window.location.href = loc;
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+    $(".ViewSuratBtn").on("mousedown ", function (e){
+        if (e.which <= 2) {
+            e.preventDefault();
+            var data = currentDataFocus
+            var loc = '@Url.Action("ViewSurat", "Flow")?suratid=' + data.SuratId + '&nomorsurat=' + data.NomorSurat;
+            if (e.which == 1) {
+                location.href = loc;
+            } else {
+                window.open(loc);
+            }
+        }
+
+    })
+
+    $(".KirimUlangBtn").on("mousedown ", function (e) {
+        if (e.which <= 2) {
+            e.preventDefault();
+            var data = currentDataFocus
+            var loc = '@Url.Action("KirimUlangSurat", "Flow")?suratid=' + data.SuratId + '&nomorsurat=' + data.NomorSurat;
+            if (e.which == 1) {
+                location.href = loc;
+            } else {
+                window.open(loc);
+            }
+        }
+    })
+
+    @*var loadData = function () {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariSurat');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratOutbox", "Flow")',
+            data: $('#frmCariSurat').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };*@
+
+    $("#frmCariSurat").submit(function (e) {
+        @*resetInfiniteScroll();
+        formToPost = $('#frmCariSurat');
+        //console.log($('#frmCariSurat').serialize());
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratOutbox", "Flow")',
+            data: $('#frmCariSurat').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });*@
+        dtableSurat.ajax.reload(null, true);
+
+        e.preventDefault();
+        return false;
+    });
+
+    function SortByChanged() {
+        @*resetInfiniteScroll();
+        formToPost = $('#frmCariSurat');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratOutbox", "Flow")',
+            data: $('#frmCariSurat').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });*@
+        dtableSurat.ajax.reload(null, true);
+    };
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+        createPagingSurat();
+    });
+
+        @*loadData();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+
+
+    moreRowsUrl = '@Url.Action("DaftarSuratOutbox", "Flow")';
+    $(window).scroll(scrollHandler);*@
+
+
+    let currentDataFocus;
+    $('#myTableSuratOutbox tbody').delegate('tr', 'click', function (e) {
+        toogleDivRow()
+        if ( !$(this).hasClass("rowSelected") ) {
+            $(".rowSelected").removeClass("rowSelected")
+            $(this).addClass("rowSelected")
+        }
+        let data = dtableSurat.row($(this)).data();
+        currentDataFocus = data
+        $("#panelView .panelHeader h5").html(data.NomorSurat ? data.NomorSurat : "Tidak Memiliki Nomor Surat")
+        $("#panelView .timesent").html(data.TanggalKirim)
+        detailSuratTerkirim()
+        loadLampiranSurat()
+    });
+
+    let clicked = false;
+    function toogleDivRow() {
+        $("#panelControl .divTable ").removeClass("fullView")
+        $(".divPanelView ").show()
+        $("#myTableSuratOutbox tr .kirimCol").hide()
+        clicked = true;
+    }
+
+
+    $(".toPanel").on('mouseenter', '.panel', function (event) {
+        $(this).children('.panel-body').toggleClass("panel-hide")
+    }).on('mouseleave', '.panel', function (event) {
+        $(this).children('.panel-body').toggleClass("panel-hide")
+    });
+
+    const colorDiv = {
+        Asli: "#304EAA",
+        AsliUrgent: "#304EAA",
+        Tembusan: "#bb931a",
+        TembusanUrgent: "#bb931a",
+        PenanggungJawab: "#1ABB9C",
+    }
+
+    function detailSuratTerkirim() {
+        let soid = currentDataFocus.SuratOutboxId;
+        let sid = currentDataFocus.SuratId;
+        if (soid) {
+            $("#panelView .loader").show()
+            $("#panelView .toPanel").hide()
+            $("#panelView .refreshbutton").hide()
+            $("#panelView .toPanel").html("")
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("TerkirimHistory", "Flow")?suratoutboxid=' + soid,
+                success: function (rsp) {
+                    if (rsp.status) {
+                        console.log(rsp)
+                        let pj = rsp.st.Redaksi == "Penanggung Jawab" ? rsp.st.Nama : "-"
+                        let proses = rsp.st.Status == "Selesai" ? ` (${rsp.st.Status})` : ""
+                        $("#pjsurat").html(pj + proses)
+                        if (proses == "Selesai") {
+                            $("#ketSelesai").parent().show()
+                            $("#ketSelesai").html(rsp.st.Keterangan ? rsp.st.Keterangan : "Tidak Ada Keterangan")
+                        }
+
+                        for (let d of rsp.data) {
+                            let element = createPanelElement(
+                                d.NamaPenerima,
+                                d.StatusBuka ? d.TanggalBuka : 'belum dibuka',
+                                createTindakLanjut(d.Keterangan, d.StatusBuka),
+                                (d.Keterangan.includes('|') ? d.KeteranganSurat : ''),
+                                colorDiv[d.Redaksi.trim().replace(' ','').replace(',','')]
+                            )
+                            $("#panelView .toPanel").append(element)
+                        }
+
+                        $("#panelView .loader").hide()
+                        $("#panelView .toPanel").show()
+                    } else {
+                        swal("Gagal", "Terdapat Masalah Saat Menngambil Data", "warning")
+                        $("#panelView .loader").hide()
+                        $("#panelView .refreshbutton").show()
+                    }
+                }
+            })
+        }
+    }
+
+    function createPanelElement(penerima, status, tindaklanjut, advKet, color) {
+        let bodyelment = tindaklanjut ? `<div class="panel-body panel-hide">
+                                <div class="panel-content">
+                                    <p style="margin-bottom:0">Tindak Lanjut : <span>${decodeURI(tindaklanjut)}</span></p>
+                                </div>
+                                ${(advKet ? `
+                                    <div class="panel-content">
+                                        <p style="margin-bottom:0">diteruskan Kepada : <span>${decodeURI(advKet)}</span></p>
+                                    </div>
+                                `: "")}
+                            </div>` : "";
+        let elemnt = `<div class="panel panel-default">
+                            <div class="panel-heading" style="background-color:${color};">
+                                <div class="penerima" style="color:white">
+                                    ${decodeURI(penerima)}
+                                </div>
+                                <div class="statuspenerima" style="color:white">
+                                    ${decodeURI(status)}
+                                </div>
+                            </div>
+                            ${bodyelment}
+                        </div>`
+
+        return elemnt
+    }
+
+    function createTindakLanjut(ket, buka) {
+        if (buka) {
+            if (ket.includes('|')) {
+                let splitstr = ket.split('|')
+                if (splitstr[1] && splitstr[0]) {
+                    return splitstr[0] + " : " + splitstr[1]
+                } else if (splitstr[0] || splitstr[1]) {
+                    return ket.replace("|", "")
+                } else {
+                    return "Telah diteruskan"
+                }
+            } else {
+                return ket
+            }
+        } else {
+            return "";
+        }
+    }
+
+    function loadSuratHistory() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = currentDataFocus.SuratId
+        var unitkerjaidhistorisurat = $('#cmbUnitKerjaHistoriSurat').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratHistory", "Flow")',
+            data: { suratid: id, unitkerjaid: unitkerjaidhistorisurat },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#inboxplaceholder').html('');
+                }
+                else {
+                    $('#inboxplaceholder').html(data);
+                    $('#InboxHistoryModal').modal('show');
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+  function loadLampiranSurat() {
+        var id = currentDataFocus.SuratId
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarLampiranSuratView", "Flow")',
+            data: { suratid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                    $('#dataplaceholder li').each(function () {
+                        $(this).children('div').eq(1).hide()
+                    })
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    let isexpand = false
+   var BukaFileLampiran = function (id, namafile, kantorid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFileSurat", "Flow")?id=' + id + '&kantorid=' + kantorid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewer", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+
+                        if (!isexpand) {
+                            $("#detailSurat").children(".row").children('div').removeClass()
+                            $("#detailSurat").addClass("col-md-4 col-xs-12")
+                            $("#detailLampiran").addClass("col-md-8 col-xs-12")
+                            $("#detailLampiran").show()
+                            isexpand = true
+                        }
+                        $('#myModalDocViewer').modal('show');
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".jpg" || fileExt == ".png") {
+                // Display Image
+                var objurl = '@Url.Action("GetFileSuratWithExt", "Flow")?id=' + id + '&kantorid=' + kantorid + '&extension=' + fileExt;
+                objfile = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewer", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".doc" || fileExt == ".docx") {
+                // Download Word
+                //fileExt = ".doc";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+            else if (fileExt == ".xls" || fileExt == ".xlsx") {
+                // Download Excel
+                //fileExt = ".xls";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+        }
+    }
+</script>

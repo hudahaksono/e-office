@@ -1,0 +1,175 @@
+﻿@model Surat.Models.Entities.Pertanyaan
+
+@{ var lstType = new List<SelectListItem>();
+    lstType.Add(new SelectListItem { Text = "", Value = "" });
+    lstType.Add(new SelectListItem { Text = "Pilihan Ganda", Value = "1" });
+    lstType.Add(new SelectListItem { Text = "Isi Text", Value = "0" }); }
+
+<style>
+    #listpilihan {
+        margin-top: 14px;
+        border: 1px solid #ccc;
+        font-size: 1.2em;
+        color: #555;
+        padding: 5px 10px;
+    }
+
+        #listpilihan button {
+            background-color: white;
+            border: none;
+            color: red;
+            font-size: .8em;
+        }
+</style>
+
+<div class="">
+    <div class="page-title">
+        <div class="title_left"><h2 style="width:100%"><span id="LabelTitle">Entri Data Pertanyaan</span></h2></div>
+        <div class="title_right" style="text-align:right;">
+            <div class="pull-right">
+                <span class="input-group-btn" style="padding-right:2px;">
+                    <button id="cancel-btn" type="button" class="btn btn-warning" onclick="history.back();">Kembali</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding-top:7px; border:1px solid #E6E9ED;">
+                <div class="x_title">
+                    <h2>Data Utama</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="">
+                        <div class="x_panel">
+
+                            <form class="form-horizontal form-label-left" id="frmPertanyaan" method="post">
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12">Jenis Soal<span style="color:red">*</span></label>
+                                    <div class="col-md-9 col-sm-9 col-xs-12">
+                                        @Html.DropDownListFor(model => model.Status, lstType, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "Status", @required = "required" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12">Nama Pertanyaan<span style="color:red">*</span></label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.TextAreaFor(m => m.Nama_Pertanyaan, new { @class = "form-control", @id = "nama_pertanyaan", @rows = 4, @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="form-group" id="prt" style="display:none;">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12">Pilihan Jawaban</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12" id="pilbox">
+                                        <input id="inptval" type="text" value="" class="form-control" style="margin-bottom:5px" placeholder="Pilihan" />
+                                        <button id="tambahpilihan" type="button" class="btn btn-success"><i class="fa fa-plus"></i> Tambah Pilihan</button>
+                                        <div id="listpilihan">
+                                        </div>
+                                        <span id="pilvald" style="color:red; display: none;">*pilihan wajib diisi</span>
+                                    </div>
+                                </div>
+
+
+                                <input type="text" id="StatusHapus" name="StatusHapus" value="@Model.StatusHapus" hidden />
+                                <input type="text" id="Pertanyaan_Id" name="Pertanyaan_Id" value="@Model.Pertanyaan_Id" hidden />
+                                <input type="text" id="Pilihan" name="Pilihan" value="" hidden />
+
+
+                                <div class="ln_solid"></div>
+                                <div class="form-group">
+                                    <div class="col-md-7 col-sm-7 col-xs-12 col-md-offset-2">
+                                        <button id="save-btn" type="submit" class="btn btn-primary">Simpan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var countpt = 1
+    $("#tambahpilihan").click(function () {
+        var loc = $('#listpilihan')
+        loc.append(`<div id='${countpt}'><span>${$('#inptval').val()} </span><button onclick="hapuslist('${countpt}')" type="button"><i class="fa fa-trash"></i> hapus</button></div>`)
+        countpt += 1
+    })
+    function hapuslist(id) {
+        $(`#${id}`).remove()
+    }
+
+    $("#frmPertanyaan").submit(function (e) {
+        e.preventDefault()
+        var valid = false
+        //prepare
+        var Pilihanisi = $("#Pilihan").val()
+        $('#listpilihan').children('div').children('span').each(function () {
+            Pilihanisi += (this.innerHTML+'|')
+        })
+        $("#Pilihan").val(Pilihanisi)
+        $("#StatusHapus").val('0')
+
+        if ($("#Status").val() == "1") {
+            if ($("#Pilihan").val() == "") { $('#pilvald').show(); valid = false}
+            else { $('#pilvald').hide(); valid = true }
+        } else {
+            $('#pilvald').hide(); valid = true
+        }
+
+        if (valid) {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            var data = $("#frmPertanyaan").serializeArray();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("simpanPertanyaan", "Kuisioner")',
+                data: data,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $('#LabelTitle').html('Entri Data Rapat Online - <b>' + $('#judul').val() + '</b>');
+                        $('#RapatOnlineId').val(data.ReturnValue);
+                        window.location.href = '@Url.Action("AdministrasiKuisioner", "Kuisioner")?mssg=' + data.Pesan;
+                    }
+                    else {
+                        showmsg('Perhatian', data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            })
+        }
+    })
+
+    $("#Status").change(function () {
+        if ($("#Status").val() == "1") {
+            $("#prt").show()
+        } else if ($("#Status").val() == "0"){
+            $("#prt").hide()
+    }
+    })
+
+    $(document).ready(function () {
+        if ($("#Status").val() == "1") {
+            $("#prt").show()
+        } else if ($("#Status").val() == "0") {
+            $("#prt").hide()
+        }
+
+        if ($("#Pertanyaan_Id").val() != "" && $("#Pertanyaan_Id").val() == "@Model.Pertanyaan_Id") {
+            var string = "@Model.Pilihan"
+            var strings = string.split("|")
+            var target = $('#listpilihan')
+
+            for (s of strings) {
+                if (s != "") {
+                    target.append(`<div id='${countpt}'><span>${s} </span><button onclick="hapuslist('${countpt}')" type="button"><i class="fa fa-trash"></i> hapus</button></div>`)
+                    countpt += 1
+                }
+            }
+        }
+    })
+
+</script>

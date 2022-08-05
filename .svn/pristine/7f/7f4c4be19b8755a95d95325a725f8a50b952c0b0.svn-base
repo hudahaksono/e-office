@@ -1,0 +1,1228 @@
+﻿@*@model IEnumerable<Surat.Models.Entities.MasterArsip>*@
+@model Surat.Models.Entities.KlasifikasiMasterArsip
+ 
+
+@*<script src="@Url.Content("~/resources/inline/select2.full.min.js")"></script>
+<script src='@Url.Content("~/resources/inline/select2.min.js")'></script>*@
+ 
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+@{
+    var listKategoriArsip = new List<SelectListItem>();
+    listKategoriArsip.Add(new SelectListItem { Text = "Data dan Informasi", Value = "Data dan Informasi" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Hubungan Hukum Pertanahan", Value = "Hubungan Hukum Pertanahan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Hukum", Value = "Hukum" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Infrastruktur Pertanahan", Value = "Infrastruktur Pertanahan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Kepegawaian", Value = "Kepegawaian" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Ketatausahaan", Value = "Ketatausahaan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Ketatausahaan Pertanahan Wilayah", Value = "Ketatausahaan Pertanahan Wilayah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Keuangan", Value = "Keuangan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Konsolidasi Tanah", Value = "Konsolidasi Tanah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Landreform", Value = "Landreform" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Organisasi dan Tata Laksana", Value = "Organisasi dan Tata Laksana" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pemanfaatan Ruang", Value = "Pemanfaatan Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pemanfaatan Tanah Pemerintah", Value = "Pemanfaatan Tanah Pemerintah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pemberdayaan Hak atas Tanah Masyarakat", Value = "Pemberdayaan Hak atas Tanah Masyarakat" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pembinaan Pengadaan dan Penetapan Tanah Pemerintah", Value = "Pembinaan Pengadaan dan Penetapan Tanah Pemerintah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pembinaan Perencanaan Tata Ruang dan Pemanfaatan Ruang Daerah", Value = "Pembinaan Perencanaan Tata Ruang dan Pemanfaatan Ruang Daerah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penanganan Masalah dan Pengendalian Pertanahan", Value = "Penanganan Masalah dan Pengendalian Pertanahan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penanganan Perkara Tanah dan Ruang", Value = "Penanganan Perkara Tanah dan Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penataan Kawasan", Value = "Penataan Kawasan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penataan Pertanahan", Value = "Penataan Pertanahan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penataan Wilayah Pesisir, Pulau - Pulau Kecil, Perbatasan dan Wilayah Tertentu", Value = "Penataan Wilayah Pesisir, Pulau - Pulau Kecil, Perbatasan dan Wilayah Tertentu" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penatagunaan Tanah", Value = "Penatagunaan Tanah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pendidikan dan Pelatihan", Value = "Pendidikan dan Pelatihan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penelitian dan Pengembangan", Value = "Penelitian dan Pengembangan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penertiban dan Pemanfaatan Ruang", Value = "Penertiban dan Pemanfaatan Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penertiban dan Pendayagunaan Tanah Terlantar", Value = "Penertiban dan Pendayagunaan Tanah Terlantar" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengadaan Tanah", Value = "Pengadaan Tanah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengaturan dan Pendaftaran Hak Tanah, Ruang dan PPAT", Value = "Pengaturan dan Pendaftaran Hak Tanah, Ruang dan PPAT" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengaturan dan Penetapan Hak Tanah dan Ruang", Value = "Pengaturan dan Penetapan Hak Tanah dan Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengawasan", Value = "Pengawasan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengendalian dan Pemantauan Pertanahan", Value = "Pengendalian dan Pemantauan Pertanahan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengendalian Pemanfaatan Ruang", Value = "Pengendalian Pemanfaatan Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengukuran dan Pemetaan Dasar", Value = "Pengukuran dan Pemetaan Dasar" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Pengukuran dan Pemetaan Kadastral", Value = "Pengukuran dan Pemetaan Kadastral" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Penilaian Tanah", Value = "Penilaian Tanah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Perencanaan", Value = "Perencanaan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Perencanaan Tata Ruang", Value = "Perencanaan Tata Ruang" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Perlengkapan dan Layanan Pengadaan", Value = "Perlengkapan dan Layanan Pengadaan" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Sengketa dan Konflik Tanah dan Ruang Wilayah", Value = "Sengketa dan Konflik Tanah dan Ruang Wilayah" });
+    listKategoriArsip.Add(new SelectListItem { Text = "Survei dan Pemetaan Tematik", Value = "Survei dan Pemetaan Tematik" });
+
+
+    var listKeteranganLokasi = new List<SelectListItem>();
+    listKeteranganLokasi.Add(new SelectListItem { Text = "Kementerian Agraria dan Tata Ruang / Badan Pertanahan Nasional", Value = "Kementerian Agraria dan Tata Ruang / Badan Pertanahan Nasional" });
+    listKeteranganLokasi.Add(new SelectListItem { Text = "Kantor Wilayah", Value = "Kantor Wilayah" });
+    listKeteranganLokasi.Add(new SelectListItem { Text = "Kantor Pertanahan", Value = "Kantor Pertanahan" });
+
+
+    var listmasa = new List<SelectListItem>();
+    listmasa.Add(new SelectListItem { Text = "1 Tahun", Value = "1 Tahun" });
+    listmasa.Add(new SelectListItem { Text = "2 Tahun", Value = "2 Tahun" });
+    listmasa.Add(new SelectListItem { Text = "3 Tahun", Value = "3 Tahun" });
+    listmasa.Add(new SelectListItem { Text = "4 Tahun", Value = "4 Tahun" });
+    listmasa.Add(new SelectListItem { Text = "5 Tahun", Value = "5 Tahun" });
+
+    var listhasilakhir = new List<SelectListItem>();
+    listhasilakhir.Add(new SelectListItem { Text = "Permanen", Value = "Permanen" });
+    listhasilakhir.Add(new SelectListItem { Text = "Musnah", Value = "Musnah" });
+
+    var liststatus = new List<SelectListItem>();
+    liststatus.Add(new SelectListItem { Text = "Tidak Ada", Value = "Tidak Ada" });
+    liststatus.Add(new SelectListItem { Text = "Setelah diperbarui", Value = "Setelah diperbarui" });
+    liststatus.Add(new SelectListItem { Text = "Setelah masa jabatan berakhir", Value = "Setelah masa jabatan berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Surat Keputusan (SK) ditetapkan", Value = "Setelah Surat Keputusan (SK) ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah penetapan angka kredit/PAK ditetapkan", Value = "Setelah penetapan angka kredit/PAK ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah anggaran berjalan", Value = "Setelah anggaran berjalan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah memperoleh keputusan tetap", Value = "Setelah memperoleh keputusan tetap" });
+    liststatus.Add(new SelectListItem { Text = "Setelah pelaksanaan", Value = "Setelah pelaksanaan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah identitas ditetapkan", Value = "Setelah identitas ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah memperoleh keputusan hukum yang bersifat tetap", Value = "Setelah memperoleh keputusan hukum yang bersifat tetap" });
+    liststatus.Add(new SelectListItem { Text = "Setelah berhenti/pensiun", Value = "Setelah berhenti/pensiun" });
+    liststatus.Add(new SelectListItem { Text = "Selama pemeriksaan", Value = "Selama pemeriksaan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah diperoleh keputusan berkekuatan hukum tetap", Value = "Setelah diperoleh keputusan berkekuatan hukum tetap" });
+    liststatus.Add(new SelectListItem { Text = "Setelah diperoleh keputusan berkekuatan hukum tetap dan dipenuhi hak dan kewajiban", Value = "Setelah diperoleh keputusan berkekuatan hukum tetap dan dipenuhi hak dan kewajiban" });
+    liststatus.Add(new SelectListItem { Text = "Setelah izin diperbarui", Value = "Setelah izin diperbarui" });
+    liststatus.Add(new SelectListItem { Text = "Setelah HaKI terbit", Value = "Setelah HaKI terbit" });
+    liststatus.Add(new SelectListItem { Text = "Setelah penetapan", Value = "Setelah penetapan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah update data", Value = "Setelah update data" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tidak berlaku", Value = "Setelah tidak berlaku" });
+    liststatus.Add(new SelectListItem { Text = "Setelah rencana induk diperbarui", Value = "Setelah rencana induk diperbarui" });
+    liststatus.Add(new SelectListItem { Text = "Setelah surat izin terbit", Value = "Setelah surat izin terbit" });
+    liststatus.Add(new SelectListItem { Text = "Setelah SK pengangkatan ditetapkan", Value = "Setelah SK pengangkatan ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah SK pengangkatan kembali ditetapkan", Value = "Setelah SK pengangkatan kembali ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tidak berlaku", Value = "Setelah tidak berlaku" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Tahun anggaran berakhir", Value = "Setelah Tahun anggaran berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tindak lanjut hasil pemeriksaan telah selesai", Value = "Setelah tindak lanjut hasil pemeriksaan telah selesai" });
+    liststatus.Add(new SelectListItem { Text = "Setelah UU tentang Pertanggungjawaban APBN disahkan", Value = "Setelah UU tentang Pertanggungjawaban APBN disahkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah diterbitkan", Value = "Setelah diterbitkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Loan Agreement ditanda tangani", Value = "Setelah Loan Agreement ditanda tangani" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Loan Agreement ditanda tangani", Value = "Setelah Loan Agreement ditanda tangani" });
+    liststatus.Add(new SelectListItem { Text = "Setelah pinjaman berakhir", Value = "Setelah pinjaman berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah perjanjian pinjaman berakhir", Value = "Setelah perjanjian pinjaman berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah diperoleh keputusan dan berkekuatan hukum tetap", Value = "Setelah diperoleh keputusan dan berkekuatan hukum tetap" });
+    liststatus.Add(new SelectListItem { Text = "Setelah serah terima lokasi pengadaan tanah", Value = "Setelah serah terima lokasi pengadaan tanah" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Tahun anggaran berakhir", Value = "Setelah Tahun anggaran berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah pengangkatan PNS", Value = "Setelah pengangkatan PNS" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Surat Keputusan (SK) ditetapkan", Value = "Setelah Surat Keputusan (SK) ditetapkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah pelaksanaan", Value = "Setelah pelaksanaan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah Tahun anggaran", Value = "Setelah Tahun anggaran" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tindak lanjut hasil pemeriksaan selesai", Value = "Setelah tindak lanjut hasil pemeriksaan selesai" });
+    liststatus.Add(new SelectListItem { Text = "Setelah penerbitan LHP", Value = "Setelah penerbitan LHP" });
+    liststatus.Add(new SelectListItem { Text = "Setelah penerbitan LHAI", Value = "Setelah penerbitan LHAI" });
+    liststatus.Add(new SelectListItem { Text = "Setelah penerbitan LHP/LHPO", Value = "Setelah penerbitan LHP/LHPO" });
+    liststatus.Add(new SelectListItem { Text = "Setelah kontrak selesai", Value = "Setelah kontrak selesai" });
+    liststatus.Add(new SelectListItem { Text = "Setelah SK diterbitkan", Value = "Setelah SK diterbitkan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah terbit", Value = "Setelah terbit" });
+    liststatus.Add(new SelectListItem { Text = "Setelah perjanjian berakhir", Value = "Setelah perjanjian berakhir" });
+    liststatus.Add(new SelectListItem { Text = "Setelah pelaksanaan", Value = "Setelah pelaksanaan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tidak dipergunakan", Value = "Setelah tidak dipergunakan" });
+    liststatus.Add(new SelectListItem { Text = "Setelah tidak dipergunakan", Value = "Setelah tidak dipergunakan" });
+    liststatus.Add(new SelectListItem { Text = "Selama Piutang belum tertagih", Value = "Selama Piutang belum tertagih" });
+    liststatus.Add(new SelectListItem { Text = "Selama Investasi masih ada", Value = "Selama Investasi masih ada" });
+    liststatus.Add(new SelectListItem { Text = "Selama barang masih dikuasai", Value = "Selama barang masih dikuasai" });
+    liststatus.Add(new SelectListItem { Text = "Selama software masih digunakan", Value = "Selama software masih digunakan" });
+    liststatus.Add(new SelectListItem { Text = "Selama yang bersangkutan masih pegawai", Value = "Selama yang bersangkutan masih pegawai" });
+    liststatus.Add(new SelectListItem { Text = "Selama peraturan masih berlaku", Value = "Selama peraturan masih berlaku" });
+    liststatus.Add(new SelectListItem { Text = "Selama belum ada perubahan", Value = "Selama belum ada perubahan" });
+    liststatus.Add(new SelectListItem { Text = "Selama barang ada", Value = "Selama barang ada" });
+    liststatus.Add(new SelectListItem { Text = "Sampai dengan tidak berlaku", Value = "Sampai dengan tidak berlaku" });
+    liststatus.Add(new SelectListItem { Text = "Selama dipergunakan", Value = "Selama dipergunakan" });
+    liststatus.Add(new SelectListItem { Text = "Selama Berlaku", Value = "Selama Berlaku" });
+    liststatus.Add(new SelectListItem { Text = "Selama dipergunakan", Value = "Selama dipergunakan" });
+    liststatus.Add(new SelectListItem { Text = "Sampai tidak dipergunakan", Value = "Sampai tidak dipergunakan" });
+    liststatus.Add(new SelectListItem { Text = "Sampai dengan diperbaharui", Value = "Sampai dengan diperbaharui" });
+    liststatus.Add(new SelectListItem { Text = "Setelah menjadi pedoman", Value = "Setelah menjadi pedoman" });
+    liststatus.Add(new SelectListItem { Text = "Sampai SK diterbitkan", Value = "Sampai SK diterbitkan" });
+    liststatus.Add(new SelectListItem { Text = "Sampai dilakukan Penghapusan Hak Tanggungan (Roya)", Value = "Sampai dilakukan Penghapusan Hak Tanggungan (Roya)" });
+
+
+    var lstNull = new List<SelectListItem>();
+}
+
+<style>
+    .editable {
+        display: none;
+    }
+
+/*    [contenteditable="true"] {
+        background-color: cornflowerblue;
+        font-weight: bold;
+        color: white;
+    }
+
+        [contenteditable="true"]:focus {
+            background-color: darkkhaki;
+            font-weight: bold;
+            color: white;
+        }*/
+
+    [contenteditable="true"], .selecteditable {
+        background-color: #f9f9f9;
+        font-weight: bold;
+        color: black;
+    }
+        [contenteditable="true"]:focus, .selecteditable:focus {
+            outline: none;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+
+
+    .change-success {
+        background-color: #91ff76;
+    }
+
+
+    .form-control-addition {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        transition: none;
+        box-shadow: none;
+    }
+
+        .form-control-addition:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+    @@media (
+        min-width: 768px) {
+        .modal-xl {
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+
+
+    .btntransparent {
+        background-color: transparent;
+        background-repeat: no-repeat;
+        border: none;
+        cursor: pointer;
+        overflow: hidden;
+        outline: none;
+    }
+</style>
+
+
+
+
+<div id="tab-content" class="tab-content">
+   
+
+    <form class="form-horizontal" id="frmCariArsip" method="post">
+        <div class="clearfix"></div>
+        <div style="padding-bottom:0px; margin-bottom: -10px" id="DivFilterData">
+            <div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                        @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @id = "MetaData", @placeholder = "Kode Klasifikasi ...", @onkeyup = "MetaDataChanged()" })
+                    </div>
+                    @*<div class="col-md-2 col-sm-2 col-xs-2 form-group">
+                            <button id="srchbutton" type="submit" class="btn btn-info btn-block"><i class="fa fa-search"></i> Cari</button>
+                        </div>*@
+                </div>
+                <div class="row ">
+                    <div class="col-md-8 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                        @Html.DropDownListFor(model => model.Kategori, listKategoriArsip, "Pilih Kategori Arsip", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbListArsip", @onchange = "ListArsipChanged()" })
+                    </div>
+                    <div class="col-md-4 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                        @Html.DropDownListFor(model => model.KeteranganLokasi, listKeteranganLokasi, "Pilih Satuan Kerja", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbKeteranganLokasi", @onchange = "KeteranganLokasiChanged()" })
+                    </div>
+
+                </div>
+            </div>
+        </div> 
+    </form>
+    <form action="" id="form-data">
+        <div class="form-group">
+            <button class="btn btn-primary btn-md" id="add_member" type="button"><i class="fa fa-plus"></i> Tambah</button>
+            <button class="btn btn-success btn-md" id="SubmitKlasifikasi" type="submit" disabled><i class="fa fa-save"></i> Simpan</button>
+        </div>
+        <div class="table-responsive">
+            <!-- Table Form start -->
+            <input type="hidden" name="Id" value="">
+            <table id="myTableKlasifikasiMasterArsip" class="table table-hover table-bordered" style="width:100%; background-color:white;">
+                <thead>
+                    <tr style="background-color: #696969;">
+                        <th class="text-center p-1" width="3%" style="color:white">No.</th>
+                        <th class="text-center p-1" width="5%" style="color:white">Kode Klasifikasi</th>
+                        <th class="text-center p-1" style="color:white">Jenis Arsip</th>
+                        <th class="text-center p-1" style="color:white">Keterangan</th>
+                        <th class="text-center p-1" style="color:white">Kategori Arsip</th>
+                        <th class="text-center p-1" style="color:white">Satuan Kerja</th>
+                        <th class="text-center p-1" style="color:white">Aksi</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </form>
+
+
+
+    <div id='masamodal' class='modal' data-target="#orderModal" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div id='myModalContent'>
+                    <div class="modal-header" style="text-align:left;">
+                        <form action="" id="form-data-masa">
+                            <button type="button" class="close" id="destroymasa" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                            <h2 class="modal-title" id="myModalLabel">Daftar Jadwal Retensi Arsip</h2>
+                            <hr />
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-md" id="add_masa" type="button"><i class="fa fa-plus"></i> Tambah</button>
+                                <button class="btn btn-success btn-md" id="SubmitDetail" type="submit" disabled><i class="fa fa-save"></i> Simpan</button>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                    <div class="table-responsive">
+
+                                        <input type="hidden" name="Id" id="text-kode" value="">
+                                        <table id="myTableMasa" class='table table-hover table-bordered' style="width:100%; background-color:white;">
+                                            <thead>
+                                                <tr style="background-color: #696969;">
+                                                    <th class="text-center p-1" style="color:white" width="5%">No.</th>
+                                                    <th class="text-center p-1" style="color:white">Kode Klasifikasi</th>
+                                                    <th class="text-center p-1" style="color:white">Nama Jenis Arsip</th>
+                                                    <th class="text-center p-1" style="color:white">Masa Retensi Aktif</th>
+                                                    <th class="text-center p-1" style="color:white">Status Aktif</th>
+                                                    <th class="text-center p-1" style="color:white">Masa Retensi Inaktif</th>
+                                                    <th class="text-center p-1" style="color:white">Status Inaktif</th>
+                                                    <th class="text-center p-1" style="color:white">Keterangan</th>
+                                                    <th class="text-center p-1" style="color:white">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+
+
+                                        </table>
+
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    $(document).on("keydown", "form", function (event) {
+        return event.key != "Enter";
+    });
+    function selectRefresh() {
+        $('.select2_normal').select2({
+            width: '100%'
+        });
+    }
+    var dtableKlasifikasiMasterArsip;
+    var createPagingKlasifikasiMasterArsip = function () {
+        dtableKlasifikasiMasterArsip = $('#myTableKlasifikasiMasterArsip').DataTable({
+            drawCallback: function () {
+                $('.select2_normal').select2();
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    },
+                    title: "Klasifikasi Master Arsip",
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    },
+                    orientation: "landscape",
+                    title: "Klasifikasi Master Arsip",
+
+                },
+            ],
+            "bFilter": false,
+            "bLengthChange": false,
+            "oLanguage": {
+                "sInfo": "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                "sInfoEmpty": "Menampilkan 0 ke 0 dari 0 entri",
+                "emptyTable": "Tak ada data yang tersedia pada tabel ini",
+                "sSearch": "Pencarian :"
+            },
+            "ajax": {
+                url: '@Url.Action("ListKlasifikasiMasterArsip", "Kearsipan")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariArsip').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    "className": "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "KodeKlasifikasi", "className": "edit_data", "className": "text-center", "width":"110px"},
+                { "data": "JenisArsip", "className": "edit_data" },
+                { "data": "Keterangan", "className": "edit_data" },
+                {
+                    "data": "Kategori",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuekategoriarsip" value="` + data + `"><p class="showkategoriarsip">` + data + `</p><p class="appendkategoriarsip" title="` + data + `"></p>`;
+                    }
+                },
+                {
+                    "data": "KeteranganLokasi",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valueketeranganlokasi" value="` + data + `"><p class="showketeranganlokasi">` + data + `</p><p class="appendketeranganlokasi" title="` + data + `"></p>`;
+                    }
+                },
+                {
+                    "data": "KodeKlasifikasi",
+                    sortable: false,
+                    "render": function (data) {
+                        var kutip = "'";
+                        var btnModal = '<button class="btntransparent noneditable" onclick="Pengaturan2('+ kutip + data + kutip +')" type="button"><i class="fa fa-cogs"></i></button>'
+                        var btnHapus = "<button class='btntransparent noneditable' type='button'><i class='fa fa-trash delete_data noneditable' style='cursor: pointer; color:red;' title=' Hapus Data'></i></button>&nbsp;&nbsp;&nbsp;"; /*"<button class='btn btn-danger btn-sm rounded-0 py-0 delete_data noneditable' type='button'><i class='fa fa-trash'></i></button>"*/
+                        var btnSimpan = "<button type='submit' class='btntransparent'><i class='fa fa-save simpan_data editable' style='cursor: pointer; color:green;' title=' Simpan Data' type='submit'></i></button>"; /*"<button class='btn btn-sm btn-success btn-flat rounded-0 px-2 py-0 editable'><i class='fa fa-save'></i></button>"*/
+                        var btnBatal = "<button class='btntransparent editable' type='button' onclick='cancel_button($(this))' ><i class='fa fa-close' style='cursor: pointer; color:black;' title=' Batal'></i></button>"; /*"<button class='btn btn-sm btn-dark btn-flat rounded-0 px-2 py-0 editable' onclick='cancel_button($(this))' type='button'><i class='fa fa-close'></i></button>"*/
+
+                        return btnModal + btnHapus + btnSimpan + btnBatal;
+                    }}
+            ],
+
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+
+            createdRow: function (row, data, dataIndex) {
+                $(row).attr('data-id', data.Id);
+                $(row).find('td:eq(1)').attr({ name: 'KodeKlasifikasi', contenteditable: 'false'});
+                $(row).find('td:eq(2)').attr({ name: 'JenisArsip', contenteditable: 'false'});
+                $(row).find('td:eq(3)').attr({ name: 'Keterangan', contenteditable: 'false'});
+            }
+        });
+    };
+
+    function ListArsipChanged() {
+        dtableKlasifikasiMasterArsip.ajax.reload(null, true);
+    };
+
+    function KeteranganLokasiChanged() {
+        dtableKlasifikasiMasterArsip.ajax.reload(null, true);
+    };
+    function MetaDataChanged() {
+        dtableKlasifikasiMasterArsip.ajax.reload(null, true);
+    };
+
+    $(document).ready(function () {
+       $('.select2_single').select2({ width: 'resolve' });
+        createPagingKlasifikasiMasterArsip();
+    });
+
+
+    $(function () {
+        // Create New Row
+        $('#add_member').click(function () {
+            $('#SubmitKlasifikasi').removeAttr('disabled');
+            if ($('tr[data-id=""]').length > 0) {
+                $('tr[data-id=""]').find('[name="KodeKlarifikasi"]').focus()
+                return false;
+            }
+            var tr = $('<tr>')
+
+            $('input[name="Id"]').val('')
+            tr.addClass('py-1 px-2');
+            tr.attr('data-id', '');
+            tr.addClass('newrow');
+            tr.addClass('selecteditable');
+
+            tr.prepend('<td class="text-center"><button class="btntransparent" onclick="cancel_button($(this))" type="button"><i class="fa fa-close" style="cursor: pointer; color: black; display: inline-block;"></i></button>')
+            tr.prepend(`<td>@Html.DropDownListFor(model => model.KeteranganLokasi, listKeteranganLokasi, "Pilih Keterangan Lokasi", new { @class = "select2_normal form-control input-autofit", @id = "keteranganlokasiaktif" })</td>`)
+            tr.prepend(`<td>@Html.DropDownListFor(model => model.Kategori, listKategoriArsip, "Pilih Kategori Arsip", new { @class = "select2_normal form-control input-autofit", @id = "kategoriarsipaktif" })</td>`)
+            tr.prepend('<td contenteditable="true" name="Keterangan"></td>')
+            tr.prepend('<td contenteditable="true" name="JenisArsip"></td>')
+            tr.prepend('<td contenteditable="true" name="KodeKlasifikasi"></td>')
+            tr.prepend('<td></td>')
+            $('#myTableKlasifikasiMasterArsip').prepend(tr)
+            tr.find('[name="KodeKlasifikasi"]').focus()
+            selectRefresh();
+        })
+
+        //////////////////////////////////////////////////////////////////
+
+        $('#form-data').submit(function (e) {
+            $('#status_hapus').val('0');
+            var id = $('input[name="Id"]').val();
+            var KeteranganLokasi = document.getElementById('keteranganlokasiaktif').value;
+            var KategoriArsip = document.getElementById('kategoriarsipaktif').value;
+
+            var data1 = {};
+            // check fields promise
+            var check_fields = new Promise(function (resolve, reject) {
+                data1['Id'] = id;
+                data1['KeteranganLokasi'] = KeteranganLokasi;
+                data1['Kategori'] = KategoriArsip;
+
+
+                $('td[contenteditable=true]').each(function () {
+                    data1[$(this).attr('name')] = $(this).text()
+                    if (data1[$(this).attr('name')] == '') {
+                        alert("All fields are required.");
+                        resolve(false);
+                        return false;
+                    }
+                })
+                resolve(true);
+            })
+
+            // continue only if all fields are filled
+            check_fields.then(function (resp) {
+                if (!resp)
+                    return false;
+                $.ajax({
+                    url: '@Url.Action("TambahKlasifikasiMasterArsip", "Kearsipan")',
+                    method: 'POST',
+                    data: data1,
+                    dataType: 'json',
+                    success: function (data, textStatus, XMLHttpRequest) {
+                        if (data.Status) {
+                            showinfo(data.Pesan);
+                            $.unblockUI();
+                            SudahOpenMenu('PengaturanKlasifikasiMasterArsip', 'Klasifikasi Master Arsip');
+                            EditKlasifikasi()
+                            $('#SubmitKlasifikasi').attr('disabled','disabled');
+                        }
+                        else {
+                        }
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        SudahOpenMenu('PengaturanKlasifikasiMasterArsip', 'Klasifikasi Master Arsip');
+                        EditKlasifikasi()
+                        $('#SubmitKlasifikasi').attr('disabled', 'disabled');
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                })
+                e.preventDefault();
+                SudahOpenMenu('PengaturanKlasifikasiMasterArsip', 'Klasifikasi Master Arsip')
+            })
+
+            SudahOpenMenu('PengaturanKlasifikasiMasterArsip', 'Klasifikasi Master Arsip')
+        })
+        EditKlasifikasi()
+        //////////////////////////////////////////////////////////////////////
+
+        // Delete Row
+        $('#myTableKlasifikasiMasterArsip').on("click", ".delete_data", function () {
+                var id = $(this).closest('tr').attr('data-id')
+            var name = $(this).closest('tr').find("[name='KodeKlasifikasi']").text()
+
+                swal({
+                    title: "Konfirmasi Hapus",
+                    text: "Apakah anda yakin akan menghapus data?\nData ID : " + name,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: "Batal"
+                 },
+                    function (isConfirm) {
+
+                        if (isConfirm) {
+                           $.ajax({
+                                url: '@Url.Action("HapusKlasifikasiMasterArsip", "Kearsipan")',
+                                method: 'POST',
+                                data: { Id: id },
+                                dataType: 'json',
+                                error: err => {
+                                    alert("An error occured while saving the data")
+                                    console.log(err)
+                           },
+                            success: function (resp) {
+                                if (resp.status == 'success') {
+                                    dtableKlasifikasiMasterArsip.destroy();
+                                    createPagingKlasifikasiMasterArsip()
+                                    EditKlasifikasi()
+                                } else {
+
+                                    dtableKlasifikasiMasterArsip.destroy();
+                                    createPagingKlasifikasiMasterArsip()
+                                    EditKlasifikasi()
+                                }
+                            }
+                    })
+
+                    }
+                    });
+
+
+            })
+    })
+
+        // Edit Row
+
+     function EditKlasifikasi() {
+            $('#myTableKlasifikasiMasterArsip').one('dblclick', 'tbody tr:not(.newrow)', function () {
+                //$(document.body).on('click', '.edit_data', function () {
+                var id = $(this).closest('tr').attr('data-id')
+                $('input[name="Id"]').val(id)
+
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('selecteditable');
+                })
+
+                // hide text value
+                $(this).closest('tr').find('.showkategoriarsip').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showketeranganlokasi').each(function () {
+                    $(this).addClass('hide');
+                })
+
+                // change id to aktif
+                $(this).closest('tr').find('#valuekategoriarsip').each(function () {
+                    $(this).attr('id', 'valuekategoriarsipaktif');
+                })
+                $(this).closest('tr').find('#valueketeranganlokasi').each(function () {
+                    $(this).attr('id', 'valueketeranganlokasiaktif');
+                })
+
+                var valuekategoriarsip = document.getElementById("valuekategoriarsipaktif").value;
+                var selectkategoriarsip = `<select name="KategoriArsip" id="kategoriarsipaktif" class="select2_normal form-control KategoriArsip">
+                                            <option value="`+ valuekategoriarsip + `" selected hidden>` + valuekategoriarsip + `</option>
+                                              @foreach (var list in listKategoriArsip)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendkategoriarsip').text().length < 1) {
+                    $(this).closest('tr').find('.appendkategoriarsip').each(function () {
+                        $(this).append(selectkategoriarsip);
+                        selectRefresh();
+                    })
+                }
+
+
+                var valueketeranganlokasi = document.getElementById("valueketeranganlokasiaktif").value;
+                var selectketeranganlokasi = `<select name="KeteranganLokasi" id="keteranganlokasiaktif" class="select2_normal form-control KeteranganLokasi">
+                                            <option value="`+ valueketeranganlokasi + `" selected hidden>` + valueketeranganlokasi + `</option>
+                                              @foreach (var list in listKeteranganLokasi)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendketeranganlokasi').text().length < 1) {
+                    $(this).closest('tr').find('.appendketeranganlokasi').each(function () {
+                        $(this).append(selectketeranganlokasi);
+                        selectRefresh();
+                    })
+                }
+
+
+
+                var count_column = $(this).closest('tr').find('td').length
+                $(this).closest('tr').find('td[contenteditable]').each(function () {
+                    if ($(this).index() != (count_column - 1))
+                        $(this).attr('contenteditable', true)
+                })
+                $(this).closest('tr').find('[name="KodeKlasifikasi"]').focus()
+                $(this).closest('tr').find('.editable').show('fast')
+                $(this).closest('tr').find('.noneditable').hide('fast')
+            })
+        }
+    // removing table row when cancel button triggered clicked
+    window.cancel_button = function (_this) {
+        $('#SubmitKlasifikasi').attr('disabled', 'disabled');
+        EditKlasifikasi()
+        if (_this.closest('tr').attr('data-id') == '') {
+            _this.closest('tr').remove()
+        } else {
+            $('input[name="Id"]').val('')
+            _this.closest('tr').find('td[contenteditable=true]').each(function () {
+                $(this).attr('contenteditable', false)
+            })
+
+            // change id name
+            _this.closest('tr').find('#valuekategoriarsipaktif').each(function () {
+                $(this).attr('id', 'valuekategoriarsip');
+            })
+            _this.closest('tr').find('#valueketeranganlokasiaktif').each(function () {
+                $(this).attr('id', 'valueketeranganlokasi');
+            })
+
+            // remove select2
+            _this.closest('tr').find('.KategoriArsip').each(function () {
+                $(this).remove();
+            })
+            _this.closest('tr').find('.KeteranganLokasi').each(function () {
+                $(this).remove();
+            })
+
+            // empty select2
+            _this.closest('tr').find('.appendkategoriarsip').each(function () {
+                $(this).empty();
+            })
+            _this.closest('tr').find('.appendketeranganlokasi').each(function () {
+                $(this).empty();
+            })
+
+            //show text value
+            _this.closest('tr').find('.showkategoriarsip').each(function () {
+                $(this).removeClass('hide');
+            })
+            _this.closest('tr').find('.showketeranganlokasi').each(function () {
+                $(this).removeClass('hide');
+            })
+            _this.closest('tr').each(function () {
+                $(this).removeClass('selecteditable');
+            })
+
+
+            _this.closest('tr').find('.editable').hide('fast')
+            _this.closest('tr').find('.noneditable').show('fast')
+        }
+    }
+
+
+    //////////////////////////////////////////////////////////////////////
+    function Pengaturan2(kodeklasifikasi) {
+
+
+        $(document).off("click", '#add_masa').on("click", '#add_masa', function (e) {
+            $("#SubmitDetail").removeAttr('disabled');
+
+            if ($('tr[data-id=""]').length > 10) {
+                alert('Maksimal 10 baris');
+                    return false;
+            }
+            var kode = kodeklasifikasi.toString();
+            var tr = $('<tr>')
+
+
+            $('input[name="Id"]').val('')
+            tr.addClass('py-1 px-2');
+            tr.attr('data-id', '');
+            tr.addClass('newrow');
+            tr.addClass('selecteditable');
+            tr.prepend(`<td class="text-center"><button type = 'button' class='btntransparent' ><i class='fa fa-close' onclick='cancel_button2($(this))' style = 'cursor: pointer; color:black;' title = ' Batal' ></i ></td>`);
+            tr.prepend(`<td> @Html.DropDownListFor(model => model.HasilAkhir, listhasilakhir, "Pilih Hasil Akhir", new { @class = "select2_normal form-control input-autofit", @id = "inputhasilakhiraktif" })</td> `)
+            tr.prepend(`<td> @Html.DropDownListFor(model => model.StatusInaktif, liststatus, "Pilih Status Inaktif", new { @class = "select2_normal form-control input-autofit", @id = "inputstatusinaktifaktif" })</td> `)
+            tr.prepend(`<td> @Html.DropDownListFor(model => model.CaptionInaktif, listmasa, "Pilih Masa Retensi Inaktif", new { @class = "select2_normal form-control input-autofit", @id = "inputcaptioninaktifaktif" })</td> `)
+            tr.prepend(`<td> @Html.DropDownListFor(model => model.StatusAktif, liststatus, "Pilih Status Aktif", new { @class = "select2_normal form-control input-autofit", @id = "inputstatusaktifaktif" })</td> `)
+            tr.prepend(`<td> @Html.DropDownListFor(model => model.CaptionAktif, listmasa, "Pilih Masa Retensi Aktif", new { @class = "select2_normal form-control input-autofit", @id = "inputcaptionaktifaktif" })</td> `)
+            tr.prepend(`<td contenteditable="true" name="NamaJenisArsip"></td>`)
+            tr.prepend(`<td contenteditable="true" name="KodeKlasifikasi">${kode}</td>`)
+            tr.prepend(`<td></td>`)
+            $('#myTableMasa').prepend(tr)
+            tr.find(`[name="NamaJenisArsip"]`).focus()
+
+            selectRefresh();
+
+        })
+
+        //////////////////////
+        $("#form-data-masa").off("submit").on("submit", function (e) {
+            e.preventDefault();
+            $("#SubmitDetail").attr('disabled','disabled');
+
+            let id = $('input[name="Id"]').val();
+            let datadetail = new Array();
+            let dt = {};
+
+            console.log(id)
+            // data new
+            if (id == "") {
+                $('#myTableMasa tbody tr[data-id=""]').each(function () {
+
+                    var row = $(this)
+                    dt = {}
+                    dt['Id'] = id;
+                    dt['KodeKlasifikasi'] = row.find('td:eq(1)').text();
+                    dt['NamaJenisArsip'] = row.find('td:eq(2)').text();
+                    dt['captionaktif'] = row.find("#inputcaptionaktifaktif").val();
+                    dt['captioninaktif'] = row.find("#inputcaptioninaktifaktif").val();
+                    dt['statusaktif'] = row.find("#inputstatusaktifaktif").val();
+                    dt['statusinaktif'] = row.find("#inputstatusinaktifaktif").val();
+                    dt['hasilakhir'] = row.find("#inputhasilakhiraktif").val();
+
+                    datadetail.push(dt);
+                    console.log('new')
+                    console.log(datadetail)
+                })
+                // data edit
+            } else {
+                var editrow = $('#myTableMasa tbody tr.editrow');
+                dt = {}
+                dt['Id'] = id;
+                dt['KodeKlasifikasi'] = editrow.find('td:eq(1)').text();
+                dt['NamaJenisArsip'] = editrow.find('td:eq(2)').text();
+                dt['captionaktif'] = editrow.find("#inputcaptionaktifaktif").val();
+                dt['captioninaktif'] = editrow.find("#inputcaptioninaktifaktif").val();
+                dt['statusaktif'] = editrow.find("#inputstatusaktifaktif").val();
+                dt['statusinaktif'] = editrow.find("#inputstatusinaktifaktif").val();
+                dt['hasilakhir'] = editrow.find("#inputhasilakhiraktif").val();
+
+                datadetail.push(dt);
+                console.log('edit')
+                console.log(datadetail)
+            }
+
+              $.ajax({
+                url: '@Url.Action("TambahGolonganKlasifikasiMasterArsip", "Kearsipan")',
+                method: 'POST',
+                data: JSON.stringify(datadetail),
+                contentType: "application/json; charset=utf-8",
+
+                dataType: 'json',
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        dtableMasa.destroy();
+                        createPagingMasa()
+                        EditMasa()
+                        $("#SubmitDetail").attr('disabled', 'disabled');
+                    }
+                    else {
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        dtableMasa.destroy();
+                        createPagingMasa()
+                        EditMasa()
+                        $("#SubmitDetail").attr('disabled', 'disabled');
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            })
+        })
+        EditMasa()
+
+          function EditMasa() {
+            // Edit Row
+            $('#myTableMasa').one('dblclick', 'tbody tr:not(.newrow)', function () {
+                //$(document.body).on('click', '.edit_data', function () {
+                var id = $(this).closest('tr').attr('data-id')
+                $('input[name="Id"]').val(id)
+
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('selecteditable');
+                })
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('editrow');
+                })
+
+                // hide text value
+                $(this).closest('tr').find('.showcaptionaktif').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showcaptioninaktif').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showstatusaktif').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showstatusinaktif').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showhasilakhir').each(function () {
+                    $(this).addClass('hide');
+                })
+
+
+                // change id to aktif
+                $(this).closest('tr').find('#valuecaptionaktif').each(function () {
+                    $(this).attr('id', 'valuecaptionaktifaktif');
+                })
+                $(this).closest('tr').find('#valuecaptioninaktif').each(function () {
+                    $(this).attr('id', 'valuecaptioninaktifaktif');
+                })
+                $(this).closest('tr').find('#valuestatusaktif').each(function () {
+                    $(this).attr('id', 'valuestatusaktifaktif');
+                })
+                $(this).closest('tr').find('#valuestatusinaktif').each(function () {
+                    $(this).attr('id', 'valuestatusinaktifaktif');
+                })
+                $(this).closest('tr').find('#valuehasilakhir').each(function () {
+                    $(this).attr('id', 'valuehasilakhiraktif');
+                })
+
+
+                var valuecaptionaktif = document.getElementById("valuecaptionaktifaktif").value;
+                var selectcaptionaktif = `<select name="CaptionAktif" id="inputcaptionaktifaktif" class="select2_normal form-control CaptionAktif">
+                                            <option value="`+ valuecaptionaktif + `" selected hidden>` + valuecaptionaktif + `</option>
+                                              @foreach (var list in listmasa)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendcaptionaktif').text().length < 1) {
+                    $(this).closest('tr').find('.appendcaptionaktif').each(function () {
+                        $(this).append(selectcaptionaktif);
+                        selectRefresh();
+                    })
+                }
+
+                var valuecaptioninaktif = document.getElementById("valuecaptioninaktifaktif").value;
+                var selectcaptioninaktif = `<select name="CaptionInaktif" id="inputcaptioninaktifaktif" class="select2_normal form-control CaptionInaktif">
+                                            <option value="`+ valuecaptioninaktif + `" selected hidden>` + valuecaptioninaktif + `</option>
+                                              @foreach (var list in listmasa)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendcaptioninaktif').text().length < 1) {
+                    $(this).closest('tr').find('.appendcaptioninaktif').each(function () {
+                        $(this).append(selectcaptioninaktif);
+                        selectRefresh();
+                    })
+                }
+
+                var valuestatusaktif = document.getElementById("valuestatusaktifaktif").value;
+                var selectstatusaktif = `<select name="StatusAktif" id="inputstatusaktifaktif" class="select2_normal form-control StatusAktif">
+                                            <option value="`+ valuestatusaktif + `" selected hidden>` + valuestatusaktif + `</option>
+                                              @foreach (var list in liststatus)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendstatusaktif').text().length < 1) {
+                    $(this).closest('tr').find('.appendstatusaktif').each(function () {
+                        $(this).append(selectstatusaktif);
+                        selectRefresh();
+                    })
+                }
+
+                var valuestatusinaktif = document.getElementById("valuestatusinaktifaktif").value;
+                var selectstatusinaktif = `<select name="StatusInaktif" id="inputstatusinaktifaktif" class="select2_normal form-control StatusInaktif">
+                                            <option value="`+ valuestatusinaktif + `" selected hidden>` + valuestatusinaktif + `</option>
+                                              @foreach (var list in liststatus)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendstatusinaktif').text().length < 1) {
+                    $(this).closest('tr').find('.appendstatusinaktif').each(function () {
+                        $(this).append(selectstatusinaktif);
+                        selectRefresh();
+                    })
+                }
+
+                var valuehasilakhir = document.getElementById("valuehasilakhiraktif").value;
+                var selecthasilakhir = `<select name="HasilAkhir" id="inputhasilakhiraktif" class="select2_normal form-control HasilAkhir">
+                                            <option value="`+ valuehasilakhir + `" selected hidden>` + valuehasilakhir + `</option>
+                                              @foreach (var list in listhasilakhir)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                                        </select>`;
+
+                if ($('.appendhasilakhir').text().length < 1) {
+                    $(this).closest('tr').find('.appendhasilakhir').each(function () {
+                        $(this).append(selecthasilakhir);
+                        selectRefresh();
+                    })
+                }
+
+                var count_column = $(this).closest('tr').find('td').length
+                $(this).closest('tr').find('td[contenteditable]').each(function () {
+                    if ($(this).index() != (count_column - 1))
+                        $(this).attr('contenteditable', true)
+                })
+                $(this).closest('tr').find('[name="NamaJenisArsip"]').focus()
+                $(this).closest('tr').find('.editable').show('fast')
+                $(this).closest('tr').find('.noneditable').hide('fast')
+            })
+        }
+
+        // Delete Row
+        window.delete_data_masa = function (clicked_id) {
+
+              var id = clicked_id;
+            swal({
+                    title: "Konfirmasi Hapus",
+                    text: "Apakah anda yakin akan menghapus data?\nData ID : " + id,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: "Batal"
+                 },
+                    function (isConfirm) {
+
+                        if (isConfirm) {
+                           $.ajax({
+                                url: '@Url.Action("HapusGolonganKlasifikasiMasterArsip", "Kearsipan")',
+                                method: 'POST',
+                                data: { Id: id },
+                                dataType: 'json',
+                                error: err => {
+                                    alert("An error occured while saving the data")
+                                    console.log(err)
+                           },
+                            success: function (resp) {
+                                if (resp.status == 'success') {
+
+                                    dtableMasa.destroy();
+                                    createPagingMasa()
+                                    EditMasa()
+                                } else {
+
+                                    dtableMasa.destroy();
+                                    createPagingMasa()
+                                    EditMasa()
+                                }
+                            }
+                    })
+
+                    }
+                });
+        }
+
+        // removing table row when cancel button triggered clicked
+        window.cancel_button2 = function (_this) {
+            EditMasa()
+            let rowCount = $('#myTableMasa tbody tr.newrow').length;
+            console.log(rowCount)
+            if (rowCount <= 1) {
+                $("#SubmitDetail").attr('disabled','disabled');
+            }
+
+            if (_this.closest('tr').attr('data-id') == '') {
+                _this.closest('tr').remove()
+            } else {
+                $('input[name="Id"]').val('')
+                _this.closest('tr').find('td[contenteditable=true]').each(function () {
+                    $(this).attr('contenteditable', false)
+                })
+
+                // change id name
+                _this.closest('tr').find('#valuecaptionaktifaktif').each(function () {
+                    $(this).attr('id', 'valuecaptionaktif');
+                })
+                _this.closest('tr').find('#valuecaptioninaktifaktif').each(function () {
+                    $(this).attr('id', 'valuecaptioninaktif');
+                })
+                _this.closest('tr').find('#valuestatusaktifaktif').each(function () {
+                    $(this).attr('id', 'valuestatusaktif');
+                })
+                _this.closest('tr').find('#valuestatusinaktifaktif').each(function () {
+                    $(this).attr('id', 'valuestatusinaktif');
+                })
+                _this.closest('tr').find('#valuehasilakhiraktif').each(function () {
+                    $(this).attr('id', 'valuehasilakhir');
+                })
+
+                // empty select2
+                _this.closest('tr').find('.appendcaptionaktif').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendcaptioninaktif').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendstatusaktif').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendstatusinaktif').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendhasilakhir').each(function () {
+                    $(this).empty();
+                })
+
+                //show text value
+                _this.closest('tr').find('.showcaptionaktif').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showcaptioninaktif').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showstatusaktif').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showstatusinaktif').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showhasilakhir').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').each(function () {
+                    $(this).removeClass('selecteditable');
+                })
+
+
+                _this.closest('tr').find('.editable').hide('fast')
+                _this.closest('tr').find('.noneditable').show('fast')
+            }
+        }
+
+
+
+     //// UPDATE SOON
+    var dtableMasa;
+    var createPagingMasa = function () {
+        dtableMasa = $('#myTableMasa').DataTable({
+            drawCallback: function () {
+                $('.select2_normal').select2();
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    },
+                    title: "Daftar Masa Retensi Arsip",
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    },
+                    title: "Klasifikasi Master Arsip",
+                },
+            ],
+            "bLengthChange": false,
+            "oLanguage": {
+                "sInfo": "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                "sInfoEmpty": "Menampilkan 0 to 0 of 0 entri",
+                "emptyTable": "Tak ada data yang tersedia pada tabel ini",
+                "sSearch": "Pencarian :"
+            },
+
+            "ajax": {
+                url: '@Url.Action("ListMasa", "Kearsipan")',
+                type: "POST",
+                data: function (data, obj) {
+                    var ftp = $('#frmMasa').serializeArray();
+                    data.form = ftp;
+                    ftp.push({ name: "start", value: data.start },
+                        { name: "kodeklasifikasi", value: kodeklasifikasi },
+                        { name: "length", value: data.length });
+                    return ftp;
+                }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    "className": "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "KodeKlasifikasi", "className": "edit_data" },
+                { "data": "NamaJenisArsip", "className": "edit_data" },
+
+                {
+                    "data": "CaptionAktif",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuecaptionaktif" value="` + data + `"><p class="showcaptionaktif">` + data + `</p><p class="appendcaptionaktif" title="` + data + `"></p>`;
+                    }
+
+                },
+
+                {
+                    "data": "StatusAktif",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuestatusaktif" value="` + data + `"><p class="showstatusaktif">` + data + `</p><p class="appendstatusaktif" title="` + data + `"></p>`;
+                    }
+
+                },
+
+                {
+                    "data": "CaptionInaktif",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuecaptioninaktif" value="` + data + `"><p class="showcaptioninaktif">` + data + `</p><p class="appendcaptioninaktif" title="` + data + `"></p>`;
+                    }
+
+                },
+                {
+                    "data": "StatusInaktif",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuestatusinaktif" value="` + data + `"><p class="showstatusinaktif">` + data + `</p><p class="appendstatusinaktif" title="` + data + `"></p>`;
+                    }
+
+                },
+
+                {
+                    "data": "HasilAkhir",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuehasilakhir" value="` + data + `"><p class="showhasilakhir">` + data + `</p><p class="appendhasilakhir" title="` + data + `"></p>`;
+                    }
+
+                },
+                {
+                    "data": "Id",
+                    sortable: false,
+                    "render": function (data) {
+
+                        var btnHapus = "<i class='fa fa-trash delete_data noneditable' id='" + data +"' onclick='delete_data_masa(this.id)' style='cursor: pointer; color:red;' title=' Hapus Data'></i>&nbsp;&nbsp;&nbsp;"; /*"<button class='btn btn-danger btn-sm rounded-0 py-0 noneditable' id='" + data +"' onclick='delete_data_masa(this.id)' type='button'><i class='fa fa-trash'></i></button>"*/
+                        var btnSimpan = "<button type='submit' class='btntransparent'><i class='fa fa-save simpan_data editable' style='cursor: pointer; color:green;' title=' Simpan Data' type='submit'></i></button>";  /*"<button class='btn btn-sm btn-success btn-flat rounded-0 px-2 py-0 editable'><i class='fa fa-save'></i></button>"*/
+                        var btnBatal = "<button class='btntransparent editable' type='button' onclick='cancel_button2($(this))'><i class='fa fa-close' style='cursor: pointer; color:black;' title=' Batal'></i></button>"; /*"<button class='btn btn-sm btn-dark btn-flat rounded-0 px-2 py-0 editable' onclick='cancel_button($(this))' type='button'><i class='fa fa-close'></i></button>"*/
+
+                        return btnHapus + btnSimpan + btnBatal;
+                    }}
+            ],
+            order: [1, 'asc'],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+
+            createdRow: function (row, data, dataIndex) {
+                $(row).attr('data-id', data.Id);
+                $(row).find('td:eq(1)').attr({ name: 'KodeKlasifikasi', contenteditable: 'false'});
+                $(row).find('td:eq(2)').attr({ name: 'NamaJenisArsip', contenteditable: 'false'});
+                //$(row).find('td:eq(7)').attr({ name: 'Keterangan', contenteditable: 'false'});
+            }
+        });
+        };
+        $(document).ready(function () {
+            createPagingMasa();
+        });
+        // alert(respon);
+        $('#masamodal').modal('show');
+        /////////////////////////
+
+
+        $('#destroymasa').click(function () {
+            dtableMasa.destroy();
+        })
+
+         $("#text-kode").val(kodeklasifikasi)
+
+    }
+
+
+</script>

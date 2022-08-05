@@ -1,0 +1,1212 @@
+﻿@model Surat.Models.Entities.AduanInbox
+
+@{
+    var redaksi = Model.Redaksi;
+
+    var lstRedaksi = new List<SelectListItem>();
+    lstRedaksi.Add(new SelectListItem { Text = "", Value = "" });
+
+    if (!string.IsNullOrEmpty(redaksi))
+    {
+        if (redaksi != "Tembusan")
+        {
+            lstRedaksi.Add(new SelectListItem { Text = "Penanggung Jawab", Value = "Penanggung Jawab" });
+        }
+    }
+    else
+    {
+        lstRedaksi.Add(new SelectListItem { Text = "Penanggung Jawab", Value = "Penanggung Jawab" });
+    }
+
+    lstRedaksi.Add(new SelectListItem { Text = "Tembusan", Value = "Tembusan" });
+}
+
+<div class="row">
+    <div class="col-md-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_content">
+                <div class="row">
+
+                    <!-- CONTENT MAIL -->
+                    <div class="demo col-sm-12 col-xs-12 mail_view">
+                        <div class="inbox-body">
+                            <div class="col-md-12 col-xs-12" style="text-align:center; background-color:beige; font-family: 'Varela Round', sans-serif; margin-bottom:10px;">
+                                <h4>PENGADUAN</h4>
+                            </div>
+                            <div class="mail_heading row">
+                                <div class="col-md-8 col-xs-12">
+                                    <div class="compose-btn">
+                                        <a id="LinkArsip" class="btn btn-sm btn-primary" href="#" onclick="ArsipPengaduan();"><i class="fa fa-check"></i>&nbsp;&nbsp;Selesai / Arsip</a>
+                                        <a id="LinkSelesaiAduanInbox" class="btn btn-sm btn-primary" href="#" onclick="SelesaiAduanInbox();"><i class="fa fa-check"></i>&nbsp;&nbsp;Selesai</a>
+                                        <button id="BtnCetakInbox" title="" data-placement="top" data-toggle="tooltip" type="button" data-original-title="Cetak" class="btn  btn-sm tooltips"><i class="fa fa-print"></i> </button>
+                                        <button id="BtnInboxHistory" title="" data-placement="top" data-toggle="tooltip" type="button" data-original-title="Perjalanan Pengaduan" class="btn  btn-sm tooltips"><i class="fa fa-list-ul"></i> </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-xs-12 text-right">
+                                    <p class="date"> @Model.InfoTanggalAduan</p>
+                                </div>
+                                <div class="col-md-12 col-xs-12">
+                                    <h4> @Model.JudulAduan</h4>
+                                </div>
+                            </div>
+
+                            <form class="form-horizontal form-label-left" style="padding-top:10px;">
+                                <div class="row">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Nomor Laporan</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NomorLaporan, new { @class = "form-control", @id = "nomorlaporan", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Laporan</label>
+                                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                                <div class='input-group date' id='tglAduan' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.TanggalAduan, new { @class = "form-control", @id = "tanggallaporan", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Kejadian</label>
+                                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                                <div class='input-group date' id='tglKejadian' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.TanggalKejadian, new { @class = "form-control", @id = "tanggalkejadian", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Lokasi Kejadian</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.LokasiKejadian, new { @class = "form-control", @id = "lokasikejadian", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Melapor Melalui</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.LaporMelalui, new { @class = "form-control", @id = "lapormelalui", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Kategori</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.Kategori, new { @class = "form-control", @id = "lapormelalui", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Isi Laporan</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextAreaFor(model => model.Uraian, new { @class = "form-control", @id = "uraian", @rows = 5, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">NIK Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NIKPengadu, new { @class = "form-control", @id = "nikpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Nama Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NamaPengadu, new { @class = "form-control", @id = "namapengadu", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Telepon Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.TeleponPengadu, new { @class = "form-control", @id = "nomorteleponpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Email Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.EmailPengadu, new { @class = "form-control", @id = "emailpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Pekerjaan Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.PekerjaanPengadu, new { @class = "form-control", @id = "pekerjaanpengadu", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Alamat Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextAreaFor(model => model.AlamatPengadu, new { @class = "form-control", @id = "alamatpelapor", @rows = 5, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="attachment">
+                                <p>
+                                    <span><i class="fa fa-paperclip"></i> <label id="LabelJumlahLampiran"></label> file </span>
+                                    <span class="btn btn-primary btn-file" id="TombolTambahFile"><i class="fa fa-plus"></i>&nbsp;&nbsp;Tambah<input type="file" name="UploadFromFile" id="txtUploadFile" class="btn btn-primary" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" /></span>
+                                </p>
+                                <ul id="dataplaceholder"></ul>
+                            </div>
+
+
+                            @Html.HiddenFor(m => m.CatatanSebelumnya, new { @id = "CatatanSebelumnya" })
+
+                            @Html.HiddenFor(m => m.ProfileIdSelected, new { @id = "ProfileIdSelected" })
+                            @Html.HiddenFor(m => m.PegawaiIdSelected, new { @id = "PegawaiIdSelected" })
+
+                            <form class="form-horizontal form-label-left" id="frmEntriPengaduan" method="post" style="padding-top:20px;">
+                                @Html.HiddenFor(m => m.AduanId, new { @id = "AduanId" })
+                                @Html.HiddenFor(m => m.AduanInboxId, new { @id = "AduanInboxId" })
+
+                                <div class="col-md-6 col-xs-12" style="padding-left:0px; padding-right:15px;">
+                                    <div class="x_title">
+                                        <h2>Catatan</h2>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="color: #1abb9c;">Catatan sebelumnya</label>
+                                        <div id="LabelCatatanSebelumnya"></div>
+                                    </div>
+                                    <div class="form-group" id="PanelPerintahDisposisi">
+                                        <label>Disposisi</label>
+                                        @Html.DropDownListFor(model => model.ArrPerintahDisposisi, new SelectList(@Model.ListPerintahDisposisi, "NamaPerintahDisposisi", "NamaPerintahDisposisi"), new { @class = "select2_multiple perintahdisposisi form-control input-md", @style = "width:100%", @id = "cmbDisposisi" })
+                                    </div>
+                                    <div class="form-group" id="PanelCatatanAnda">
+                                        <label>Catatan anda</label>
+                                        @Html.TextAreaFor(model => model.CatatanAnda, new { @class = "form-control", @id = "catatananda", @rows = 5, spellcheck = "false", autocomplete = "off", autocorrect = "off", @style = "font-family:'Consolas','helvetica',sans-serif;" })
+                                    </div>
+                                    <div class="form-group">
+                                        <button id="BtnSimpanCatatan" class="btn btn-sm btn-success" type="button"><i class="fa fa-save"></i>&nbsp;&nbsp;Simpan</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12" style="padding:0px;">
+                                    <div id="PanelTujuanPengaduan">
+                                        <div class="x_title">
+                                            <h2>Kirim / Disposisi Ke</h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Unit Kerja <span style="color:red">*</span></label>
+                                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                                @Html.DropDownListFor(model => model.UnitKerjaIdTujuan, new SelectList(@Model.ListUnitKerja, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaTujuan", @onchange = "UnitKerjaChanged()" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Jabatan <span style="color:red">*</span></label>
+                                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                                <div class='input-group' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.NamaProfileTujuan, new { @class = "form-control", @id = "namaprofiletujuan" })
+                                                    <span class="input-group-addon" id="BtnCariJabatan" style="cursor:pointer;">
+                                                        <span class="fa fa-search"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Pegawai <span style="color:red">*</span></label>
+                                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                                <div class='input-group' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.NamaPegawaiTujuan, new { @class = "form-control", @id = "namapegawaitujuan" })
+                                                    <span class="input-group-addon" id="BtnCariPegawai" style="cursor:pointer;">
+                                                        <span class="fa fa-search"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" style="text-align: left;">Keterangan <span style="color:red">*</span></label>
+                                            <div class="col-md-7 col-sm-7 col-xs-12">
+                                                @Html.DropDownListFor(model => model.Redaksi, lstRedaksi, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbRedaksi" })
+                                            </div>
+                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                <span class="input-group checkbox icheck-primary sr">
+                                                    @Html.CheckBoxFor(model => model.IsStatusUrgent, new { @class = "form-control input-md", @id = "checkstatusurgent" })
+                                                    @Html.LabelFor(model => model.IsStatusUrgent)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-3">
+                                                <button id="btnsimpantujuanpengaduan" type="button" class="btn btn-primary">Pilih</button>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table id="myTableTujuan" class="table table-striped hover table-bordered" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Jabatan</th>
+                                                        <th>Pegawai</th>
+                                                        <th>Keterangan</th>
+                                                        <th>Hapus</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <button id="BtnKirim" class="btn btn-sm btn-success" type="submit"><i class="fa fa-arrow-right"></i>&nbsp;&nbsp;Kirim</button>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                    <!-- /CONTENT -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+<div id='ListPegawaiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Daftar Pegawai</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="row">
+                                <div class="table-responsive" style="padding-right:10px;">
+                                    <form id="frmDaftarPegawai"></form>
+                                    <table id="myTableDaftarPegawai" class="table row-border table-striped table-hover dataTable" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%">#</th>
+                                                <th>NIP</th>
+                                                <th>Nama</th>
+                                                <th>Jabatan</th>
+                                                <th style="width:10%">Pilih</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="padding-top:20px;">
+                                    <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='InboxHistoryModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Perjalanan Pengaduan</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <label style="text-align:left;">Filter data berdasarkan Unit Kerja:</label>
+                                    @Html.DropDownListFor(model => model.UnitKerjaIdHistoriSurat, new SelectList(@Model.ListUnitKerjaHistoriSurat, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaHistoriAduan", @onchange = "UnitKerjaHistoriAduanChanged()" })
+                                </div>
+                                <div class="x_content">
+                                    <ul class="list-unstyled timeline" id="historiaduanplaceholder"></ul>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="padding-top:20px;">
+                                    <button type="button" class="btn btn-warning" data-dismiss="modal">TUTUP</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src='@Url.Content("~/resources/js/printThis.js")'></script>
+
+<script type="text/javascript">
+
+    var objpdf = null;
+    var objfile = null;
+    $('#myModalDocViewer').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    $('#ListPegawaiModal').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: '98%',
+            height: '98 %',
+            'max-height': '98%'
+        });
+    });
+
+    $(document).ready(function () {
+        $.unblockUI();
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#tglAduan, #tanggallaporan, #tglKejadian, #tanggalkejadian').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+            //minDate: moment()
+        });
+
+        $('.select2_multiple.perintahdisposisi').select2MultiCheckboxes({
+            width: 'resolve',
+            templateSelection: function (selected, total, els) {
+                var el = els[0], selopts = el.selectedOptions;
+                if (selected && selected.find && el.selectedIndex > -1) {
+                    //return "Dipilih ".concat(selected.length, " dari ", total, " pilihan");
+                    return " " + selected;
+                }
+                return $(el).attr("placeholder") || this.placeholder;
+            }
+        });
+
+
+        // Cek apakah user login punya profile TU
+        $.ajax({
+            url: '@Url.Action("GetIsMyProfileTU", "Flow")',
+            success: function (response) {
+                if (response == '1') {
+                }
+                else {
+                    $("#DivHapusLampiran").hide();
+                }
+            },
+            error: function (response) { }
+        });
+
+
+        @*// Cek eselon User
+        $.ajax({
+            url: '@Url.Action("GetMyEselonId", "Flow")',
+            success: function (response) {
+                if (response == '1' || response == '2' || response == '3') {
+                    $('#DivTargetSelesaiSuratMasuk').show();
+                    $("#DivInfoTargetSelesaiSuratMasuk").hide();
+                }
+                else {
+                    $("#DivTargetSelesaiSuratMasuk").hide();
+                    $("#DivInfoTargetSelesaiSuratMasuk").show();
+                }
+            },
+            error: function (response) { }
+        });*@
+
+
+
+        var redaksi = '@Model.Redaksi';
+        if (redaksi !== null && redaksi !== '') {
+            if (redaksi == 'Tembusan') {
+                $("#LinkArsip").hide();
+            }
+            else {
+                $("#LinkSelesaiAduanInbox").hide();
+            }
+        }
+
+        var statusurgent = '@Model.StatusUrgent';
+        if (statusurgent !== null && statusurgent !== '') {
+            if (statusurgent == '1') {
+                $("#checkstatusurgent").prop("checked", true);
+            }
+        }
+
+
+        // Cek apakah pengaduan ini merupakan forward khusus ke profile TU
+        @*var aduaninboxid = $('#AduanInboxId').val();
+        $.ajax({
+            url: '@Url.Action("GetStatusForwardTU", "Pengaduan")?aduaninboxid=' + aduaninboxid + '',
+            success: function (response) {
+                if (response == '1') {
+                    $('#BtnKirim').hide();
+                    $('#PanelPerintahDisposisi').hide();
+                    $('#PanelTujuanPengaduan').hide();
+                }
+            },
+            error: function (response) { }
+        });*@
+
+        //$('.select2_multiple.perintahdisposisi').val([]).trigger("change.select2");
+
+        $('#LabelJumlahLampiran').html('@Model.JumlahLampiran');
+
+        loadLampiranPengaduan();
+
+        // Get Catatan Sebelumnya
+        var catatansebelumnya = $('#CatatanSebelumnya').val();
+        $('#LabelCatatanSebelumnya').html(catatansebelumnya);
+
+        //var perintahdisposisi = $('#PerintahDisposisi').val();
+        //alert(perintahdisposisi);
+        var strPerintahDisposisi = '@Model.PerintahDisposisiSebelumnya';
+        var arrstrPerintahDisposisi = strPerintahDisposisi.split(',');
+        $('.select2_multiple.perintahdisposisi').val(arrstrPerintahDisposisi).trigger("change.select2");
+
+        // Hapus Session Tujuan Pengaduan saat load halaman ini
+        $.ajax({
+            url: '@Url.Action("HapusSessionTujuanSurat", "Flow")',
+            error: function (response) { }
+        });
+
+        createPagingTujuanSurat();
+
+        createPagingDaftarPegawai();
+
+        var unitkerjaid = "@(ViewBag.UnitKerjaId)";
+        if (unitkerjaid !== null && unitkerjaid !== '') {
+            $('#cmbUnitKerjaTujuan').val(unitkerjaid).trigger('change');
+        }
+
+        loadSuratPengaduan();
+    });
+
+    var loadLampiranPengaduan = function () {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = $('#AduanId').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarLampiranAduan", "Pengaduan")',
+            data: { aduanid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    var BukaFileLampiran = function (id, namafile, unitkerjaid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFilePengaduan", "Pengaduan")?id=' + id + '&unitkerjaid=' + unitkerjaid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewer", "Konten")',
+                    success: function (data) {
+                        $('#myModalContent').html(data);
+                        $('#myModalDocViewer').modal(options);
+                        $('#myModalDocViewer').modal('show');
+                        $.unblockUI();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $.unblockUI();
+                    }
+                });
+            }
+            else if (fileExt == ".jpg" || fileExt == ".png") {
+                // Display Image
+                var objurl = '@Url.Action("GetFilePengaduanWithExt", "Pengaduan")?id=' + id + '&unitkerjaid=' + unitkerjaid + '&extension=' + fileExt;
+                objfile = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewer", "Konten")',
+                    success: function (data) {
+                        $('#myModalContent').html(data);
+                        $('#myModalDocViewer').modal(options);
+                        $('#myModalDocViewer').modal('show');
+                        $.unblockUI();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $.unblockUI();
+                    }
+                });
+            }
+            else if (fileExt == ".doc" || fileExt == ".docx") {
+                // Download Word
+                var params = "id=" + id + '&unitkerjaid=' + unitkerjaid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFilePengaduanWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+            else if (fileExt == ".xls" || fileExt == ".xlsx") {
+                // Download Excel
+                var params = "id=" + id + '&unitkerjaid=' + unitkerjaid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFilePengaduanWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+        }
+    }
+
+    var HapusFileLampiran = function (id, namafile) {
+        if (id !== null && id !== '') {
+
+            swal({
+                title: "Konfirmasi Hapus Data",
+                text: "Yakin Anda mau menghapus data lampiran " + namafile + " ?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal"
+            },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    var aduanid = $('#AduanId').val();
+                    var frm = new FormData();
+                    frm.append("aduanid", aduanid);
+                    frm.append("id", id);
+                    $.ajax({
+                        url: '@Url.Action("HapusLampiranPengaduanById", "Pengaduan")',
+                        type: "POST",
+                        data: frm,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data && data.Status) {
+                                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                                loadLampiranPengaduan();
+                                showinfo('Data berhasil dihapus');
+
+                                // Tulis ulang jumlah lampiran
+                                $.ajax({
+                                    url: '@Url.Action("GetJumlahLampiranPengaduan", "Flow")?aduanid=' + aduanid + '',
+                                    success: function (response) {
+                                        $('#LabelJumlahLampiran').html(response);
+                                    },
+                                    error: function (response) { }
+                                });
+                            }
+                            else {
+                                showalert(data.Pesan);
+                            }
+                            $.unblockUI();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                    });
+                }
+            });
+        }
+    }
+
+    var ArsipPengaduan = function () {
+        swal({
+            title: "Konfirmasi Arsip Pengaduan",
+            text: "Yakin Anda mau mengarsipkan pengaduan tersebut ?",
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Catatan"
+        },
+        function (inputValue) {
+            if (inputValue === false) return false;
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            var aduanid = $('#AduanId').val();
+            var aduaninboxid = $('#AduanInboxId').val();
+            var frm = new FormData();
+            frm.append("aduanid", aduanid);
+            frm.append("aduaninboxid", aduaninboxid);
+            frm.append("catatananda", inputValue);
+            $.ajax({
+                url: '@Url.Action("ArsipPengaduan", "Pengaduan")',
+                type: "POST",
+                data: frm,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, jqXHR) {
+                    if (data && data.Status) {
+                        showinfo('Data berhasil diarsip');
+
+                        window.location.href = '@Url.Action("ListPengaduan", "Pengaduan")';
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+            });        });
+    }
+
+    var SelesaiAduanInbox = function () {
+        swal({
+            title: "Konfirmasi Selesai Pengaduan",
+            text: "Yakin Anda mau menyelesaikan pengaduan tersebut ?",
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            inputPlaceholder: "Catatan"
+        },
+        function (inputValue) {
+            if (inputValue === false) return false;
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            var aduanid = $('#AduanId').val();
+            var aduaninboxid = $('#AduanInboxId').val();
+            var frm = new FormData();
+            frm.append("aduanid", aduanid);
+            frm.append("aduaninboxid", aduaninboxid);
+            frm.append("catatananda", inputValue);
+            $.ajax({
+                url: '@Url.Action("SelesaiAduanInbox", "Pengaduan")',
+                type: "POST",
+                data: frm,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, jqXHR) {
+                    if (data && data.Status) {
+                        showinfo('Data pengaduan berhasil diselesaikan');
+
+                        window.location.href = '@Url.Action("ListPengaduan", "Pengaduan")';
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+            });
+        });
+    }
+
+    $("#BtnCetakInbox").on("click", function (e) {
+        $('.demo').printThis({
+            debug: false,
+            importCSS: false,
+            importStyle: false,
+            printContainer: true,
+            pageTitle: "Pencetakan Pengaduan",
+            header: "<h1>Pencetakan Pengaduan</h1>",
+            removeInline: false,
+            footer: null,
+            formValues: true,
+            canvas: false,
+            doctypeString: '<!DOCTYPE html>',
+            removeScripts: false,
+            copyTagClasses: false,
+            base: false
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+
+
+    function ResetTujuanSuratValues() {
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+
+        $('#cmbUnitKerjaTujuan').val('').trigger('change');
+        $('#namaprofiletujuan').val('');
+        $('#namapegawaitujuan').val('');
+        $('#cmbRedaksi').val('').trigger('change');
+        $("#checkstatusurgent").prop("checked", false);
+        var statusurgent = '@Model.StatusUrgent';
+        if (statusurgent !== null && statusurgent !== '') {
+            if (statusurgent == '1') {
+                $("#checkstatusurgent").prop("checked", true);
+            }
+        }
+
+        var unitkerjaid = "@(ViewBag.UnitKerjaId)";
+        if (unitkerjaid !== null && unitkerjaid !== '') {
+            $('#cmbUnitKerjaTujuan').val(unitkerjaid).trigger('change');
+        }
+    };
+
+    function UnitKerjaChanged() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+
+        $('#namaprofiletujuannew').val('');
+        $('#namapegawaitujuannew').val('');
+
+        $.unblockUI();
+    };
+
+    $("#BtnCariJabatan").on("click", function (e) {
+
+        var vcheck_unitkerja = $('#cmbUnitKerjaTujuan').val();
+        if (vcheck_unitkerja == '') {
+            return false;
+        }
+
+        $('#namapegawaitujuan').val('');
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+
+        $('#popuptitle').html('Daftar Pegawai di ' + $('#cmbUnitKerjaTujuan :selected').text());
+
+        dtableDaftarPegawai.ajax.reload(null, true);
+        $('#ListPegawaiModal').modal('show');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#BtnCariPegawai").on("click", function (e) {
+
+        var vcheck_unitkerja = $('#cmbUnitKerjaTujuan').val();
+        if (vcheck_unitkerja == '') {
+            return false;
+        }
+
+        $('#namaprofiletujuan').val('');
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+
+        $('#popuptitle').html('Daftar Pegawai di ' + $('#cmbUnitKerjaTujuan :selected').text());
+
+        dtableDaftarPegawai.ajax.reload(null, true);
+        $('#ListPegawaiModal').modal('show');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmEntriPengaduan").submit(function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        //console.log($('#frmEntriPengaduan').serialize());
+
+        var frm = this, frmdata = new FormData(this);
+        if ($("#cmbDisposisi").val() != null)
+        {
+            if ($("#cmbDisposisi")[0]) {
+                frmdata.append("PerintahDisposisi", $("#cmbDisposisi").val().join(","));
+            }
+        }
+
+        // Kirim PENGADUAN
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("KirimPengaduan", "Pengaduan")',
+            //data: $('#frmEntriPengaduan').serialize(),
+            data: frmdata,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    $.unblockUI();
+                    showinfo(data.Pesan);
+
+                    window.location.href = '@Url.Action("ListPengaduan", "Pengaduan")';
+                }
+                else {
+                    $.unblockUI();
+                    showalert(data.Pesan);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#BtnSimpanCatatan").on("click", function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var vcheck_catatananda = $('#catatananda').val();
+        if (vcheck_catatananda == '') {
+            $.unblockUI();
+            return false;
+        }
+
+        var frm = new FormData();
+        frm.append("AduanId", $('#AduanId').val());
+        frm.append("AduanInboxId", $('#AduanInboxId').val());
+        frm.append("CatatanAnda", $('#catatananda').val());
+
+        // Simpan Catatan Anda
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SimpanCatatanAnda", "Pengaduan")',
+            data: frm,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    $.unblockUI();
+                    showinfo(data.Pesan);
+                }
+                else {
+                    $.unblockUI();
+                    showalert(data.Pesan);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    
+
+    var dtableTujuanSurat;
+    var createPagingTujuanSurat = function () {
+        dtableTujuanSurat = $('#myTableTujuan').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("ListSessionNewTujuanSurat", "Flow")',
+                type: "POST"
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NamaJabatan" },
+                { "data": "NamaPegawai" },
+                { "data": "Redaksi" },
+                {
+                    "data": "Hapus",
+                    "className": "centertaligncolumn",
+                    "width": "5%",
+                    render: function (data, type, row) {
+                        return '<b class="editor-active fa fa-trash" style="cursor: pointer;"></b>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#myTableTujuan tbody').delegate('tr b', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableTujuanSurat.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data tujuan surat ke : " + data.NamaJabatan + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", data.TujuanSuratId);
+                $.ajax({
+                    url: '@Url.Action("HapusSessionTujuanSuratById", "Flow")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableTujuanSurat.ajax.reload(null, true);
+                            showinfo('Data berhasil dihapus');
+                        }
+                        else {
+                            showalert(data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    });
+
+    $("#btnsimpantujuanpengaduan").on("click", function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        // Validasi Input
+        var vcheck_profileId = $('#ProfileIdSelected').val();
+        var vcheck_pegawaiid = $('#PegawaiIdSelected').val();
+        var vcheck_namaprofile = $('#namaprofiletujuan').val();
+        var vcheck_namapegawai = $('#namapegawaitujuan').val();
+        var vcheck_redaksi = $('#cmbRedaksi').val();
+
+        //console.log('ProfileId: ' + vcheck_profileId);
+        //console.log('Nip: ' + vcheck_pegawaiid);
+        //console.log('NamaJabatan: ' + vcheck_namaprofile);
+        //console.log('NamaPegawai: ' + vcheck_namapegawai);
+        //console.log('Redaksi: ' + vcheck_redaksi);
+
+        if (vcheck_profileId == '' ||
+            vcheck_pegawaiid == '' ||
+            vcheck_redaksi == '') {
+            $.unblockUI();
+            showalert('Data input wajib belum Anda masukkan');
+            return false;
+        }
+
+        var frm = new FormData();
+        frm.append("ProfileId", vcheck_profileId);
+        frm.append("Redaksi", vcheck_redaksi);
+        frm.append("Nip", vcheck_pegawaiid);
+        frm.append("NamaJabatan", vcheck_namaprofile);
+        frm.append("NamaPegawai", vcheck_namapegawai);
+        frm.append("IsStatusUrgent", $("#checkstatusurgent").is(":checked"));
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InsertSessionTujuanSurat", "Flow")',
+            data: frm,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    ResetTujuanSuratValues();
+                    dtableTujuanSurat.ajax.reload(null, true);
+                }
+                else {
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    var dfFileDokumen = null;
+    $("#txtUploadFile").on("change", function (e) {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+
+        var file = dfFileDokumen = input.get(0).files[0];
+
+        if (numFiles > 0) {
+
+            if (file.size > 20000 * 1024) { dfFileDokumen = null; showmsg('Peringatan', 'File maksimum 20Mb'); return false; }
+
+            // Save to LAMPIRANPENGADUAN
+            var aduanid = $('#AduanId').val();
+
+            var frm = new FormData();
+            frm.append("AduanId", aduanid);
+            frm.append("namafile", dfFileDokumen.name);
+            frm.append("file", dfFileDokumen);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("InsertLampiranPengaduan", "Pengaduan")',
+                data: frm,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+                        loadLampiranPengaduan();
+
+                        // Tulis ulang jumlah lampiran
+                        $.ajax({
+                            url: '@Url.Action("GetJumlahLampiranPengaduan", "Pengaduan")?aduanid=' + aduanid + '',
+                            success: function (response) {
+                                $('#LabelJumlahLampiran').html(response);
+                            },
+                            error: function (response) { }
+                        });
+
+
+                        // Display File -----------------------------------------
+                        var tipefile = input.get(0).files[0].type;
+                        if (tipefile == 'application/pdf') {
+
+                            // Display PDF --------------------------------------
+                            var blob = new Blob([file], { type: "application/pdf;base64" }),
+                                objurl = window.URL.createObjectURL(blob);
+
+                            //console.log(blob);
+                            objpdf = objurl;
+                            var options = { "backdrop": "static", keyboard: true };
+                            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("DocViewer", "Konten")',
+                                success: function (data) {
+                                    $('#myModalContent').html(data);
+                                    $('#myModalDocViewer').modal(options);
+                                    $('#myModalDocViewer').modal('show');
+                                    //$.unblockUI();
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $.unblockUI();
+                                }
+                            });
+                            // Eof Display PDF ----------------------------------
+                        }
+                        else if (tipefile == 'image/jpeg' || tipefile == 'image/png') {
+                            // Display Image ------------------------------------
+                            // Eof Display Image --------------------------------
+                        }
+                        else {
+                            // Download File Word/Excel -------------------------
+                            // Eof Download File Word/Excel ---------------------
+                        }
+                        // Eof Display File -----------------------------------------
+                    }
+                    else {
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+    });
+
+
+    var dtableDaftarPegawai;
+    var createPagingDaftarPegawai = function () {
+        dtableDaftarPegawai = $('#myTableDaftarPegawai').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("GetPegawaiByUnitKerjaJabatanNama", "Admin")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmDaftarPegawai').serializeArray(); data.form = ftp; ftp.push({ name: "unitkerjaid", value: $('#cmbUnitKerjaTujuan').val() }, { name: "namajabatan", value: $('#namaprofiletujuan').val() }, { name: "namapegawai", value: $('#namapegawaitujuan').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "PegawaiId" },
+                { "data": "NamaLengkap" },
+                { "data": "Jabatan" },
+                {
+                    "data": "Pilih",
+                    "className": "centertaligncolumn",
+                    "width": "10%",
+                    render: function () {
+                        return '<i class="fa fa-check" style="cursor: pointer; color:#b72a2a;"></i>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#myTableDaftarPegawai tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarPegawai.row($(this).closest('tr')).data();
+
+        //$.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#PegawaiIdSelected').val(data.PegawaiId);
+        $('#namapegawaitujuan').val(data.Nama); // lengkapi nama pegawai yang sukses dicari
+        $('#ProfileIdSelected').val(data.ProfileId);
+        $('#namaprofiletujuan').val(data.Jabatan);
+
+        $('#ListPegawaiModal').modal('hide');
+    });
+
+    $("#BtnInboxHistory").on("click", function (e) {
+
+        $('#InboxHistoryModal').modal('show');
+
+        e.preventDefault();
+        return false;
+    });
+
+    function UnitKerjaHistoriAduanChanged() {
+        loadSuratPengaduan();
+    };
+
+    function loadSuratPengaduan() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+        var id = $('#AduanId').val();
+        var unitkerjaidhistoriaduan = $('#cmbUnitKerjaHistoriAduan').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarAduanHistory", "Pengaduan")',
+            data: { aduanid: id, unitkerjaid: unitkerjaidhistoriaduan },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#historiaduanplaceholder').html('');
+                }
+                else {
+                    $('#historiaduanplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+</script>

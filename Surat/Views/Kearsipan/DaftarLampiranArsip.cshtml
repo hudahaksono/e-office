@@ -1,0 +1,23 @@
+﻿@model Dictionary<int, Surat.Models.Entities.LampiranArsip>
+
+@{
+    var niplogin = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+    int n = 0;
+    string namaLampiran = "";
+
+}
+
+@foreach (var lst in Model)
+{
+    var index = @lst.Value.NamaFile.IndexOf('.');
+    n++;
+    namaLampiran = string.Concat(@lst.Value.NamaFile.Substring(0, index) + "-", (n + 1000).ToString().Substring(1));
+
+
+    <li role="presentation"><a href="#@lst.Value.LampiranArsipId" onclick="BukaFileLampiran('@lst.Value.LampiranArsipId', '@lst.Value.NamaFile', '@lst.Value.KantorId');" aria-controls="@lst.Value.LampiranArsipId" role="tab" data-toggle="tab" style="cursor:pointer"><i class="fa fa-file-pdf-o" style="font-size:1.2em"></i>&nbsp;@lst.Value.NamaFile</a></li>
+    @*<li>
+            <div style="font-family: 'Varela Round', sans-serif;">
+                <a style="color: #1abb9c;" href="#" onclick="BukaFileLampiran('@lst.Value.LampiranArsipId', '@lst.Value.NamaFile', '@lst.Value.KantorId');" title="@lst.Value.LampiranArsipId"><i class="fa fa-file-pdf-o"></i>&nbsp;@namaLampiran</a>
+            </div>
+        </li>*@
+}

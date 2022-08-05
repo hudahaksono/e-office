@@ -1,0 +1,19 @@
+﻿@model Surat.Models.Entities.Notulen
+
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_content">
+        <div class="project_detail">
+            @Html.HiddenFor(m => m.NotulenId, new { @id = "NotulenId" })
+            <p class="title">Tanggal</p>
+            <p>@Model.TanggalInfo</p>
+            <p class="title">Acara</p>
+            <p>@Model.Judul</p>
+            <p class="title">Tempat</p>
+            <p>@Model.Tempat</p>
+            <p class="title">Notulis</p>
+            <p>@Model.NamaPegawai</p>
+            <p class="title">Isi Notulen</p>
+            <p>@Model.IsiNotulen</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,291 @@
+﻿@model Surat.Models.Entities.GolonganMasterArsip
+
+<style>
+    .editable {
+        display: none;
+    }
+
+    [contenteditable="true"], .selecteditable {
+        background-color: #f9f9f9;
+        font-weight: bold;
+        color: black;
+    }
+
+        [contenteditable="true"]:focus, .selecteditable:focus {
+            outline: none;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+
+    .btntransparent {
+        background-color: transparent;
+        background-repeat: no-repeat;
+        border: none;
+        cursor: pointer;
+        overflow: hidden;
+        outline: none;
+    }
+</style>
+
+
+<div id="tab-content" class="tab-content">
+    <form action="" id="form-data">
+        <div class="form-group">
+            <button class="btn btn-primary btn-md" id="add_member" type="button"><i class="fa fa-plus"></i> Tambah</button>
+            <button class="btn btn-success btn-md" id="SubmitGolongan" type="submit" disabled><i class="fa fa-save"></i> Simpan</button>
+        </div>
+
+        <div class="table-responsive">
+            <!-- Table Form start -->
+
+            <input type="hidden" name="Id" value="">
+            <table id="myTableGolonganArsip" class='table table-hover table-bordered'>
+                <thead>
+                    <tr style="background-color: #696969;">
+                        <th class="text-center p-1" width="5%" style="color:white">No.</th>
+                        <th class="text-center p-1" style="color:white">Jenis Naskah Dinas</th>
+                        <th class="text-center p-1" style="color:white">Aksi</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Form end -->
+            </table>
+
+        </div>
+    </form>
+</div>
+
+
+
+<script type="text/javascript">
+
+    var dtableGolonganArsip;
+    var createPagingGolonganArsip = function () {
+        dtableGolonganArsip = $('#myTableGolonganArsip').DataTable({
+
+            "bLengthChange": false,
+            "oLanguage": {
+                "sInfo": "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                "sInfoEmpty": "Menampilkan 0 to 0 of 0 entri",
+                "emptyTable": "Tak ada data yang tersedia pada tabel ini",
+                "sSearch": "Pencarian :"
+            },
+            "ajax": {
+                url: '@Url.Action("ListGolonganArsip", "Kearsipan")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariArsip').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    "className": "text-center",
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "NamaGolongan", "className": "edit_data", },
+                {
+                    sortable: false,
+                    "className": "text-center",
+                    "render": function () {
+
+                        var btnHapus = "<i class='fa fa-trash delete_data noneditable' style='cursor: pointer; color:red;' title=' Hapus Data'></i>&nbsp;&nbsp;&nbsp;";  /*"<button class='btn btn-danger btn-sm rounded-0 py-0 delete_data noneditable' type='button'><i class='fa fa-trash'></i></button>"*/
+                        var btnSimpan = "<button type='submit' class='btntransparent'><i class='fa fa-save simpan_data editable' style='cursor: pointer; color:green;' title=' Simpan Data' type='submit'></i></button>"; /*"<button class='btn btn-sm btn-success btn-flat rounded-0 px-2 py-0 editable'><i class='fa fa-save'></i></button>"*/
+                        var btnBatal = "<i class='fa fa-close editable' onclick='cancel_button($(this))' style='cursor: pointer; color:black;' title=' Batal'></i>"; /*"<button class='btn btn-sm btn-dark btn-flat rounded-0 px-2 py-0 editable' onclick='cancel_button($(this))' type='button'><i class='fa fa-close'></i></button>"*/
+
+                        return btnHapus + btnSimpan + btnBatal;
+                    }}
+            ],
+
+
+            createdRow: function (row, data, dataIndex) {
+                $(row).attr('data-id', data.Id);
+                $(row).find('td:eq(1)').attr({ name: 'NamaGolongan', contenteditable: 'false'});
+            }
+        });
+        };
+
+    $(document).ready(function () {
+       $('.select2_single').select2({ width: 'resolve' });
+        createPagingGolonganArsip();
+    });
+
+    //////////////////////////
+
+
+    $(function () {
+        // Create New Row
+        $('#add_member').click(function () {
+            $("#SubmitGolongan").removeAttr('disabled');
+            if ($('tr[data-id=""]').length > 0) {
+                $('tr[data-id=""]').find('[name="NamaGolongan"]').focus()
+                return false;
+            }
+            var tr = $('<tr>')
+
+            $('input[name="Id"]').val('')
+            tr.addClass('py-1 px-2');
+            tr.attr('data-id', '');
+            tr.addClass('newrow');
+            tr.addClass('selecteditable');
+            tr.prepend('<td class="text-center"><button class="btntransparent" onclick="cancel_button($(this))" type="button"><i class="fa fa-close" style="cursor: pointer; color: black; display: inline-block;"></i></button></td>')
+            tr.prepend('<td contenteditable="true" name="NamaGolongan"></td>')
+            tr.prepend('<td></td>')
+            $('#myTableGolonganArsip').prepend(tr)
+            tr.find('[name="NamaGolongan"]').focus()
+        })
+
+
+
+        //////////////////////////////////////////////////////////////////
+
+        $('#form-data').submit(function (e) {
+            $('#status_hapus').val('0');
+            var id = $('input[name="Id"]').val();
+            var sumber = $('#status_hapus').val('0');
+
+            var data1 = {};
+            // check fields promise
+            var check_fields = new Promise(function (resolve, reject) {
+                data1['Id'] = id;
+
+
+                $('td[contenteditable=true]').each(function () {
+                    data1[$(this).attr('name')] = $(this).text()
+                    if (data1[$(this).attr('name')] == '') {
+                        alert("All fields are required.");
+                        resolve(false);
+                        return false;
+                    }
+                })
+                resolve(true);
+            })
+
+            // continue only if all fields are filled
+            check_fields.then(function (resp) {
+                if (!resp)
+                    return false;
+                $.ajax({
+                    url: '@Url.Action("TambahGolonganMasterArsip", "Kearsipan")',
+                    method: 'POST',
+                    data: data1,
+                    dataType: 'json',
+                    success: function (data, textStatus, XMLHttpRequest) {
+                        if (data.Status) {
+                            showinfo(data.Pesan);
+                            $.unblockUI();
+                            SudahOpenMenu('PengaturanGolonganMaster', 'Jenis Naskah Dinas');
+                        }
+                        else {
+                        }
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        SudahOpenMenu('PengaturanGolonganMaster', 'Jenis Naskah Dinas');
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                })
+                e.preventDefault();
+                SudahOpenMenu('PengaturanGolonganMaster', 'Jenis Naskah Dinas')
+            })
+
+            SudahOpenMenu('PengaturanGolonganMaster', 'Jenis Naskah Dinas')
+        })
+
+
+        EditFunction()
+        //////////////////////////////////////////////////////////////////////
+        function EditFunction() {
+
+            // Edit Row
+            $('#myTableGolonganArsip').one('dblclick', 'tbody td:not(:last-child)', function () {
+                var id = $(this).closest('tr').attr('data-id')
+                $('input[name="Id"]').val(id)
+
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('selecteditable');
+                })
+
+                var count_column = $(this).closest('tr').find('td').length
+                $(this).closest('tr').find('td[contenteditable]').each(function () {
+                    if ($(this).index() != (count_column - 1))
+                        $(this).attr('contenteditable', true)
+                })
+                $(this).closest('tr').find('[name="NamaGolongan"]').focus()
+                $(this).closest('tr').find('.editable').show('fast')
+                $(this).closest('tr').find('.noneditable').hide('fast')
+            })
+        }
+        window.cancel_button = function (_this) {
+            EditFunction()
+            $("#SubmitGolongan").attr('disabled', 'disabled');
+            if (_this.closest('tr').attr('data-id') == '') {
+                _this.closest('tr').remove()
+            } else {
+                $('input[name="Id"]').val('')
+                _this.closest('tr').find('td[contenteditable=true]').each(function () {
+                    $(this).attr('contenteditable', false)
+                })
+
+                _this.closest('tr').each(function () {
+                    $(this).removeClass('selecteditable');
+                })
+
+
+                _this.closest('tr').find('.editable').hide('fast')
+                _this.closest('tr').find('.noneditable').show('fast')
+            }
+        }
+
+
+        // Delete Row
+        $('#myTableGolonganArsip').on("click", ".delete_data", function () {
+            var id = $(this).closest('tr').attr('data-id')
+            var name = $(this).closest('tr').find("[name='NamaGolongan']").text()
+            swal({
+                title: "Konfirmasi Hapus",
+                text: "Apakah anda yakin akan menghapus data?\nData : " + name,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Ya',
+                cancelButtonText: "Batal"
+            },
+                function (isConfirm) {
+
+                    if (isConfirm) {
+                        $.ajax({
+                            url: '@Url.Action("HapusGolonganMasterArsip", "Kearsipan")',
+                            method: 'POST',
+                            data: { Id: id },
+                            dataType: 'json',
+                            error: err => {
+                                alert("An error occured while saving the data")
+                                console.log(err)
+                            },
+                            success: function (resp) {
+                                if (resp.status == 'success') {
+
+                                    dtableGolonganArsip.destroy();
+                                    createPagingGolonganArsip()
+                                } else {
+
+                                    dtableGolonganArsip.destroy();
+                                    createPagingGolonganArsip()
+                                }
+                            }
+                        })
+
+                    }
+                });
+
+        })
+        })
+
+
+
+    // removing table row when cancel button triggered clicked
+
+
+
+</script>

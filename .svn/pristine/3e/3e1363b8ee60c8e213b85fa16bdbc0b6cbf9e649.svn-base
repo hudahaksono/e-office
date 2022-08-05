@@ -1,0 +1,57 @@
+﻿@model Dictionary<int, Surat.Models.Entities.UserPPNPN>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin">@lst.Value.RNumber</td>
+        <td class="tdnormal">@lst.Value.NIK</td>
+        <td class="tdnormal">@lst.Value.NamaLengkap</td>
+        <td class="tdnormal">@lst.Value.Satker</td>
+        <td style="text-align:center;cursor: pointer;" onclick="editUserPPNPN('@lst.Value.NIK','@lst.Value.NamaLengkap','@lst.Value.inSatker');"><i class="fa fa-pencil"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editUserPPNPN = function (nik, nama, ins) {
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#popuptitle').html('Edit data login ' + nama);
+
+        // Get User PPNPN by NIK
+        $.ajax({
+            url: '@Url.Action("GetUserPPNPNByNik", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { nik: nik },
+            success: function (data) {
+                //console.log('data[0].UserId: ' + data[0].UserId);
+                $('#frmEditUserPPNPN')[0].reset();
+
+                $('#UserId').val(data[0].UserId);
+                $('#PPNPNId').val(data[0].PPNPNId);
+                $('#NIK').val(data[0].NIK);
+                $('#inSatker').val(ins);
+
+                $('#editnik').val(data[0].NIK);
+                $('#editnamappnpn').val(data[0].NamaLengkap);
+
+                if (data[0].UserId !== null && data[0].UserId !== '') {
+                    $('#editemail').val(data[0].Email);
+                    $('#editnomortelepon').val(data[0].NomorTelepon);
+                    $('#editusername').val(data[0].Username);
+                    $('#editpassword').val('********');
+                    $('#editconfirm').val('********');
+                }
+
+                dtableUserProfiles.ajax.reload(null, true);
+
+                $.unblockUI();
+            }
+        });
+
+        $('#UserPPNPNEditorModal').modal('show');
+    }
+</script>

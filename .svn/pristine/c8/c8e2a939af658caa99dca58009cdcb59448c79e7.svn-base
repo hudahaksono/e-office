@@ -1,0 +1,81 @@
+﻿@model Surat.Models.SelectOffice
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Aplikasi Persuratan - Daftar Kantor</title>
+
+    <link href="../resources/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../resources/css/select2.min.css" rel="stylesheet">
+    <link href="../resources/css/login.css" rel="stylesheet" />
+    <script src="../resources/js/jquery-1.10.2.js"></script>
+    <script src="../resources/js/select2.full.min.js"></script>
+
+    <style type="text/css">
+        .field-validation-error {
+            color: #ff0000;
+        }
+
+        .field-validation-valid {
+            display: none;
+        }
+
+        .input-validation-error {
+            border: 1px solid #ff0000 !important;
+            background-color: #ffeeee !important;
+        }
+
+        .validation-summary-errors {
+            font-weight: bold !important;
+            color: #ff0000 !important;
+        }
+
+        .validation-summary-valid {
+            display: none;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 34px;
+        }
+
+        body {
+            background: url(@Url.Content("~/resources/images/3.jpg"));
+            background-color: #515151;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2_single').select2({ width: 'resolve' });
+        });
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header bordered">
+            <h4 style="margin-top:0;margin-bottom:0">Pilih Kantor</h4>
+        </div>
+        <hr>
+        @using (Html.BeginForm("SetKantor", "Account", FormMethod.Post, new { @class = "form-signin", role = "form" }))
+        {
+            @Html.HiddenFor(m => m.UserId)
+            @Html.HiddenFor(m => m.UserName)
+            @Html.HiddenFor(m => m.ReturnUrl);
+            @Html.HiddenFor(m => m.Persistent);
+            <div class="login-field">
+                @Html.DropDownListFor(m => m.SelectedOffice, new SelectList(Model.OfficeList, "KantorId", "NamaKantor"), new { @class = "select2_single form-control  input-md", @style = "width:100%;", @id = "selectKantor" })
+                @Html.ValidationMessageFor(m => m.SelectedOffice, "", new { @class = "error" })
+            </div>
+            <div class="login-button clearfix">
+                <button type="submit" id="btn-login" class="btn btn-success pull-right">Sign In</button>
+            </div>
+        }
+    </div>
+</body>
+</html>

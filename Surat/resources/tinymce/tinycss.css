@@ -1,0 +1,52 @@
+﻿@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOS.TTF);
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSI.TTF);
+    font-style: italic;
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSB.TTF);
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSBI.TTF);
+    font-weight: bold;
+    font-style: italic;
+}
+
+
+* {
+    font-family: utama;
+}
+
+
+body{
+    width: 15.8cm;
+    min-height: 21cm;
+    padding: 0.5cm 2cm 2cm;
+    margin: 0 auto;
+    border: 1px #D3D3D3 solid;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-size: 16px;
+    line-height: 24px;
+    font-family: "Nunito Sans", Verdana, Helvetica, sans-serif;
+}
+
+table td {
+    font-family: utama;
+    font-size: 15px;
+    vertical-align:top !important; 
+}
+

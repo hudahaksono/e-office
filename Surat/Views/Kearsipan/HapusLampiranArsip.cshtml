@@ -1,0 +1,20 @@
+﻿@model Dictionary<int, Surat.Models.Entities.LampiranArsip>
+
+@{
+    var niplogin = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+    int n = 0;
+    string namaLampiran = "";
+}
+
+@foreach (var lst in Model)
+{
+    n++;
+    namaLampiran = string.Concat("Berkas ", (n + 1000).ToString().Substring(1));
+
+    <div role="tabpanel" class="tab-pane" id="@lst.Value.LampiranArsipId" style="background-color:white; padding:10px">
+        <div class="PdfDetail" style="padding:5px 10px; background-color:rgba(222, 222, 222, 1)">
+            <h5> <span class="filename">@lst.Value.NamaFile</span> <span class="hapus pull-right" style="color: red;cursor:pointer;" onclick="HapusFileLampiran('@lst.Value.LampiranArsipId','@lst.Value.NamaFile','@lst.Value.IdMasterArsipDetail')">Hapus</span></h5>
+        </div>
+    </div>
+
+}

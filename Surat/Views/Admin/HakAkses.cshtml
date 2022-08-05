@@ -1,0 +1,166 @@
+﻿@{ 
+    var lstnull = new List<SelectListItem>();
+}
+<style>
+    #clrSearch {
+        display: none;
+    }
+
+        #clrSearch.aktif {
+            display: inherit;
+        }
+</style>
+
+<script src='@Url.Content("~/resources/js/jquery-ui.min.js")'></script>
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>Hak Akses</h2>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+        <div class="form-horizontal">
+            <div class="input-group" style="width:100%" id="div01">
+                @Html.DropDownList("ddlRF", lstnull, new { @class = "form-control select2_single", @onchange = "loadIsi()" })
+                @Html.TextBox("txtRF", "", new { @class = "form-control", type = "text", placeholder = "Cari pegawai..." })
+                <span class="input-group-btn">
+                    <button id="rfhSearch" type="button" class="btn btn-default" title="Muat ulang list pegawai"><span class="fa fa-refresh"></span></button>
+                    <button id="clrSearch" type="button" class="btn btn-default"><span class="fa fa-times"></span></button>
+                </span>
+            </div>
+        </div>
+        <div id="dvlistha"></div>
+    </div>
+</div>
+<div id="cnfwindow" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align:left;">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h2 class="modal-title">Konfirmasi</h2>
+            </div>
+            <div id="cnfct" style="margin:5px 10px"></div>
+            <div class="ln_solid" style="margin:8px 0"></div>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-2 text-center">
+                    <button id="confrok" type="button" onclick="PRA()" class="btn btn-success">Ya</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Hidden("dtra")
+</div>
+
+<script type="text/javascript">
+    (function ($) {
+        $("#clrSearch").click(function (e) {
+            $("#txtRF").val("");
+            $("#ddlRF").val("").change();
+            $(this).toggleClass("aktif");
+        });
+        $("#rfhSearch").click(function (e) {
+            getList();
+        });
+
+        
+        $('.select2_single').select2({ width: 'resolve' });
+        $("#txtRF").hide();
+
+        function getList() {            
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                url: '@Url.Action("CariPegawai", "Admin")',
+                type: "POST",
+                dataType: "json",
+                data: { q: "" },
+                success: function (data) {
+                    $('#ddlRF').html("");
+                    $('#ddlRF').append($('<option disabled></option>').val("").html("Cari pegawai..."));
+                    $.each(data, function (i, data) {
+                        $('#ddlRF').append(
+                            $('<option></option>').val(data.idpegawai).html(data.namalengkap));
+                    });
+                    $('#ddlRF').val("");
+                    $.unblockUI();
+                },
+                error: function () { $.unblockUI(); }
+            });
+        }
+        
+        $(document).ready(function () {
+            getList();
+            $(".select2-container").width($("#div01").width() - $("#rfhSearch").width() - 34);
+
+            $("#txtRF").autocomplete({
+                source: function (request, response) {
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        url: '@Url.Action("CariPengguna", "Admin")',
+                        type: "POST",
+                        dataType: "json",
+                        data: { q: encodeURIComponent(request.term) },
+                        success: function (data) {
+                            var results = [];
+                            for (var d = 0; d < data.results.length; d++) {
+                                results.push({ label: data.results[d].namalengkap, value: data.results[d].namalengkap, unam: data.results[d].namapengguna, dnip: data.results[d].displaynip, nip: data.results[d].idpegawai, jabatan: data.results[d].namajabatan, satker: data.results[d].namasatker });
+                            }
+                            response(results);
+                            $.unblockUI();
+                        },
+                        error: function () { $.unblockUI(); }
+                    });
+                },
+                minLength: 3,
+                delay: 500,
+                select: function (event, ui) {
+                    if (!$("#clrSearch").hasClass("aktif")) $("#clrSearch").toggleClass("aktif");
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DaftarHakAkses", "Admin")',
+                        data: { uname: ui.item.unam, dnip: ui.item.dnip, nl: ui.item.label, nip: ui.item.nip, jabatan: ui.item.jabatan, satker: ui.item.satker },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            $("#dvlistha").html(data.ListHA);
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            showmsg('Perhatian', 'Error menyimpan Hak Akses');
+                            $.unblockUI();
+                        }
+                    });
+                }
+            });
+        });
+    }(jQuery))
+
+    function loadIsi() {
+        if ($('#ddlRF').val() != "") {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CariDetailPegawai", "Admin")',
+                data: { nip: $('#ddlRF').val() },
+                success: function (rst, textStatus, XMLHttpRequest) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DaftarHakAkses", "Admin")',
+                        data: { uname: rst.namapengguna, dnip: rst.displaynip, nl: rst.namalengkap, nip: rst.idpegawai, jabatan: rst.namajabatan, satker: rst.namasatker, kantorid: rst.kantorid, kantorids: rst.kantorids },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            $("#dvlistha").html(data.ListHA);
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            showmsg('Perhatian', 'Error menyimpan Hak Akses');
+                            $.unblockUI();
+                        }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest, textStatus, errorThrown);
+                    $.unblockUI();
+                }
+            });
+        }
+    }
+</script>

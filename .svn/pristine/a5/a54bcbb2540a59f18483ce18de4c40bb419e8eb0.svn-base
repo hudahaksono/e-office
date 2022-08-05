@@ -1,0 +1,554 @@
+﻿using MessagingToolkit.QRCode.Codec;
+using QRCoder;
+using Surat.Models;
+using Surat.Models.Entities;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using System.Windows.Media.Imaging;
+
+namespace Surat.Controllers
+{
+    public class PublicController : Controller
+    {
+        PublicModel mPublic = new PublicModel();
+
+        public ActionResult Index(string str, bool lg = true)
+        {
+            ViewBag.Code = str;
+            var data = new RapatOnline();
+            ViewBag.QrCode = "";
+            ViewBag.Judul = "";
+            ViewBag.Tanggal = "";
+            ViewBag.Url = "";
+            ViewBag.Keterangan = "";
+            if (!string.IsNullOrEmpty(str))
+            {
+                data = mPublic.GetRapatOnlineDetail("", str);
+                data.listAbsensi = new List<AbsensiRapatOnline>();
+                if (data != null)
+                {
+                    ViewBag.QrCode = createQR(str,false);
+                    ViewBag.Judul = data.Judul;
+                    ViewBag.Tanggal = data.Tanggal;
+                    ViewBag.Url = data.UrlMeeting;
+                    ViewBag.Keterangan = data.Keterangan;
+                    data.listAbsensi = mPublic.GetListAbsensi(data.RapatOnlineId);
+                }
+            }
+            return View(data);
+        }
+        
+        public ActionResult Surat(string q)
+        {
+            ViewBag.Kode = q;
+            return View();
+        }
+        
+        public ActionResult Load(string id, string kd, string tgt)
+        {
+            ViewBag.id = id;
+            ViewBag.kd = kd;
+            ViewBag.tgt = tgt;
+            return View();
+        }
+
+        public ActionResult LihatDokumen(string id, string q)
+        {
+            var data = new BukaDokumen();
+            data.DokumenId = id;
+            if (string.IsNullOrEmpty(q))
+            {
+                q = mPublic.getKodeFile(id);
+            }
+            data.Kode = q;
+            return View(data);
+        }
+
+        public ActionResult Gambar(string q)
+        {
+            ViewBag.imgstring = getImage(q); ;
+            ViewBag.Kode = q;
+            return View();
+        }
+
+        private string createQR(string str, bool useLogo)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(str, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new QRCode(qrCodeData);
+            Bitmap qrCodeImage = qrCode.GetGraphic(20);
+            byte[] byteGambar = null;
+            if (useLogo)
+            {
+                Image logo = Image.FromFile(Server.MapPath("~/Reports/logoqr_small.png"));
+                var destRect = new Rectangle(0, 0, 150, 150);
+                var destImage = new Bitmap(150, 150);
+                destImage.SetResolution(logo.HorizontalResolution, logo.VerticalResolution);
+                using (var graphics = Graphics.FromImage(destImage))
+                {
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                    graphics.CompositingQuality = CompositingQuality.HighQuality;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.SmoothingMode = SmoothingMode.HighQuality;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                    using (var wrapMode = new ImageAttributes())
+                    {
+                        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                        graphics.DrawImage(logo, destRect, 0, 0, logo.Width, logo.Height, GraphicsUnit.Pixel, wrapMode);
+                    }
+                }
+                logo = destImage;
+
+                int left = (qrCodeImage.Width / 2) - ((int)logo.Width / 2);
+                int top = (qrCodeImage.Height / 2) - ((int)logo.Height / 2);
+                Graphics g = Graphics.FromImage(qrCodeImage);
+                g.DrawImage(logo, new Point(left, top));
+            }
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    qrCodeImage.Save(stream, ImageFormat.Bmp);
+                    byteGambar = stream.ToArray();
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                throw ex;
+            }
+            return "data:image/png;base64, " + Convert.ToBase64String(byteGambar);
+        }
+
+
+        private string imgstring(string str)
+        {
+            QRCodeEncoder encoder = new QRCodeEncoder();
+            byte[] byteGambar = null;
+            Bitmap img = encoder.Encode(str);
+            Image logo = Image.FromFile(Server.MapPath("~/Reports/logoqr_small.png"));
+
+            var destRect = new Rectangle(0, 0, 72, 72);
+            var destImage = new Bitmap(72, 72);
+            destImage.SetResolution(logo.HorizontalResolution, logo.VerticalResolution);
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(logo, destRect, 0, 0, logo.Width, logo.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+            logo = destImage;
+
+            int left = (img.Width / 2) - ((int)logo.Width / 2);
+            int top = (img.Height / 2) - ((int)logo.Height / 2);
+            Graphics g = Graphics.FromImage(img);
+            g.DrawImage(logo, new Point(left, top));
+            using (var memoryStream = new MemoryStream())
+            {
+                img.Save(memoryStream, ImageFormat.Jpeg);
+                byteGambar = memoryStream.ToArray();
+            }
+            return "data:image/png;base64, " + Convert.ToBase64String(byteGambar);
+        }
+
+        public async Task<ActionResult> getDokumen(string id)
+        {
+            var mdl = new TandaTanganElektronikModel();
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                string tipe = "DokumenTTE";
+                string dokid = mdl.getDokid(id);
+                if (string.IsNullOrEmpty(dokid))
+                {
+                    result.Pesan = "Dokumen tidak ditemukan";
+                    return Json(result, JsonRequestBehavior.AllowGet);
+                }
+                string versi = mdl.CekVersi(dokid).ToString();
+                string filename = mdl.getFileName(dokid);
+                string kantorid = mdl.getKantorid(dokid);
+                DateTime tglSunting = mdl.getTglSunting(dokid);
+                content.Add(new StringContent(kantorid), "kantorId");
+                content.Add(new StringContent(tipe), "tipeDokumen");
+                content.Add(new StringContent(dokid), "dokumenId");
+                content.Add(new StringContent(".pdf"), "fileExtension");
+                content.Add(new StringContent(versi), "versionNumber");
+
+                reqmessage.Method = HttpMethod.Post;
+                reqmessage.Content = content;
+                reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings[mdl.apiUrl(tglSunting)].ToString(), "Retrieve"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            var strm = await reqresult.Content.ReadAsStreamAsync();
+                            var docfile = new FileStreamResult(strm, MediaTypeNames.Application.Pdf);
+                            docfile.FileDownloadName = string.IsNullOrEmpty(filename) ? string.Concat(tipe, ".pdf") : filename;
+
+                            result.Status = true;
+                            result.StreamResult = docfile;
+
+                            return docfile;
+                        }
+                        else
+                        {
+                            result.Pesan = "Dokumen tidak ditemukan";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Pesan = ex.Message;
+                }
+            }
+            else
+            {
+                result.Pesan = "Dokumen Kosong";
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public async Task<ActionResult> cekFile(string id)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "Dokumen tidak ditemukan" };
+            var mdl = new KontentModel();
+            Stream strm = null;
+            if (!string.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                var konten = mdl.getKontenAktif(id);
+                if(konten != null)
+                {
+                    string kantorid = konten.KANTORID;
+                    string tipe = konten.TIPE;
+                    string versi = konten.VERSI.ToString();
+                    string ext = konten.EKSTENSI;
+                    ext = string.IsNullOrEmpty(ext) ? ".pdf" : string.Concat(ext.Substring(0, 1).Equals(".") ? "" : ".", ext);
+                    string filename = string.Concat(tipe, ext);
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent(tipe), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(ext), "fileExtension");
+                    content.Add(new StringContent(versi), "versionNumber");
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+                    try
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            var reqresult = client.SendAsync(reqmessage).Result;
+                            if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                            {
+                                strm = await reqresult.Content.ReadAsStreamAsync();
+                                result.Status = strm.Length > 0;
+                                if (!result.Status)
+                                {
+                                    result.Pesan = "Dokumen Kosong";
+                                }
+                                else
+                                {
+                                    result.Pesan = filename;
+                                }
+                            }
+                            else
+                            {
+                                result.Pesan = "Dokumen tidak ditemukan";
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                    }
+                }
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public async Task<ActionResult> getFile(string id)
+        {
+            var mdl = new KontentModel();
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                var konten = mdl.getKontenAktif(id);
+                if (konten != null)
+                {
+                    string kantorid = konten.KANTORID;
+                    string tipe = konten.TIPE;
+                    string versi = konten.VERSI.ToString();
+                    string ext = konten.EKSTENSI;
+                    ext = string.IsNullOrEmpty(ext) ? ".pdf" : string.Concat(ext.Substring(0, 1).Equals(".") ? "" : ".", ext);
+                    string filename = string.Concat(tipe, ext);
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent(tipe), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(ext), "fileExtension");
+                    content.Add(new StringContent(versi), "versionNumber");
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+                    try
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            var reqresult = client.SendAsync(reqmessage).Result;
+                            if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                var strm = await reqresult.Content.ReadAsStreamAsync();
+                                var docfile = new FileStreamResult(strm, MediaTypeNames.Application.Pdf);
+                                if (ext.Equals(".jpg"))
+                                {
+                                    docfile = new FileStreamResult(strm, "image/jpeg");
+                                }
+                                else if (ext.Equals(".png"))
+                                {
+                                    docfile = new FileStreamResult(strm, "image/png");
+                                }
+                                docfile.FileDownloadName = filename;
+
+                                result.Status = true;
+                                result.StreamResult = docfile;
+
+                                return docfile;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                    }
+                }
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public string getImage(string id)
+        {
+            var mdl = new KontentModel();
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+            var imageSource = new BitmapImage { CacheOption = BitmapCacheOption.OnLoad };
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                var konten = mdl.getKontenAktif(id);
+                if (konten != null)
+                {
+                    string kantorid = konten.KANTORID;
+                    string tipe = konten.TIPE;
+                    string versi = konten.VERSI.ToString();
+                    string ext = konten.EKSTENSI;
+                    ext = string.IsNullOrEmpty(ext) ? ".pdf" : string.Concat(ext.Substring(0, 1).Equals(".") ? "" : ".", ext);
+                    string filename = string.Concat(tipe, ext);
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent(tipe), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(ext), "fileExtension");
+                    content.Add(new StringContent(versi), "versionNumber");
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+                    try
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            var reqresult = client.SendAsync(reqmessage).Result;
+                            if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                //var strm = await reqresult.Content.ReadAsStreamAsync();
+                                //var docfile = new FileStreamResult(strm, MediaTypeNames.Application.Pdf);
+                                //if (ext.Equals(".jpg"))
+                                //{
+                                //    docfile = new FileStreamResult(strm, "image/jpeg");
+                                //}
+                                //else if (ext.Equals(".png"))
+                                //{
+                                //    docfile = new FileStreamResult(strm, "image/png");
+                                //}
+                                //docfile.FileDownloadName = filename;
+
+                                //result.Status = true;
+                                //result.StreamResult = docfile;
+                                var strm = reqresult.Content.ReadAsStreamAsync().Result;
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    strm.CopyTo(ms);
+                                    byte[] byteGambar = ms.ToArray();
+                                    return string.Concat("data:image/png;base64, ",Convert.ToBase64String(byteGambar));
+                                }
+
+                                //Bitmap image = new Bitmap(stream);
+                                //return image;
+                                //imageSource.BeginInit();
+                                //imageSource.StreamSource = stream;
+                                //imageSource.EndInit();
+                                //imageSource.Freeze();
+                                //return imageSource;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public ActionResult GetDetailDokumen(int? draw, int? start, int? length)
+        {
+            TandaTanganElektronikModel mdl = new TandaTanganElektronikModel();
+            var result = new List<SejarahDokumenTTE>();
+            decimal? total = 0;
+            string kode = Request.Form["kode"].ToString();
+            string dokid = mdl.getDokid(kode);
+
+            if (!string.IsNullOrEmpty(dokid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+                result = mdl.GetDetailDokumen(dokid, from, to);
+
+                if (result.Count > 0)
+                {
+                    total = result[0].Total;
+                }
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ContentResult NamaPenandatangan(string kode)
+        {
+            TandaTanganElektronikModel mdl = new TandaTanganElektronikModel();
+            string dokid = mdl.getDokid(kode);
+            string result = mdl.getNamaPenandatangan(dokid);
+
+            return Content(result);
+        }
+
+        public ActionResult PengenalSurat(string kode)
+        {
+            TandaTanganElektronikModel mdl = new TandaTanganElektronikModel();
+            string dokid = mdl.getDokid(kode);
+            var result = mdl.GetDokumenElektronik(dokid);
+            result.NomorSurat = Server.UrlDecode(result.NomorSurat);
+            result.Perihal = Server.UrlDecode(result.Perihal);
+            string nama = mdl.getNamaPenandatangan(dokid);
+
+            return Json(new { data = result, nama = nama }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult BukuTamu(string unid, string uid)
+        {
+            var data = new DataBukuTamu();
+            if(string.IsNullOrEmpty(unid) || string.IsNullOrEmpty(uid))
+            {
+                var usr = HttpContext.User.Identity as InternalUserIdentity;
+                if(usr != null)
+                {
+                    data.KantorId = usr.KantorId;
+                    data.UnitKerjaId = usr.UnitKerjaId;
+                    data.UserId = usr.UserId;
+                    data.NamaUnitKerja = new DataMasterModel().GetNamaUnitKerjaById(usr.UnitKerjaId);
+                }
+            }
+            else
+            {
+                if(new DataMasterModel().checkUseridOnUnitkerjaid(unid, uid))
+                {
+                    data.KantorId = new DataMasterModel().GetKantorIdByUnitKerjaId(unid);
+                    data.UnitKerjaId = unid;
+                    data.UserId = uid;
+                    data.NamaUnitKerja = new DataMasterModel().GetNamaUnitKerjaById(unid);
+                }
+            }
+
+            return View(data);
+        }
+
+        [HttpPost]
+        public JsonResult SimpanBukuTamu(DataBukuTamu data)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "" };
+
+            char[] delimiters = new char[] { ' ', '\r', '\n' };
+            var ctWords = data.Keperluan.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Length;
+            if(ctWords > 5)
+            {
+                tr = mPublic.SimpanBukuTamu(data);
+            }
+            else
+            {
+                tr.Pesan = "Isian Keperluan kurang detail";
+            }
+
+            //var apiServices = new ApiServices();
+            //var param = new ParameterDukcapil();
+            //param.NIK = data.NIK;
+            //string nama = data.NamaLengkap.ToUpper();
+            //if (data.NamaLengkap.IndexOf(",") > 0)
+            //{
+            //    nama = data.NamaLengkap.Substring(0, data.NamaLengkap.IndexOf(",")).ToUpper();
+            //}
+            //param.NAMA_LGKP = nama;
+            //param.TMPT_LHR = data.TempatLahir.ToUpper();
+            //param.TGL_LHR = data.TanggalLahir;
+            //tr = apiServices.Cek_NIK(param);
+            //if (tr.Status)
+            //{
+            //    tr = mPublic.SimpanBukuTamu(data);
+            //}
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+    }
+}

@@ -1,0 +1,823 @@
+﻿@model Surat.Models.Entities.DraftSurat
+
+@{
+    var lstPosisiTTE = new List<SelectListItem>();
+    lstPosisiTTE.Add(new SelectListItem { Text = "Halaman Terakhir", Value = "terakhir" });
+    lstPosisiTTE.Add(new SelectListItem { Text = "Halaman Pertama", Value = "pertama" });
+    var lstJenisTujuan = new List<SelectListItem>();
+    lstJenisTujuan.Add(new SelectListItem { Text = "Internal ATR/BPN", Value = "bpn" });
+    lstJenisTujuan.Add(new SelectListItem { Text = "External", Value = "lain" });
+    var lstnull = new List<SelectListItem>();
+}
+<script src='@Url.Content("~/resources/js/jquery.form.js")' type="text/javascript"></script>
+<script src='@Url.Content("~/resources/js/jqueryautocomplete/jquery.autocomplete.js")' type="text/javascript"></script>
+<script src='@Url.Content("~/resources/tinymce/tinymce.min.js")'></script>
+
+<style>
+    .formisian {
+        max-width: 350px;
+    }
+
+    .formfull {
+        width: 100%;
+    }
+
+    .date {
+        max-width: 200px;
+    }
+
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            background: red;
+            cursor: inherit;
+            display: block;
+        }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(46px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 24px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .error {
+        color: #ad1010;
+        font-family: 'Varela Round', sans-serif;
+        font-style: oblique;
+    }
+</style>
+<script type="text/javascript">
+    $(function () {
+        $.validator.unobtrusive.parse(this);
+    });
+    
+</script>
+<div class="">
+    <div class="page-title">
+        <div class="title_left"><h2 style="width:100%"><span id="LabelTitle">Editor Konsep Surat - <b>@ViewBag.Judul</b></span></h2></div>
+        <div class="title_right" style="text-align:right;">
+            <div class="pull-right">
+                <span class="input-group-btn" style="padding-right:2px;">
+                    @if (string.IsNullOrEmpty(Model.DraftCode) || Model.Status.Equals("P"))
+                    {
+                        <button type="button" id="btnsimpan" class="btn btn-primary">Ajukan Konsep</button>
+                    }
+                    else if (!string.IsNullOrEmpty(Model.DraftCode) && !Model.Status.Equals("P"))
+                    {
+                        <button type="button" id="btnsimpan" class="btn btn-primary">Infokan Perubahan</button>
+                    }
+                    <button id="cancel-btn" type="button" class="btn btn-warning" onclick="history.back();">Kembali</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row x_panel tile" style="padding-top:7px; border:1px solid #E6E9ED;">
+        <div class="x_content">
+            <div class="" role="tabpanel" data-example-id="togglable-tabs" id="tabs">
+                <button id="goNextBtn" type="button" class="btn btn-success pull-right" onclick="goNext()">Berikutnya</button>
+                <button id="preview-btn" type="button" class="sr-only btn btn-warning pull-right" onclick="SimpanDanTampilkan()">Simpan dan Tampilkan Draft</button>
+                <ul id="actTabs" class="nav nav-tabs hidden-print" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#tab1" role="tab" id="step1-tab" data-toggle="tab" aria-expanded="true">Pengenal</a>
+                    </li>
+                    <li role="presentation" class="sr-only" id="tabStep2">
+                        <a href="#tab2" role="tab" id="step2-tab" data-toggle="tab" aria-expanded="false">Isi</a>
+                    </li>
+                    <li role="presentation" class="sr-only" id="tabStep3">
+                        <a href="#tab3" role="tab" id="step3-tab" data-toggle="tab" aria-expanded="false">Lampiran</a>
+                    </li>
+                    <li role="presentation" class="sr-only" id="tabStep4">
+                        <a href="#tab4" role="tab" id="step4-tab" data-toggle="tab" aria-expanded="false">Penandatangan</a>
+                    </li>
+                    <li role="presentation" class="sr-only" id="tabStep5">
+                        <a href="#tab5" role="tab" id="step5-tab" data-toggle="tab" aria-expanded="false">Tampilan</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="tab-content" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="step1-tab">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Pengenal Dokumen</h2>
+                            @Html.HiddenFor(m => m.DraftCode)
+                            @Html.HiddenFor(m => m.UnitKerjaId)
+                            @Html.HiddenFor(m => m.isTU)
+                            <div class="clearfix"></div>
+                        </div>
+                        <form id="MainForm">
+                            <div class="x_content">
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        @Html.HiddenFor(model => model.TipeSurat, new { @class = "form-control formfull", @id = "tipesurat", @required = "required" })
+                                        <div class="form-group">
+                                            <label class="control-label" for="kopsurat">Kop Surat <span style="color:red">*</span></label>
+                                            <div class="input-group" style="margin-bottom:0px">
+                                                @Html.DropDownListFor(model => model.KopSurat, Model.ListKodeKopSurat, new { @class = "form-control formfull", @id = "kopsurat", @required = "required" })
+                                            </div>
+                                            <small>@Html.ValidationMessageFor(model => model.KopSurat, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="sifatsurat">Sifat Surat <span style="color:red">*</span></label>
+                                            @Html.DropDownListFor(model => model.SifatSurat, lstnull, new { @class = "select2_single form-control input-md", @id = "sifatsurat", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.SifatSurat, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="kodearsip">Kode Arsip <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.KodeArsip, new { @class = "form-control formfull", @id = "kodearsip", @maxlength = "10", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.KodeArsip, "", new { @class = "error" })</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label" for="ProfilePengirim">Pengirim Surat <span style="color:red">*</span></label>
+                                            @Html.DropDownListFor(model => model.ProfilePengirim, Model.ListProfile, new { @class = "select2_single form-control input-md", @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.ProfilePengirim, "", new { @class = "error" })</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="perihal">Hal <span style="color:red">*</span></label>
+                                            @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control formfull", @id = "perihal", @rows = 5, @required = "required" })
+                                            <small>@Html.ValidationMessageFor(model => model.Perihal, "", new { @class = "error" })</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="x_title">
+                                            <h2 class="mytitleform">Tujuan <span style="color:red">*</span></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.DropDownList("jenistujuan", lstJenisTujuan, new { @class = "select2_single form-control formfull", @onchange = "Tujuan_Tembusan('tujuan')" })
+                                        </div>
+                                        <div class="form-group" id="div_tujuanEX">
+                                            <div class="input-group" style="margin-bottom:0px">
+                                                @Html.TextBox("tujuanEX", "", new { @class = "form-control", type = "text" })
+                                                <div class="input-group-btn">
+                                                    <label class="btn btn-success" style="margin-right:0" onclick="tambahtujuantembusan('ex','tujuan')">
+                                                        <i class="fa fa-plus"></i>&nbsp;Tambah
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" id="div_tujuanIN">
+                                            <div style="margin-bottom:10px">
+                                                <select class="select2_single form-control formfull" data-redaksi="asli" onchange="GetPegawaibyUnit(this)" id="tujuanComboSelect">
+                                                    <option>Pilih Unit Kerja</option>
+                                                    @foreach (var unit in ViewBag.ListUnitKerja)
+                                                    {
+                                                        <option value="@unit.UnitKerjaId">@unit.NamaUnitKerja</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="input-group" style="margin-bottom:0px">
+                                                @Html.DropDownList("tujuanIN", lstnull, new { @class = "select2_single form-control formfull" })
+                                                <div class="input-group-btn">
+                                                    <label class="btn btn-success" style="margin-right:0" onclick="tambahtujuantembusan('in','tujuan')">
+                                                        <i class="fa fa-plus"></i>&nbsp;Tambah
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered" style="width:100%;margin-bottom:0px;">
+                                                <tr>
+                                                    <th>Nama Tujuan</th>
+                                                    <th style="width:57px"></th>
+                                                </tr>
+                                            </table>
+                                            <div class="table-responsive" style="margin-bottom:0px;overflow-y:scroll;height:180px;">
+                                                <table id="tblTujuanSurat" class="table table-striped table-bordered" style="width:100%;">
+                                                    <tbody id="datatujuan"><tr><td colspan="2" style="text-align:center;">Tujuan Kosong</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            @Html.Hidden("ListTujuanSurat")
+                                        </div>
+                                        <small id="tujuansurat" class="error" style="display:none">Tujuan Surat Kosong</small>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="x_title">
+                                            <h2 class="mytitleform">Tembusan</h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.DropDownList("jenistembusan", lstJenisTujuan, new { @class = "select2_single form-control formfull", @onchange = "Tujuan_Tembusan('tembusan')" })
+                                        </div>
+                                        <div class="form-group" id="div_tembusanEX">
+                                            <div class="input-group" style="margin-bottom:0px">
+                                                @Html.TextBox("tembusanEX", "", new { @class = "form-control", type = "text" })
+                                                <div class="input-group-btn">
+                                                    <label class="btn btn-success" style="margin-right:0" onclick="tambahtujuantembusan('ex','tembusan')">
+                                                        <i class="fa fa-plus"></i>&nbsp;Tambah
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" id="div_tembusanIN">
+                                            <div style="margin-bottom:10px">
+                                                <select class="select2_single form-control formfull" data-redaksi="tembusan" onchange="GetPegawaibyUnit(this)">
+                                                    <option>Pilih Unit Kerja</option>
+                                                    @foreach (var unit in ViewBag.ListUnitKerja)
+                                                    {
+                                                        <option value="@unit.UnitKerjaId">@unit.NamaUnitKerja</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="input-group" style="margin-bottom:0px">
+                                                @Html.DropDownList("tembusanIN", lstnull, new { @class = "select2_single form-control formfull" })
+                                                <div class="input-group-btn">
+                                                    <label class="btn btn-success" style="margin-right:0" onclick="tambahtujuantembusan('in','tembusan')">
+                                                        <i class="fa fa-plus"></i>&nbsp;Tambah
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <table class="table table-striped table-bordered" style="width:100%;margin-bottom:0px;">
+                                                <tr>
+                                                    <th>Nama Tembusan</th>
+                                                    <th style="width:57px"></th>
+                                                </tr>
+                                            </table>
+                                            <div class="table-responsive" style="margin-bottom:0px;overflow-y:scroll;height:180px;">
+                                                <table id="tblTembusanSurat" class="table table-striped table-bordered" style="width:100%;">
+                                                    <tbody id="datatembusan"><tr><td colspan="2" style="text-align:center;">Tembusan Kosong</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            @Html.Hidden("ListTembusanSurat")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab2" aria-labelledby="step2-tab">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Isi Surat</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group" id="tanggaldantempat" style="display:none;">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <label class="control-label">Tanggal Undangan</label>
+                                                <div class='input-group date' id='tglUndangan'>
+                                                    @Html.TextBoxFor(model => model.TanggalUndangan, new { @class = "form-control", @required = "required" })
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="control-label">Tempat</label>
+                                                <div class='input-group' id='tmptUndangan'>
+                                                    @Html.TextBoxFor(model => model.TempatUndangan, new { @class = "form-control formfull", @required = "required" })
+                                                </div>
+                                            </div>
+                                            @Html.HiddenFor(m => m.Detail)
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea id="mytextarea"></textarea>
+                                    </div>
+                                </div>
+                                <small id="ErrIsiSurat" class="error">Isi Surat Kosong</small>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab3" aria-labelledby="step-tab">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Lampiran</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                                <div class="form-group" id="divUpload">
+                                    @Html.HiddenFor(m => m.LampiranId)
+                                    <div class="input-group" style="margin-bottom:0px">
+                                        @Html.TextBoxFor(model => model.NamaFileLampiran, new { @class = "form-control", id = "namafile", type = "text", @readonly = "readonly", @onclick = "$('#btnUploadFile').click();" })
+                                        <div class="input-group-btn">
+                                            <label class="btn btn-success btn-file">
+                                                <i class="fa fa-search"></i><input class="" type="file" name="filename" id="btnUploadFile" accept=".pdf" hidden style="width:70px;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <small><span id="validFile" class="error"></span></small>
+                                </div>
+                                <div id='fileDokumen'></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab4" aria-labelledby="step4-tab">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Penandatangan</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <table class="table table-striped table-bordered" style="width:100%;margin-bottom:0px;">
+                                            <tr>
+                                                <th style="width:152px">NIP</th>
+                                                <th style="width:123px">Nama</th>
+                                                <th>Jabatan</th>
+                                                <th style="width:100px">Tipe</th>
+                                                <th style="width:57px"></th>
+                                            </tr>
+                                        </table>
+                                        <div class="table-responsive" style="margin-bottom:0px;overflow-y:scroll;height:100px;">
+                                            <table id="tblPenandatangan" class="table table-striped table-bordered" style="width:100%;">
+                                                <tbody id="datatte"><tr><td colspan="5" style="text-align:center;">Penandatangan Kosong</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                        @Html.Hidden("UserTTE")
+                                    </div>
+                                    <small id="ErrPenandatangan" class="error sr-only">Penandatangan Kosong</small>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <button id="BtnTambahTandaTangan" type="button" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tanda Tangan</button>
+                                    </div>
+                                </div>
+                        </div>
+
+                    </div>
+
+                    @* verfikator *@
+
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Paraf Koordinasi</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <table class="table table-striped table-bordered" style="width:100%;margin-bottom:0px;">
+                                            <tr>
+                                                <th style="width:152px">NIP</th>
+                                                <th style="width:123px">Nama</th>
+                                                <th>Jabatan</th>
+                                                <th style="width:100px">Tipe</th>
+                                                <th style="width:57px"></th>
+                                            </tr>
+                                        </table>
+                                        <div class="table-responsive" style="margin-bottom:0px;overflow-y:scroll;height:100px;">
+                                            <table id="tblKoordinasi" class="table table-striped table-bordered" style="width:100%;">
+                                                <tbody id="dataparaf"><tr><td colspan="5" style="text-align:center;">Pilih Verifikator</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <small id="ErrKoordinasi" class="error sr-only">Penandatangan Kosong</small>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        <button id="BtnTambahKoordinasi" type="button" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tanda Tangan</button>
+                                    </div>
+                                </div>
+                        </div>
+
+                    </div>
+
+
+
+
+
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab5" aria-labelledby="step5-tab">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Tampilan Dokumen</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                                <div class="col-md-3 col-sm-6 col-xs-12" style="display:none;">
+                                    <div class="form-group">
+                                        <label class="control-label" for="posisitte">Posisi TTE <span style="color:red">*</span></label>
+                                        @Html.DropDownListFor(model => model.PosisiTTE, lstPosisiTTE, new { @class = "form-control formfull", @id = "posisitte", @required = "required" })
+                                        <small>@Html.ValidationMessageFor(model => model.PosisiTTE, "", new { @class = "error" })</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div id='tampilanDokumen'></div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='ListPegawaiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Daftar Pegawai</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="row">
+                                <div class="table-responsive" style="padding-right:10px;">
+                                        <div class="form-group">
+                                            <label class="control-label" for="txtJabatan">Jabatan</label>
+                                            @Html.TextBox("txtJabatan", "", new { @class = "form-control" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="txtNama">Nama</label>
+                                            @Html.TextBox("txtNama", "", new { @class = "form-control" })
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-success" id="btncaripegawai">Cari</button>
+                                            <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
+                                        </div>
+                                    <table id="myTableDaftarPegawai" class="table table-striped hover" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%">#</th>
+                                                <th>NIP</th>
+                                                <th>Nama</th>
+                                                <th>Jabatan</th>
+                                                <th style="width:10%">Pilih</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form id="formsearch"></form>
+
+<div id='DesainKopModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kopContent'>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script>
+    let tipeNas = '@Model.TipeSurat';
+    $(document).ready(function () {
+        Tujuan_Tembusan('tujuan')
+        Tujuan_Tembusan('tembusan')
+
+        //isi
+        $('#tglUndangan, #TanggalUndangan').datetimepicker({
+            format: 'DD/MM/YYYY HH:mm',
+            locale: 'id',
+        });
+        tinyMCEInit(`@Html.Raw(Model.IsiSurat)`)
+
+        // Tujuan
+        @{
+            string tujuan = string.Empty;
+            foreach(var tj in Model.Tujuan)
+            {
+                tujuan += string.IsNullOrEmpty(tujuan) ? "" : "|";
+                tujuan += tj;
+            }
+        }
+        var tujuan = ('@tujuan').split("|");
+        if (tujuan.length > 0) {
+            $('#datatujuan').html("");
+            $.each(tujuan, function (i, rst) {
+                $('#datatujuan').append("<tr><td><span>" + rst + "</span></td><td style='width: 40px;cursor: pointer;' onclick='hapusTujuan(this)'><i class='fa fa-trash'></i></td></tr>");
+            });
+        }
+
+        // Tembusan
+        @{
+            string tembusan = string.Empty;
+            foreach(var tj in Model.Tembusan)
+            {
+                tembusan += string.IsNullOrEmpty(tembusan) ? "" : "|";
+                tembusan += tj;
+            }
+        }
+        var tembusan = ('@tembusan').split("|");
+        if (tembusan.length > 0) {
+            $('#datatembusan').html("");
+            $.each(tembusan, function (i, rst) {
+                $('#datatembusan').append("<tr><td><span>" + rst + "</span></td><td style='width: 40px;cursor: pointer;' onclick='hapusTujuan(this)'><i class='fa fa-trash'></i></td></tr>");
+            });
+        }
+
+        //sifat
+        $.ajax({
+            url: '@Url.Action("GetListSifatSurat", "Surat")',
+            type: "GET",
+            dataType: "JSON",
+            success: function (ss) {
+                $('#sifatsurat').html("");
+                $('#sifatsurat').append($('<option disabled></option>').val("").html("Pilih Sifat Surat"));
+                $.each(ss, function (i, ss) {
+                    $('#sifatsurat').append(
+                        $('<option></option>').val(ss.Nama).html(ss.Nama));
+                });
+                $.unblockUI();
+            }
+        });
+    })
+
+    function Tujuan_Tembusan(param) {
+        if (param == "tujuan") {
+            const jns = $("#jenistujuan").val()
+            const forHideEx = $("#div_tujuanEX")
+            const forHideIn = $("#div_tujuanIN")
+            hideshow(jns, forHideEx, forHideIn)
+        } else if (param == "tembusan") {
+            const jns = $("#jenistembusan").val()
+            const forHideEx = $("#div_tembusanEX")
+            const forHideIn = $("#div_tembusanIN")
+            hideshow(jns, forHideEx, forHideIn)
+        }
+        function hideshow(jns,forHideEx,forHideIn) {
+            if (jns == "bpn") {
+                forHideEx.hide()
+                forHideIn.show()
+            } else if (jns == "lain") {
+                forHideEx.show()
+                forHideIn.hide()
+            }
+        }
+
+    }
+    function GetPegawaibyUnit(el) {
+        var valueid = el.value;
+        var redaksi = $(el).attr("data-redaksi");
+        var idname;
+        var form = $("#formsearch").serializeArray();
+        form.push({ name: "unitkerjaid", value: valueid }, { name: "namajabatan", value: "" }, { name: "namapegawai", value: ""})
+        $.ajax({
+            url: '@Url.Action("GetPegawaiByUnitKerjaJabatanNama", "Admin")',
+            type: "POST",
+            data: form,
+            success: function (rst) {
+                if (redaksi == "asli") {
+                    idname = '#tujuanIN'
+                } else if (redaksi == "tembusan") {
+                    idname = '#tembusanIN'
+                }
+                $(idname).children('option').remove();
+                $(idname).html("");
+                $(idname).append($('<option></option>').val("").html("Pilih Tujuan"));
+                var i;
+                for (i = 0; i < rst.data.length; i++) {
+                    var jbt = rst.data[i].Jabatan
+                    if (jbt.includes("Kepala ") || jbt.includes("Sekretaris ") || jbt.includes("Menteri ") || jbt.includes("Inspektur ") || jbt.includes("Direktur ")){
+                        $(idname).append(
+                            $('<option></option>').val(rst.data[i].Jabatan).html("<span>" + rst.data[i].Jabatan + "</span>"));
+                    }
+                    else {
+                        $(idname).append(
+                            $('<option></option>').val(rst.data[i].NamaLengkap).html(`
+                                <span>${rst.data[i].NamaLengkap}</span> - (${rst.data[i].Jabatan})
+                            `));
+                    }
+                }
+            }
+
+        });
+    }
+
+    function tambahtujuantembusan(t, v) {
+        if (v == 'tujuan') {
+            const textField = (t == 'in') ? $("#tujuanIN") : $("#tujuanEX")
+            const holder = $("#datatujuan")
+            addtoHolder(textField,holder,"Tujuan")
+        }
+        else if (v == 'tembusan') {
+            const textField = (t == 'in') ? $("#tembusanIN") : $("#tembusanEX")
+            const holder = $("#datatembusan")
+            addtoHolder(textField, holder,"Tembusan")
+        }
+
+        function addtoHolder(textField, holder, string) {
+            if (holder.html().indexOf(`${string} Kosong`) != -1) {
+                holder.html("");
+            }
+            holder.append("<tr><td><span>" + textField.val() + "</span></td><td style='width: 40px;cursor: pointer;' onclick='hapusTembusan(this)'><i class='fa fa-trash'></i></td></tr>");
+        }
+    }
+
+    let activeTabs = "#tab1"
+    $("#actTabs li a").click(function () {
+        var target = $(this).attr("href")
+        activeTabs = target
+        showTampilanBtn(activeTabs)
+        setupIsiSurat(activeTabs)
+    })
+
+    function goNext() {
+        var nowCt = parseInt(activeTabs.substr(activeTabs.length - 1)) - 1;
+        var nextCt = nowCt + 1;
+        $('.nav-tabs li:eq(' + nextCt + ') a').tab('show');
+        activeTabs = `#tab${nextCt + 1}`
+        $('#tabStep' + (nextCt + 1)).removeClass("sr-only");
+        showTampilanBtn(activeTabs)
+        setupIsiSurat(activeTabs)
+
+    }
+
+    function showTampilanBtn(activeTabs) {
+        if (activeTabs == "#tab5") {
+            $('#preview-btn').removeClass("sr-only");
+            $('#goNextBtn').addClass("sr-only");
+        } else {
+            $('#preview-btn').addClass("sr-only");
+            $('#goNextBtn').removeClass("sr-only");
+        }
+    }
+
+    function tinyMCEInit(content) {
+        tinymce.init({
+                selector: '#mytextarea',
+                plugins: [
+                'advlist lists',
+                'searchreplace wordcount fullscreen',
+                'insertdatetime table contextmenu ',
+                ],
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+                content_css: '@Url.Content("~/resources/tinymce/tinycss.css")',
+                height: '600',
+                setup: function (editor) {
+                     editor.on('init', function (e) {
+                     editor.setContent(content);
+                     });
+                 }
+        });
+    }
+
+    function setupIsiSurat(activetabs) {
+        if (activetabs == "#tab2") {
+            var ifr = $("#mytextarea_ifr").contents();
+            var undangan = ifr.find("#undangansurat")
+            if (undangan.length > 0) {
+                undangan.attr("style", "border-collapse: collapse; border: 1px solid white;margin-left: 20px;margin-right: 20px; ")
+            } else if (undangan.length == 0) {
+                var content = ifr.find("body")
+                if (undangan.length == 0) {
+                    content.append(`
+                        <table id="undangansurat" style="border-collapse: collapse; border: 1px solid white;margin-left: 20px;margin-right: 20px; " data-mce-style="border-collapse: collapse; width: 100%;" border="1">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 18.0905%; border-color: rgb(255, 255, 255);">Hari/Tanggal</td>
+                                    <td style="width: 2px; border-color: rgb(255, 255, 255);" >:</td>
+                                    <td id="tanggalundangan" style="border-color: rgb(255, 255, 255);">......</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 18.0905%; border-color: rgb(255, 255, 255);">Waktu</td>
+                                    <td style="width: 2px; border-color: rgb(255, 255, 255);" >:</td>
+                                    <td id="waktuundangan" style="border-color: rgb(255, 255, 255);">......</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 18.0905%; border-color: rgb(255, 255, 255);">Tempat</td>
+                                    <td style="width: 2px; border-color: rgb(255, 255, 255);" >:</td>
+                                    <td id="tempatudangan" style="border-color: rgb(255, 255, 255);">......</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>paragraf selanjutnya</p>
+                `)
+                }
+            }
+
+            //showhidefield
+            if (tipeNas = 'Surat Undangan') {
+                $("#tanggaldantempat").show()
+            }
+        }
+
+    }
+    $("#TanggalUndangan").focusout(function () {
+        var v = $(this).val().split(" ")
+        tangUnd(v)
+    })
+
+    function tangUnd(v) {
+        var fulltgl = v[0].split("/")
+        var tgl = fulltgl[0];
+        var bln = fulltgl[1];
+        var thn = fulltgl[2];
+        var date = new Date(bln + "/" + tgl + "/" + thn);
+        var days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        var dayName = days[date.getDay()];
+        var month = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+        var monthName = month[date.getMonth()]
+
+        var tglhari = dayName + ", " + tgl + " " + monthName + " " + thn;
+        var ifr = $("#mytextarea_ifr").contents();
+        var undangan = ifr.find("#tanggalundangan")
+        undangan.html(tglhari)
+        var waktu = ifr.find("#waktuundangan")
+        waktu.html(v[1])
+    }
+
+    $("#TempatUndangan").change(function () {
+        var isitmpt = $(this).val();
+        TempUnd(isitmpt)
+    })
+
+    function TempUnd(isitmpt) {
+        var ifr = $("#mytextarea_ifr").contents();
+        var tempatfld = ifr.find("#tempatudangan")
+        tempatfld.html(isitmpt);
+    }
+
+
+
+
+
+
+    //simpan
+    function SimpanDanTampilkan() {
+        var formdata = $("#MainForm").serializeArray()
+        console.log(formdata)
+    }
+
+
+</script>

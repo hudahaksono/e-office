@@ -1,0 +1,18 @@
+﻿<div class="x_panel" style="border:0px;">
+    <div class="x_content">
+        <div class="col-md-12 col-sm-12 col-xs-12" id="docViewer" style="min-height:1px;"></div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$.unblockUI();
+
+        //console.log(PDFObject);
+
+        if ($("#docViewer").height() < 600) $("#docViewer").height(600);
+        PDFObject.embed(objpdf, $("#docViewer"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+    });
+</script>

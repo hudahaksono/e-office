@@ -1,0 +1,22 @@
+﻿@model Dictionary<int, Surat.Models.Entities.AduanInbox>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr style="cursor: pointer;" onclick="bukaPengaduan('@lst.Value.AduanInboxId');">
+        <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+        <td class="tdnormal" style="width:200px;">@lst.Value.InfoTanggalAduan</td>
+        <td class="tdnormal">@lst.Value.NomorLaporan</td>
+        <td class="tdnormal">@lst.Value.JudulAduan</td>
+        <td class="tdnormal">@lst.Value.NamaPengadu</td>
+        <td class="tdnormal">@lst.Value.Kategori</td>
+        <td class="tdnormal">@lst.Value.StatusLaporan</td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaPengaduan = function (i) {
+        window.location.href = '@Url.Action("BukaPengaduan", "Pengaduan")?aduaninboxid=' + i;
+    }
+</script>

@@ -1,0 +1,413 @@
+﻿@model Surat.Models.Entities.FindPengalihanSurat
+@{
+    var lstnull = new List<SelectListItem>();
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style type="text/css">
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(46px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 24px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .swal-wide {
+        width: 800px !important;
+    }
+
+    .start {
+        filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+        filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        filter: gray; /* IE6-9 */
+        -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
+
+        .start:hover {
+            filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+            filter: grayscale(0%);
+            -moz-filter: grayscale(0%);
+            -ms-filter: grayscale(0%);
+            -o-filter: grayscale(0%);
+            filter: none; /* IE6-9 */
+            zoom: 1; /* needed to trigger "hasLayout" in IE if no width or height is set */
+            -webkit-filter: grayscale(0%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengalihan Surat
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    <div class="form-group pull-right top_search" style="max-width:450px">
+                        <form class="form-horizontal form-label-left" method="post" id="frmFind">
+                            <div class="input-group">
+                                @Html.DropDownListFor(m => m.ProfileId, lstnull, new { @class = "select2_single form-control input-md", @title = "Pilih Jabatan<br>Untuk Pengalihan Surat", data_html = "true", data_toggle = "tooltip", data_placement = "left" })
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" onclick="cariData()"><i class="fa fa-search"></i></button>
+                                </span>
+                                @Html.HiddenFor(m => m.UnitKerjaId)
+                            </div>
+                        </form>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        <div id="tab-content" class="tab-content">
+                            <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="cariakun-tab">
+                                <div id="Starting" class="text-center" style="margin-top:30px;margin-bottom:30px;">
+                                    <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG" class="start">
+                                </div>
+                                <div id="divListSuratPending">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DAFTAR SURAT MASUK BELUM DITINDAK LANJUTI</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <div class="table-responsive">
+                                                <table id="tblList" class="table table-striped table-bordered" style="width:100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <td style="text-align:left; width:5px;">No.</td>
+                                                            <td style="text-align:left; width:150px;">Pegawai Id</td>
+                                                            <td style="text-align:left;">Nama Pegawai</td>
+                                                            <td style="text-align:left; width:100px;">Jumlah</td>
+                                                            <td style="text-align:left; width:50px;">&nbsp;</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalPeralihan' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2 id="popuptitle">Peralihan Surat</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-12" style="margin-top:10px;">
+                            <div class="form-group">
+                                <label class="control-label" style="text-align:left;" for="NewPegawaiId">Pegawai Aktif</label>
+                                @Html.Hidden("OldPegawaiId")
+                                <div class="form-group pull-right top_search">
+                                    <div class="input-group">
+                                        @Html.DropDownList("NewPegawaiId", lstnull, new { @class = "select2_single form-control input-md", style = "width:100%" })
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary" type="button" onclick="JalankanAlihkanSurat()"><i class="fa fa-share"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var dtableDaftarList;
+    var createPagingList = function () {
+        dtableDaftarList = $('#tblList').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarSuratPending", "Admin")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmFind').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "width": "5%" },
+                { "data": "PegawaiId", "width": "150px" },
+                { "data": "NamaPegawai" },
+                { "data": "Jumlah", "width": "100px" },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "width": "50px",
+                    "render": function (data, type) {
+                        return '<i class="fa fa-share-square-o" style="cursor: pointer;" title="Alihkan ' + data.Jumlah + ' Surat"></i>';
+                    }
+                }
+            ],
+            "language": {
+                "emptyTable": "List Surat Kosong"
+            }
+        });
+    };
+
+    $(document).ready(function () {
+        $('#frmFind').attr('autocomplete', 'off');
+        createPagingList();
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        getList(true);
+
+        $("#Starting").show();
+        $("#divListSuratPending").hide();
+        $('#ProfileId').tooltip({ trigger: 'manual' }).tooltip('show');
+
+        $('#myModalPeralihan').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '80%',
+                'max-width': '600px',
+                height: '60 %',
+                'max-height': '60%'
+            });
+        });
+    });
+
+    function getList(load) {
+        var UnitKerjaId = $('#UnitKerjaId').val();
+        $('#ProfileId').html("");
+        if (UnitKerjaId != "" && UnitKerjaId != null) {
+            if(load) showloading("Menyiapkan Daftar Jabatan");
+            $.ajax({
+                url: '@Url.Action("getListJabatan", "Admin")',
+                type: "GET",
+                data: { ukid: UnitKerjaId },
+                dataType: "JSON",
+                success: function (data) {
+                    $('#ProfileId').append($('<option disabled></option>').val("").html("Pilih Jabatan..."));
+                    $.each(data, function (i, data) {
+                        $('#ProfileId').append(
+                            $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                    });
+                    $('#ProfileId').val("");
+                    if (load) closeloading();
+                }
+            });
+        }
+    }
+
+    $('#ProfileId').change(function () {
+        if ($(this).val() != "") {
+            $(this).tooltip('hide');
+        } else {
+            $(this).tooltip('show');
+        }
+    });
+
+    function cariData() {
+        var NamaProfile = $('#ProfileId option:selected').text();
+        swal({
+            title: "Pencarian Surat Masuk",
+            text: NamaProfile,
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    dtableDaftarList.ajax.reload(null, true);
+                    $("#Starting").hide();
+                    $("#divListSuratPending").show();
+                    closeloading();
+                }
+            });
+    }
+
+    $('#tblList tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarList.row($(this).closest('tr')).data();
+        idPegawai = data.PegawaiId;
+        namaPegawai = data.NamaPegawai;
+        if (idPegawai !== null && idPegawai !== '') {
+            var options = { "backdrop": "static", keyboard: true };
+            showloading("Membuka Dokumen Elektronik");
+            $('#OldPegawaiId').val(idPegawai);
+            var UnitKerjaId = $('#UnitKerjaId').val();
+            var ProfileId = $('#ProfileId').val();
+            $('#NewPegawaiId').html("");
+            showloading("Menyiapkan Daftar Pejabat Baru");
+            $.ajax({
+                url: '@Url.Action("getListPegawaiBaru", "Admin")',
+                type: "GET",
+                data: { ukid: UnitKerjaId, prid: ProfileId },
+                dataType: "JSON",
+                success: function (data) {
+                    $('#NewPegawaiId').append($('<option disabled></option>').val("").html("Pilih Pegawai..."));
+                    $.each(data, function (i, data) {
+                        $('#NewPegawaiId').append(
+                            $('<option></option>').val(data.PegawaiId).html(data.PegawaiId + "-" + data.NamaPegawai));
+                    });
+                    $('#NewPegawaiId').val("");
+                    $('#myModalPeralihan').modal(options);
+                    $('#myModalPeralihan').modal('show');
+                    closeloading();
+                }
+            });
+        } else {
+            swal("Peringatan", "Pegawai Lama Belum Dipilih", "warning");
+        }
+    });
+
+    function JalankanAlihkanSurat() {
+        var oPegawaiId = $('#OldPegawaiId').val();
+        var nPegawaiId = $('#NewPegawaiId').val();
+        var UnitKerjaId = $('#UnitKerjaId').val();
+        var ProfileId = $('#ProfileId').val();
+        var NamaProfile = $('#ProfileId option:selected').text();
+        if (UnitKerjaId == "" || UnitKerjaId == null) {
+            swal("Informasi", "Unit Kerja Belum Dipilih", "info");
+            return false;
+        }
+        if (ProfileId == "" || ProfileId == null) {
+            swal("Informasi", "Jabatan Belum Dipilih", "info");
+            return false;
+        }
+        if (oPegawaiId == "" || oPegawaiId == null) {
+            swal("Informasi", "Pegawai Lama Tidak Ditemukan", "info");
+            return false;
+        }
+        if (nPegawaiId == "" || nPegawaiId == null) {
+            swal("Informasi", "Pegawai Aktif Belum Dipilih", "info");
+            return false;
+        }
+
+        swal({
+            title: "Peralihan Surat",
+            text: NamaProfile,
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    var frmdata = new FormData();
+                    frmdata.append("ukid", UnitKerjaId);
+                    frmdata.append("prid", ProfileId);
+                    frmdata.append("opid", oPegawaiId);
+                    frmdata.append("npid", nPegawaiId);
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DoPeralihanSurat", "Admin")',
+                        data: frmdata,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                getList(false);
+                                $("#Starting").show();
+                                $("#divListSuratPending").hide();
+                                $('#myModalPeralihan').modal('hide');
+                                swal("Informasi", data.Pesan, "success");
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+    }
+</script>

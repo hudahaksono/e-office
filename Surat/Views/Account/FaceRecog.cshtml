@@ -1,0 +1,119 @@
+﻿
+@{
+    var log = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+    if (log == null)
+    {
+        Response.Redirect(Url.Action("LogOff", "Account"));
+    }
+    string nip = log.PegawaiId;
+    string kid = log.KantorId;
+    string nama = log.NamaPegawai;
+    var _profile = "../resources/images/tn64.jpg";
+
+    if (!IsPost)
+    {
+        var tr = new Surat.Models.DataMasterModel().GetTipeUser(nip, kid);
+        if (tr.Status)
+        {
+            string tipe = tr.ReturnValue;
+            if (tipe.Equals("ASN"))
+            {
+
+                string foto = new Surat.Models.AccountModel().GetFotoPegawai(nip);
+
+                if (!string.IsNullOrEmpty(foto))
+                {
+                    _profile = "https://simpeg.atrbpn.go.id/app/client/bpn/uploads/siap/foto/" + foto;
+                    _profile = Url.Action("WebsiteImage", "Konten") + "?url=" + _profile;
+                }
+            }
+            if (tipe.Equals("PPNPN"))
+            {
+                _profile = Url.Action("getPhotoPPNPN", "Konten") + "?id=" + nip;
+            }
+        }
+    }
+}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+</script>
+<script src='@Url.Content("~/resources/face/face-api.min.js")'></script>
+<script src='@Url.Content("~/resources/face/recog.js")'></script>
+
+<div class="row" id="dynamic_content" style="background: black;min-height: 700px;">
+    <div id="container" style="background: black;min-height: 700px;">
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <h4>
+                Pengenal Wajah
+            </h4><hr />
+                 <center>
+                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                         <img id="imgBase" src="@_profile" style="border: 2px solid white; max-width: 100%; height: 440px; object-fit: cover;" onclick="getImg64()" />
+                     </div>
+                     <div hidden="" class="form-group col-md-4 col-sm-4 col-xs-12" id="face-container">
+                         @*<canvas id="vid-canvas" style="border: 2px solid white; max-width: 100%; height: 440px;"></canvas><br />*@
+                         <video id="vid_presensi" width="720" height="440" style="border:2px solid white; max-width:100%;" autoplay muted></video>
+                     </div>
+                     <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                         <button id="presence" class="btn btn-primary" style="display:none;width:100%;height:50px;margin-bottom:15px;"><i class="fa fa-video-camera"></i>&nbsp;&nbsp;Mulai Presensi</button>
+                         <p id="pHasil"></p>
+                         <p id="pTest"></p>
+                     </div>
+
+                     @*<video id="video" width="720" height="560" style="border:2px solid white; max-width:100%;" autoplay muted></video>*@
+                 </center>
+            @*<p id="pGeoLocation">Anda melakukan presensi dari lokasi ini :</p>
+                <div id="mapholder"></div>*@
+        </div>
+    </div>
+</div>
+<!--<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Camera</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center" id="face-container">
+                    @*<video id="video" width="720" height="560" autoplay muted></video>*@
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>-->
+@*<script src='@Url.Content("~/resources/js/qrCodeScanner.js")'></script>*@
+@*<script src="https://maps.google.com/maps/api/js?key=AIzaSyDbuic568IV_a7NR4DUayRfAz6kuAs2W8s"></script>*@
+<script type="text/javascript">
+    var modelsUrl = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/';
+    //function getBase64Image(img) {
+    //    var canvas1 = document.createElement("canvas");
+    //    canvas1.width = img.width;
+    //    canvas1.height = img.height;
+    //    var ctx = canvas1.getContext("2d");
+    //    ctx.drawImage(img, 0, 0, canvas1.width, canvas1.height);
+    //    var dataURL = canvas1.toDataURL("image/png");
+    //    return dataURL;//.replace(/^data:image\/(png|jpg);base64,/, "");
+    //}
+    var _namaPegawai = "@nama";
+    var _profile = '@_profile';
+    $(document).ready(function () {
+        @*$.ajax({
+            url: '@Url.Action("GetImagePersesi", "Admin")',
+            type: "POST",
+            dataType: "JSON",
+            data: { nip: '@ViewBag.Pegawaiid' },
+            success: function (res, textStatus, jqXHR) {
+                $("#imgBase").attr("src", res);
+            },
+            error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+        });*@
+        //$("#imgBase").attr('src', imgPath);
+        //img64 = getBase64Image(document.getElementById("imgBase"));
+        //$("#presence").show();
+        //navigator.clipboard.writeText(img64);
+        //getLocation();
+    });
+
+</script>

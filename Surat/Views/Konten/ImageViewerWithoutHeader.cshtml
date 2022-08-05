@@ -1,0 +1,14 @@
+﻿<div class="x_panel" style="border:0px;">
+    <div class="x_content">
+        <div class="img-container col-md-12 col-sm-12 col-xs-12" id="imgViewer" style="min-height:1px;"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var fileExt = '.' + objfile.toLowerCase().split('.').pop();
+
+        if ($("#imgViewer").height() < 500) $("#imgViewer").height(500);
+        document.getElementById('imgViewer').innerHTML = '<img src="' + objfile + '" style="max-height:500px;margin: 0 auto;display: block;max-width:100%;" />';
+    });
+</script>

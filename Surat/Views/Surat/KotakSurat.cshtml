@@ -1,0 +1,862 @@
+﻿@model Surat.Models.Entities.FindSurat
+
+@{
+    var lstSortBy = new List<SelectListItem>();
+    lstSortBy.Add(new SelectListItem { Text = "Tanggal Kirim", Value = "TanggalKirim" });
+    lstSortBy.Add(new SelectListItem { Text = "Tanggal Terima", Value = "TanggalTerima" });
+    lstSortBy.Add(new SelectListItem { Text = "Sifat Surat", Value = "SifatSurat" });
+
+    var lstSortType = new List<SelectListItem>();
+    lstSortType.Add(new SelectListItem { Text = "Urutan menurun (Descending)", Value = "DESC" });
+    lstSortType.Add(new SelectListItem { Text = "Urutan menaik (Ascending)", Value = "ASC" });
+
+    var lstNull = new List<SelectListItem>();
+
+    var lstSumberSurat = new List<SelectListItem>();
+    lstSumberSurat.Add(new SelectListItem { Text = "Loket", Value = "Loket" });
+    lstSumberSurat.Add(new SelectListItem { Text = "Email", Value = "Email" });
+
+    var lstTipeSurat = new List<SelectListItem>();
+    lstTipeSurat.Add(new SelectListItem { Text = "Semua Jenis Surat", Value = "" });
+    if (ViewBag.lstTipeSurat.Count > 0)
+    {
+        foreach (var tipe in ViewBag.lstTipeSurat)
+        {
+            lstTipeSurat.Add(new SelectListItem { Text = tipe.NamaTipeSurat, Value = tipe.NamaTipeSurat });
+        }
+    }
+
+    var lstProfileId = new List<SelectListItem>();
+    foreach(var p in Model.ListMyProfiles)
+    {
+        bool selected = p.ProfileId == Model.SpesificProfileId;
+        lstProfileId.Add(new SelectListItem { Text = p.NamaProfile, Value = p.ProfileId, Selected = selected });
+    }
+
+    var ctEmail = ViewBag.jumlahKotakSurat.Email;
+    var ctLoket = ViewBag.jumlahKotakSurat.Loket;
+    var ctInternal = ViewBag.jumlahKotakSurat.Internal;
+}
+
+<style type="text/css">
+    #myTableSuratMasuk > tbody > tr {
+        cursor: pointer;
+    }
+
+    #myTableSuratMasukLoket > tbody > tr {
+        cursor: pointer;
+    }
+
+    #myTableSuratMasukEmail > tbody > tr {
+        cursor: pointer;
+    }
+
+    #TableList_filter, #TableList_info {
+        display: none
+    }
+
+    #TableList_wrapper {
+        overflow: hidden
+    }
+    @@media only screen and (max-width: 650px) {
+        .pc {
+            display: none;
+        }
+    }
+
+    @@media only screen and (max-width: 400px) {
+        .mobile {
+            display: none;
+        }
+    }
+
+    
+</style>
+
+<div class="" id="dynamic_content">
+    <form class="form-horizontal" id="frmCariSurat" method="post">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>
+                    Kotak Masuk
+                    @Html.HiddenFor(model => model.Arah)
+                </h3>
+            </div>
+            <!--Search-->
+            <div class="title_right">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBoxFor(model => model.Metadata, new { @class = "form-control", @id = "metadata", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:0px;" id="DivSortBy">
+            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Urutan data berdasarkan:</label>
+            <div class="col-md-10 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.SortBy, lstSortBy, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortBy", @onchange = "SortByChanged()" })
+            </div>
+            @*<div class="col-md-3 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                    @Html.DropDownListFor(model => model.Sumber_Keterangan, lstSumberSurat, "Metode Pengiriman", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSumberSurat", @onchange = "SortByChanged()" })
+                </div>*@
+        </div>
+
+        <div class="row" style="padding-bottom:0px;" id="DivListMyProfiles">
+            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Data untuk jabatan:</label>
+            <div class="col-md-10 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.SpesificProfileId, lstProfileId, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSpesificProfile", @onchange = "ProfileChanged()" })
+            </div>
+        </div>
+
+        <div class="row" style="padding-bottom:0px;" id="DivFilter">
+            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Jenis Surat:</label>
+            <div class="col-md-5 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.TipeSurat, lstTipeSurat, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTipeSurat", @onchange = "SortByChanged()" })
+            </div>
+
+            <div class="col-md-5 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                @Html.DropDownListFor(model => model.SortType, lstSortType, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortType", @onchange = "SortByChanged()" })
+
+            </div>
+        </div>
+    </form>
+
+    <!-- Nav tabs -->
+    <ul id="UlTab" class="nav nav-tabs" role="tablist">
+        <li  role="presentation" class="@if (Model.Sumber_Keterangan == "Loket") { <text>active</text> }" ><a href="#KotakMasukLoket" aria-controls="KotakMasukLoket" role="tab" data-toggle="tab"><span class="pc">Kotak Masuk </span><span class="mobile">Dari</span> Loket  <span class="badge bg-green" id="NumKotakMasukLoket">@ctLoket</span></a></li>
+        <li  role="presentation" class="@if (Model.Sumber_Keterangan == "Email") { <text>active</text> }" data-sumber="Email"><a href="#KotakMasukEmail" aria-controls="KotakMasukEmail" role="tab" data-toggle="tab"><span class="pc">Kotak Masuk </span><span class="mobile">Dari</span> Email  <span class="badge bg-green" id="NumKotakMasukEmail">@ctEmail</span></a></li>
+        <li  role="presentation" class="@if (Model.Sumber_Keterangan == "Internal") { <text>active</text> }" data-sumber="Internal"><a href="#KotakMasukInternal" aria-controls="KotakMasukInternal" role="tab" data-toggle="tab"><span class="pc">Kotak Masuk </span><span class="mobile">Dari</span> Internal  <span class="badge bg-green" id="NumKotakMasukInternal">@ctInternal</span></a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <!--Kotak Masuk dari Loket-->
+        <div role="tabpanel" class="tab-pane @if (Model.Sumber_Keterangan == "Loket") { <text>active</text> }" id="KotakMasukLoket" style="background-color:white; padding:10px">
+            <div class="table-responsive">
+                <table id="myTableSuratMasukLoket" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">No.</th>
+                            <th style="text-align:center;">Tanggal</th>
+                            <th id="TH_NomorSurat">Nomor Surat</th>
+                            <th id="TH_NomorAgenda">Nomor Agenda</th>
+                            <th>Asal Surat</th>
+                            <th id="TH_TujuanSurat">Tujuan Surat</th>
+                            <th>Perihal</th>
+                            <th id="TH_SifatSurat">Sifat Surat</th>
+                            <th id="TH_Sumber">Metode Pengiriman</th>
+                            <th id="TH_Keterangan">Keterangan</th>
+                            <th style="text-align:center;" id="TH_TanggalTerima">Target Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!--Kotak Masuk dari Email-->
+        <div role="tabpanel" class="tab-pane @if (Model.Sumber_Keterangan == "Email") { <text>active</text> }" id="KotakMasukEmail" style="background-color:white; padding:10px">
+            <div class="table-responsive">
+                <table id="myTableSuratMasukEmail" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">No.</th>
+                            <th style="text-align:center;">Tanggal</th>
+                            <th id="TH_NomorSurat">Nomor Surat</th>
+                            <th id="TH_NomorAgenda">Nomor Agenda</th>
+                            <th>Asal Surat</th>
+                            <th id="TH_TujuanSurat">Tujuan Surat</th>
+                            <th>Perihal</th>
+                            <th id="TH_SifatSurat">Sifat Surat</th>
+                            <th id="TH_Sumber">Metode Pengiriman</th>
+                            <th id="TH_Keterangan">Keterangan</th>
+                            <th style="text-align:center;" id="TH_TanggalTerima">Target Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+
+        </div>
+        <!--Kotak Masuk dari Internal-->
+        <div role="tabpanel" class="tab-pane @if (Model.Sumber_Keterangan == "Internal") { <text>active</text> }" id="KotakMasukInternal" style="background-color:white; padding:10px">
+            <div class="table-responsive">
+                <table id="myTableSuratMasuk" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">No.</th>
+                            <th style="text-align:center;">Tanggal</th>
+                            <th id="TH_NomorSurat">Nomor Surat</th>
+                            <th id="TH_NomorAgenda">Nomor Agenda</th>
+                            <th>Asal Surat</th>
+                            <th id="TH_TujuanSurat">Tujuan Surat</th>
+                            <th>Perihal</th>
+                            <th id="TH_SifatSurat">Sifat Surat</th>
+                            <th id="TH_Sumber">Metode Pengiriman</th>
+                            <th id="TH_Keterangan">Keterangan</th>
+                            <th style="text-align:center;" id="TH_TanggalTerima">Target Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+                });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+                title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+                return false;
+            };
+
+            var jmlKotaMasukInternal = 0;
+            var jmlKotaMasukEmail = 0;
+            var jmlKotaMasukLoket = 0;
+
+
+            //loket
+            var dtableSuratMasukLoket;
+            var createPagingSuratMasukLoket = function () {
+        dtableSuratMasukLoket = $('#myTableSuratMasukLoket').DataTable({
+                "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": false,
+            "ajax": {
+                url: '@Url.Action("ListSurat", "Surat")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariSurat').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "sumber_keterangan", value: "Loket" }, { name: "length", value: data.length },); return ftp; }
+                },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "TanggalKirim", "className": "centertaligncolumn", "width": "150px" },
+                { "data": "NomorSurat" },
+                { "data": "NomorAgendaSurat" },
+                { "data": "PengirimSurat" },
+                { "data": "PenerimaSurat" },
+                {
+                    "orderable": false,
+                    "data": null,
+                    "render": function (data, type) {
+                        if (type === 'display') {
+                            if (data.StatusUrgent === 1) {
+                                return '<span class="fa fa-exclamation-circle red"></span>&nbsp;' + data.Perihal;
+                            }
+                            return data.Perihal;
+                        }
+                        return data;
+                    },
+                },
+                { "data": "SifatSurat" },
+                { "data": "Sumber_Keterangan" },
+                { "data": "Redaksi" },
+                { "data": "InfoTargetSelesaiSuratMasuk", "width": "120px" }
+            ],
+            rowCallback: function (row, data) {
+                    // Warna Target Selesai
+                    if (data.TargetSelesaiSuratMasuk != null) {
+                        var targetselesai = new Date(data.TargetSelesaiSuratMasuk.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+                    var diff_date = Math.round((targetselesai - new Date()) / (1000 * 60 * 60 * 24));
+                        if (diff_date == -1 || diff_date == 0) {
+                        $(row).addClass('fontYellow');
+                        }
+                        else if (diff_date < -1) {
+                        $(row).addClass('fontRed');
+                        }
+                    }
+
+                    // Font bold bila surat belum dibuka
+                    if (data.StatusBuka === 0) {
+                    $(row).addClass('fontBold');
+                    }
+
+                    //add counter to tabs
+                    //if (data.Total != jmlKotaMasukLoket) {
+                    //    jmlKotaMasukLoket = data.Total
+                    //    $("#NumKotakMasukLoket").html(jmlKotaMasukLoket)
+                    //    $("#NumKotakMasukLoket").show()
+                    //}
+
+
+                    //var isMobile = false;
+                    //if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
+                    //    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0, 4))) {
+                    //    isMobile = true;
+                    //}
+                    //if (isMobile == true) {
+                    //    // base in zero
+                    //    $('td', row).eq(2).hide();
+                    //    $('td', row).eq(3).hide();
+                    //    $('td', row).eq(5).hide();
+                    //    $('td', row).eq(7).hide();
+                    //    $('td', row).eq(8).hide();
+                    //    $('td', row).eq(9).hide();
+                    //    $('td', row).eq(10).hide();
+                    //}
+            },
+            drawCallback: function (settings ) {
+                closeloading();
+            }
+            });
+
+    };
+        // email
+        var dtableSuratMasukEmail;
+        var createPagingSuratMasukEmail = function () {
+        dtableSuratMasukEmail = $('#myTableSuratMasukEmail').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": false,
+            "ajax": {
+            url: '@Url.Action("ListSurat", "Surat")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariSurat').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "sumber_keterangan", value: "Email" }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "TanggalKirim", "className": "centertaligncolumn", "width": "150px" },
+                { "data": "NomorSurat" },
+                { "data": "NomorAgendaSurat" },
+                { "data": "PengirimSurat" },
+                { "data": "PenerimaSurat" },
+                {
+                "orderable": false,
+                    "data": null,
+                    "render": function (data, type) {
+                    if (type === 'display') {
+                        if (data.StatusUrgent === 1) {
+                            return '<span class="fa fa-exclamation-circle red"></span>&nbsp;' + data.Perihal;
+                        }
+                        return data.Perihal;
+                    }
+                    return data;
+                },
+                },
+                { "data": "SifatSurat" },
+                { "data": "Sumber_Keterangan" },
+                { "data": "Redaksi" },
+                { "data": "InfoTargetSelesaiSuratMasuk", "width": "120px" }
+            ],
+            rowCallback: function (row, data) {
+                // Warna Target Selesai
+                if (data.TargetSelesaiSuratMasuk != null) {
+                    var targetselesai = new Date(data.TargetSelesaiSuratMasuk.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+                    var diff_date = Math.round((targetselesai - new Date()) / (1000 * 60 * 60 * 24));
+                    if (diff_date == -1 || diff_date == 0) {
+                        $(row).addClass('fontYellow');
+                    }
+                    else if (diff_date < -1) {
+                        $(row).addClass('fontRed');
+                    }
+                }
+
+                // Font bold bila surat belum dibuka
+                if (data.StatusBuka === 0) {
+                    $(row).addClass('fontBold');
+                }
+
+                //add counter to tabs
+                //if (data.Total != jmlKotaMasukEmail) {
+                //    jmlKotaMasukEmail = data.Total
+                //    $("#NumKotakMasukEmail").html(jmlKotaMasukEmail)
+                //    $("#NumKotakMasukEmail").show()
+                //}
+
+
+                //var isMobile = false;
+                //if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
+                //    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0, 4))) {
+                //    isMobile = true;
+                //}
+                //if (isMobile == true) {
+                //    // base in zero
+                //    $('td', row).eq(2).hide();
+                //    $('td', row).eq(3).hide();
+                //    $('td', row).eq(5).hide();
+                //    $('td', row).eq(7).hide();
+                //    $('td', row).eq(8).hide();
+                //    $('td', row).eq(9).hide();
+                //    $('td', row).eq(10).hide();
+                //}
+            },
+            drawCallback: function (settings) {
+                closeloading();
+            }
+        });
+        };
+
+
+        // internal
+        var dtableSuratMasuk;
+        var createPagingSuratMasuk = function () {
+        dtableSuratMasuk = $('#myTableSuratMasuk').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "scrollX": false,
+            "ajax": {
+            url: '@Url.Action("ListSurat", "Surat")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariSurat').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "sumber_keterangan", value: "-" }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "TanggalKirim", "className": "centertaligncolumn", "width": "150px" },
+                { "data": "NomorSurat" },
+                { "data": "NomorAgendaSurat" },
+                { "data": "PengirimSurat" },
+                { "data": "PenerimaSurat" },
+                {
+                "orderable": false,
+                    "data": null,
+                    "render": function (data, type) {
+                    if (type === 'display') {
+                        if (data.StatusUrgent === 1) {
+                            return '<span class="fa fa-exclamation-circle red"></span>&nbsp;' + data.Perihal;
+                        }
+                        return data.Perihal;
+                    }
+                    return data;
+                },
+                },
+                { "data": "SifatSurat" },
+                { "data": "Sumber_Keterangan" },
+                { "data": "Redaksi" },
+                { "data": "InfoTargetSelesaiSuratMasuk", "width": "120px" }
+            ],
+            rowCallback: function (row, data) {
+                // Warna Target Selesai
+                if (data.TargetSelesaiSuratMasuk != null) {
+                    var targetselesai = new Date(data.TargetSelesaiSuratMasuk.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"))
+                    var diff_date = Math.round((targetselesai - new Date()) / (1000 * 60 * 60 * 24));
+                    if (diff_date == -1 || diff_date == 0) {
+                        $(row).addClass('fontYellow');
+                    }
+                    else if (diff_date < -1) {
+                        $(row).addClass('fontRed');
+                    }
+                }
+
+                // Font bold bila surat belum dibuka
+                if (data.StatusBuka === 0) {
+                    $(row).addClass('fontBold');
+                }
+
+                //add counter to tabs
+                //if (data.Total != jmlKotaMasukInternal) {
+                //    jmlKotaMasukInternal = data.Total
+                //    $("#NumKotakMasukInternal").html(jmlKotaMasukInternal)
+                //    $("#NumKotakMasukInternal").show()
+                //}
+
+                //var isMobile = false;
+                //if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
+                //    || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0, 4))) {
+                //    isMobile = true;
+                //}
+                //if (isMobile == true) {
+                //    // base in zero
+                //    $('td', row).eq(2).hide();
+                //    $('td', row).eq(3).hide();
+                //    $('td', row).eq(5).hide();
+                //    $('td', row).eq(7).hide();
+                //    $('td', row).eq(8).hide();
+                //    $('td', row).eq(9).hide();
+                //    $('td', row).eq(10).hide();
+                //}
+            },
+            drawCallback: function (settings) {
+                closeloading();
+            }
+        });
+    };
+
+    $('#myTableSuratMasuk tbody').delegate('tr', 'click', function (e) {
+        var data = dtableSuratMasuk.row($(this).closest('tr')).data();
+        @*if (data.Kategori == "Jawaban") {
+            loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }
+        else {
+            loc = '@Url.Action("BukaSuratMasuk", "Flow")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }*@
+        @*var loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        if (e.ctrlKey) {
+            window.open(loc, '_blank');
+        } else {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            window.location.href = loc;
+        }*@
+
+        var arah = $("#Arah").val()
+        $("#formHidde").html("")
+
+        var form = document.createElement("form");
+        var el1 = document.createElement("input");
+        var el2 = document.createElement("input");
+        var el3 = document.createElement("input");
+        var el4 = document.createElement("input");
+
+        form.method = "POST";
+        form.action = "@Url.Action("BukaSurat", "Surat")";
+
+
+        if (event.altKey || event.ctrlKey) {
+            form.setAttribute("target", "_blank");
+        }
+
+        el1.value = data.SuratId;
+        el1.name = "suratid";
+        form.appendChild(el1);
+
+        el2.value = data.SuratInboxId;
+        el2.name = "suratinboxid";
+        form.appendChild(el2);
+
+        el3.value = data.NomorSurat;
+        el3.name = "nomorsurat";
+        form.appendChild(el3);
+
+        el4.value = arah;
+        el4.name = "arah";
+        form.appendChild(el4);
+
+        form.style.display = "none"
+        document.body.appendChild(form)
+        form.submit();
+
+        e.preventDefault();
+        return false;
+    });
+
+        $('#myTableSuratMasukLoket tbody').delegate('tr', 'click', function (e) {
+        var data = dtableSuratMasukLoket.row($(this).closest('tr')).data();
+        @*if (data.Kategori == "Jawaban") {
+            loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }
+        else {
+            loc = '@Url.Action("BukaSuratMasuk", "Flow")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }*@
+        @*var loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        if (e.ctrlKey) {
+            window.open(loc, '_blank');
+        } else {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            window.location.href = loc;
+        }*@
+
+        var arah = $("#Arah").val()
+        $("#formHidde").html("")
+
+        var form = document.createElement("form");
+        var el1 = document.createElement("input");
+        var el2 = document.createElement("input");
+        var el3 = document.createElement("input");
+        var el4 = document.createElement("input");
+
+        form.method = "POST";
+        form.action = "@Url.Action("BukaSurat", "Surat")";
+
+
+        if (event.altKey || event.ctrlKey) {
+            form.setAttribute("target", "_blank");
+        }
+
+        el1.value = data.SuratId;
+        el1.name = "suratid";
+        form.appendChild(el1);
+
+        el2.value = data.SuratInboxId;
+        el2.name = "suratinboxid";
+        form.appendChild(el2);
+
+        el3.value = data.NomorSurat;
+        el3.name = "nomorsurat";
+        form.appendChild(el3);
+
+        el4.value = arah;
+        el4.name = "arah";
+        form.appendChild(el4);
+
+        form.style.display = "none"
+        document.body.appendChild(form)
+        form.submit();
+
+        e.preventDefault();
+        return false;
+        });
+
+        $('#myTableSuratMasukEmail tbody').delegate('tr', 'click', function (e) {
+        var data = dtableSuratMasukEmail.row($(this).closest('tr')).data();
+        @*if (data.Kategori == "Jawaban") {
+            loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }
+        else {
+            loc = '@Url.Action("BukaSuratMasuk", "Flow")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        }*@
+        @*var loc = '@Url.Action("BukaSurat", "Surat")?suratid=' + data.SuratId + '&suratinboxid=' + data.SuratInboxId + '&nomorsurat=' + data.NomorSurat;
+        if (e.ctrlKey) {
+            window.open(loc, '_blank');
+        } else {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            window.location.href = loc;
+        }*@
+
+        var arah = $("#Arah").val()
+        $("#formHidde").html("")
+
+        var form = document.createElement("form");
+        var el1 = document.createElement("input");
+        var el2 = document.createElement("input");
+        var el3 = document.createElement("input");
+        var el4 = document.createElement("input");
+
+        form.method = "POST";
+        form.action = "@Url.Action("BukaSurat", "Surat")";
+
+
+        if (event.altKey || event.ctrlKey) {
+            form.setAttribute("target", "_blank");
+        }
+
+        el1.value = data.SuratId;
+        el1.name = "suratid";
+        form.appendChild(el1);
+
+        el2.value = data.SuratInboxId;
+        el2.name = "suratinboxid";
+        form.appendChild(el2);
+
+        el3.value = data.NomorSurat;
+        el3.name = "nomorsurat";
+        form.appendChild(el3);
+
+        el4.value = arah;
+        el4.name = "arah";
+        form.appendChild(el4);
+
+        form.style.display = "none"
+        document.body.appendChild(form)
+        form.submit();
+
+        e.preventDefault();
+        return false;
+    });
+
+
+
+
+
+    $("#frmCariSurat").submit(function (e) {
+        e.preventDefault();
+        dtreload(currentFocus)
+        return false;
+    });
+
+
+    let xj = false;
+    function SortByChanged() {
+        dtreload(currentFocus)
+        xj = true
+    };
+
+
+    function ProfileChanged() {
+        $("#NumKotakMasukInternal").hide()
+        $("#NumKotakMasukLoket").hide()
+        $("#NumKotakMasukEmail").hide()
+
+        let form = document.createElement("form");
+        var el1 = document.createElement("input");
+        form.method = "POST";
+        form.action = "@Url.Action("KotakMasuk", "Surat")";
+        el1.value = $('#cmbSpesificProfile').val();
+        el1.name = "p";
+        form.appendChild(el1);
+        form.style.display = "none"
+        document.body.appendChild(form)
+        form.submit();
+
+        //dtreload(currentFocus)
+        //getTipeSurat();
+        //getJumlahKotak()
+    };
+
+    @*function getTipeSurat() {
+        var profileid = $('#cmbSpesificProfile').val();
+        $.ajax({
+            url: '@Url.Action("GetTipeSurat", "Flow")',
+            type: "GET",
+            data: { profileid: profileid, arah: "Masuk" },
+            dataType: "JSON",
+            success: function (data) {
+                $('#cmbTipeSurat').html("");
+                $('#cmbTipeSurat').append($('<option></option>').val("").html("Semua Jenis Surat"));
+                $.each(data, function (i, data) {
+                    $('#cmbTipeSurat').append(
+                        $('<option></option>').val(data.NamaTipeSurat).html(data.NamaTipeSurat));
+                });
+                $('#cmbTipeSurat').val("");
+            }
+        });
+    }*@
+
+    @*function getJumlahKotak() {
+        showloading("Mengecek Jumlah Surat");
+        var profileid = $('#cmbSpesificProfile').val();
+        $.ajax({
+            url: '@Url.Action("jumlahKotakSurat", "Surat")',
+            type: "GET",
+            data: { profileid: profileid, arah: "Masuk" },
+            dataType: "JSON",
+            success: function (data) {
+                let email = (data.Email)? data.Email : 0
+                let loket = (data.Loket)? data.Loket : 0
+                let internal = (data.Internal) ? data.Internal : 0
+
+                $("#NumKotakMasukEmail").html(email)
+                $("#NumKotakMasukEmail").show()
+                jmlKotaMasukEmail = email
+
+                $("#NumKotakMasukLoket").html(loket)
+                $("#NumKotakMasukLoket").show()
+                jmlKotaMasukLoket = loket
+
+                $("#NumKotakMasukInternal").html(internal)
+                $("#NumKotakMasukInternal").show()
+                jmlKotaMasukInternal = internal
+                closeloading();
+            }
+        });
+    }*@
+
+    var tabKotakMasuk = "KotakMasukLoket"
+    $("#UlTab li").click(function () {
+        var tabIsi = $(this).children("a").attr("aria-controls")
+        if (tabKotakMasuk != tabIsi) {
+            tabKotakMasuk = tabIsi
+        }
+    });
+
+    $(document).ready(function () {
+
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        var jumlahmyprofiles = '@Model.JumlahMyProfiles';
+        if (jumlahmyprofiles == '1') {
+            $("#DivListMyProfiles").hide();
+        }
+        $('#cmbTipeSurat').val("");
+
+        $("#UlTab .active").trigger('click')
+
+        var isMobile = false;
+        if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
+            || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0, 4))) {
+            isMobile = true;
+        }
+        if (isMobile == true) {
+            $("#TH_NomorSurat").hide();
+            $("#TH_NomorAgenda").hide();
+            $("#TH_TujuanSurat").hide();
+            $("#TH_SifatSurat").hide();
+            $("#TH_JenisDisposisi").hide();
+            $("#TH_Keterangan").hide();
+            $("#TH_TanggalTerima").hide();
+        }
+
+        var errmessage = "@(ViewBag.ErrMessage)";
+        if (errmessage !== null && errmessage !== '') {
+            showinfo(errmessage);
+        }
+
+    });
+
+
+    let Sloket = false,
+        Semail = false,
+        Sinternal = false,
+        currentFocus = "",
+        beforeFocus = "";
+    $("#UlTab li").click(function () {
+        let w = $(this).children('a').attr("aria-controls")
+
+        beforeFocus = currentFocus
+        currentFocus = w
+        rst()
+        if (w == "KotakMasukLoket" && !Sloket) {
+            showloading("Memuat Surat....");
+            createPagingSuratMasukLoket()
+            Sloket = true;
+        } else if (w == "KotakMasukEmail" && !Semail) {
+            showloading("Memuat Surat....");
+            createPagingSuratMasukEmail()
+            Semail = true;
+        } else if (w == "KotakMasukInternal" && !Sinternal) {
+            showloading("Memuat Surat....");
+            createPagingSuratMasuk()
+            Sinternal = true;
+
+        }
+
+    });
+
+    function rst() {
+        if (currentFocus != beforeFocus) {
+            $("#metadata").val('')
+            $("#cmbSortType").val('DESC')
+            $(`#select2-cmbSortType-container`).html($("#cmbSortType option:selected").text())
+            $("#cmbTipeSurat").val('')
+            $(`#select2-cmbTipeSurat-container`).html($("#cmbTipeSurat option:selected").text())
+            $("#cmbSortBy").val('TanggalKirim')
+            $(`#select2-cmbSortBy-container`).html($("#cmbSortBy option:selected").text())
+        }
+    }
+
+    function dtreload(w) {
+        showloading("Memuat Surat....");
+        if (w == "KotakMasukLoket" && Sloket) {
+            dtableSuratMasukLoket.ajax.reload(null, true);
+        } else if (w == "KotakMasukEmail" && Semail) {
+            dtableSuratMasukEmail.ajax.reload(null, true);
+        } else if (w == "KotakMasukInternal" && Sinternal) {
+            dtableSuratMasuk.ajax.reload(null, true);
+        }
+    }
+
+</script>

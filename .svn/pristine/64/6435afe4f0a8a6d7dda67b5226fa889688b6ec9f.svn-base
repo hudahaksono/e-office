@@ -1,0 +1,207 @@
+﻿@model Surat.Models.Entities.FindSurat
+
+@{
+    var lstSortBy = new List<SelectListItem>();
+    lstSortBy.Add(new SelectListItem { Text = "Tanggal Kirim", Value = "TanggalKirim" });
+    lstSortBy.Add(new SelectListItem { Text = "Sifat Surat", Value = "SifatSurat" });
+
+    var lstSortType = new List<SelectListItem>();
+    lstSortType.Add(new SelectListItem { Text = "Urutan menurun (Descending)", Value = "DESC" });
+    lstSortType.Add(new SelectListItem { Text = "Urutan menaik (Ascending)", Value = "ASC" });
+
+    var lstCetakType = new List<SelectListItem>();
+    lstCetakType.Add(new SelectListItem { Text = "Tanggal Surat", Value = "tanggal" });
+    lstCetakType.Add(new SelectListItem { Text = "Bulan Surat", Value = "bulan" });
+
+    var lstBulan = new List<SelectListItem>();
+    lstBulan.Add(new SelectListItem { Text = "Januari", Value = "01" });
+    lstBulan.Add(new SelectListItem { Text = "Februari", Value = "02" });
+    lstBulan.Add(new SelectListItem { Text = "Maret", Value = "03" });
+    lstBulan.Add(new SelectListItem { Text = "April", Value = "04" });
+    lstBulan.Add(new SelectListItem { Text = "Mei", Value = "05" });
+    lstBulan.Add(new SelectListItem { Text = "Juni", Value = "06" });
+    lstBulan.Add(new SelectListItem { Text = "Juli", Value = "07" });
+    lstBulan.Add(new SelectListItem { Text = "Agustus", Value = "08" });
+    lstBulan.Add(new SelectListItem { Text = "September", Value = "09" });
+    lstBulan.Add(new SelectListItem { Text = "Oktober", Value = "10" });
+    lstBulan.Add(new SelectListItem { Text = "November", Value = "11" });
+    lstBulan.Add(new SelectListItem { Text = "Desember", Value = "12" });
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<div class="" id="dynamic_content">
+    <form class="form-horizontal" id="frmCariSurat" method="post">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>
+                    Laporan Surat Keluar
+                </h3>
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align:left;">Urutan data berdasarkan:</label>
+            <div class="col-md-8 col-sm-12 col-xs-12 form-group">
+                @Html.DropDownListFor(model => model.SortBy, lstSortBy, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortBy" })
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align:left;">Jenis urutan:</label>
+            <div class="col-md-8 col-sm-12 col-xs-12 form-group">
+                @Html.DropDownListFor(model => model.SortType, lstSortType, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSortType" })
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align:left;">Cetak berdasarkan:</label>
+            <div class="col-md-8 col-sm-12 col-xs-12 form-group">
+                @Html.DropDownList("cmbPrintType", lstCetakType, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbPrintType", @onchange = "tipecetak()" })
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12" id="CetakTanggal" style="display:none;">
+            <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Dari</label>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class='input-group date' id='tglSurat' style="margin-bottom: 0px;">
+                        @Html.TextBox("dtpTanggalDari", "", new { @class = "form-control", @id = "dtpTanggalDari", @required = "required" })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Sampai</label>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class='input-group date' id='tglSurat' style="margin-bottom: 0px;">
+                        @Html.TextBox("dtpTanggalSampai", "", new { @class = "form-control", @id = "dtpTanggalSampai", @required = "required" })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12" id="CetakBulan" style="display:none;">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12">Tahun</label>
+            <div class="col-md-8 col-sm-12 col-xs-12 form-group">
+                @Html.TextBox("txtTahun", "", new { @class = "form-control input-md", @id = "txtTahun", @type = "number" })
+            </div>
+            <label class="control-label col-md-4 col-sm-4 col-xs-12">Bulan</label>
+            <div class="col-md-8 col-sm-12 col-xs-12 form-group">
+                @Html.DropDownList("cmbBulan", lstBulan, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbBulan" })
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12 col-xs-12">
+            <div class="pull-right" style="padding-bottom:10px;">
+                <button id="btnCetak" type="button" class="btn btn-success">Cetak</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    var objpdf = null;
+
+    function tipecetak() {
+        var tipe = $('#cmbPrintType').val();
+        document.getElementById('CetakTanggal').style.display = 'none';
+        document.getElementById('CetakBulan').style.display = 'none';
+        if (tipe == "tanggal") {
+            document.getElementById('CetakTanggal').style.display = 'block';
+        } else if (tipe == "bulan") {
+            document.getElementById('CetakBulan').style.display = 'block';
+        }
+    }
+
+    $("#btnCetak").on("click", function (e) {
+        var sortby = $('#cmbSortBy').val();
+        var sorttype = $('#cmbSortType').val();
+        var tipe = $('#cmbPrintType').val();
+        var tanggaldari = $('#dtpTanggalDari').val();
+        var tanggalsampai = $('#dtpTanggalSampai').val();
+        var bulansurat = $('#txtTahun').val() + "-" + $('#cmbBulan').val();
+        var err = "";
+        if (tipe == "tanggal") {
+            bulansurat = "";
+            if (tanggaldari == "" || tanggalsampai == "") {
+                err = "Format Tanggal Tidak Sesuai"
+            }
+        } else if (tipe == "bulan") {
+            tanggaldari = "";
+            tanggalsampai = "";
+            if (bulansurat.length != 7) {
+                err = "Format Tahun Salah";
+            }
+        }
+
+        if (err == "") {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+            var objurl = '@Url.Action("ViewPdf_LaporanSuratKeluar", "Cetak")?sortby=' + sortby + '&sorttype=' + sorttype + '&tanggaldari=' + tanggaldari + '&tanggalsampai=' + tanggalsampai + '&bulansurat=' + bulansurat;
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalContent').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        } else {
+            showmsg("Perhatian",err);
+        }
+    });
+
+    $(document).ready(function () {
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#tglSurat, #dtpTanggalDari, #dtpTanggalSampai').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id',
+            maxDate: moment()
+        });
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $('#txtTahun').val(new Date().getFullYear());
+        $('#cmbBulan').val(('0' + (new Date().getMonth() + 1)).slice(-2)).trigger('change');
+        tipecetak();
+    });
+
+</script>

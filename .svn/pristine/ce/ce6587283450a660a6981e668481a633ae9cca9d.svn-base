@@ -1,0 +1,561 @@
+﻿@model Surat.Models.Entities.Surat
+
+@{
+    var lstKeteranganSurat = new List<SelectListItem>();
+    lstKeteranganSurat.Add(new SelectListItem { Text = "", Value = "" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Terbuka", Value = "Terbuka" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Tertutup", Value = "Tertutup" });
+
+    var lstSumberSurat = new List<SelectListItem>();
+    lstSumberSurat.Add(new SelectListItem { Text = "", Value = "" });
+    lstSumberSurat.Add(new SelectListItem { Text = "Loket", Value = "Loket" });
+    lstSumberSurat.Add(new SelectListItem { Text = "Email", Value = "Email" });
+}
+<style>
+    #tampilanDokumen {
+        height: 70vh;
+    }
+
+    @@media (max-height:750px) {
+        .attachment {
+            margin-top: 145px
+        }
+    }
+</style>
+<div class="row">
+    <div class="col-md-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_content">
+                <div class="row">
+
+                    <div class="demo col-sm-12 col-xs-12 mail_view">
+                        <div class="inbox-body">
+                            <div class="col-md-12 col-xs-12" style="text-align:center; background-color:beige; font-family: 'Varela Round', sans-serif;">
+                                <h4>EDIT SURAT</h4>
+                            </div>
+                            <div class="mail_heading row">
+                                <div class="col-md-12 col-xs-12">
+                                    <h4>@Model.Perihal - <small style="color:#1abb9c; font-size:11px;">@Model.ArahSurat</small> </h4>
+                                </div>
+                            </div>
+
+                            <form id="frmEditSurat" class="form-horizontal form-label-left" style="padding-top:10px;">
+                                @Html.HiddenFor(m => m.SuratId, new { @id = "SuratId" })
+                                <div class="row">
+                                    <div class="" id="detailSurat">
+                                        <div class="row">
+                                            <div class="col-md-6 col-xs-12">
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Metode Pengiriman <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.DropDownListFor(model => model.Sumber_Keterangan, lstSumberSurat, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "sumber_keterangan", @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.Sumber_Keterangan, "Sumber Surat wajib dipilih.")
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="DivAsalSurat">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Asal Surat <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.PengirimSurat, new { @class = "form-control", @id = "pengirimsurat", @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.PengirimSurat, "Asal Surat wajib diisi.")
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" id="DivTujuanSurat">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Tujuan Surat</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.PenerimaSurat, new { @class = "form-control", @id = "penerimasurat" })
+                                                        @Html.ValidationMessageFor(model => model.PenerimaSurat, "Tujuan Surat wajib diisi.")
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Sifat Surat <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.DropDownListFor(model => model.SifatSurat, new SelectList(@Model.ListSifatSurat, "NamaSifatSurat", "NamaSifatSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSifatSurat", @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.SifatSurat, "Sifat Surat wajib dipilih.")
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Jenis Surat <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.DropDownListFor(model => model.TipeSurat, new SelectList(@Model.ListTipeSurat, "NamaTipeSurat", "NamaTipeSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTipeSurat", @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.TipeSurat, "Jenis Surat wajib dipilih.")
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Tanggal Surat <span style="color:red">*</span></label>
+                                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                                        <div class='input-group date' id='tglSurat' style="margin-bottom: 0px;">
+                                                            @Html.TextBoxFor(model => model.TanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @required = "required" })
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-calendar"></span>
+                                                            </span>
+                                                        </div>
+                                                        @Html.ValidationMessageFor(model => model.TanggalSurat, "Tanggal Surat wajib diisi")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xs-12">
+                                                <div class="form-group" id="DivNomorAgenda">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Nomor Agenda</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.NomorAgendaSurat, new { @class = "form-control", @id = "nomoragendasurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Nomor Surat</label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control", @id = "nomorsurat" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Perihal <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control", @id = "perihal", @rows = 2, @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.Perihal, "Perihal wajib diisi.")
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="text-align: left;">Keterangan Surat <span style="color:red">*</span></label>
+                                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                                        @Html.DropDownListFor(model => model.KeteranganSurat, lstKeteranganSurat, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbKeteranganSurat", @required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.KeteranganSurat, "Keterangan Surat wajib dipilih.")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                                    <button id="btnsimpansurat" type="submit" class="btn btn-success">Simpan</button>
+                                                    @*<button id="cancel-btn" type="button" class="btn btn-warning">Kembali</button>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="" id="detailLampiran" style="display:none">
+                                        <div id="tampilanDokumen"></div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="attachment">
+                                <p>
+                                    @*<span><i class="fa fa-paperclip"></i> @Model.JumlahLampiran file </span>*@
+                                    <span><i class="fa fa-paperclip"></i> <label id="LabelJumlahLampiran"></label> file </span>
+                                    <span class="btn btn-primary btn-file" id="TombolTambahFile"><i class="fa fa-plus"></i>&nbsp;&nbsp;Tambah<input type="file" name="UploadFromFile" id="txtUploadFile" class="btn btn-primary" accept=".pdf" /></span>
+                                </p>
+                                <ul id="dataplaceholder"></ul>
+                            </div>
+
+
+                            <div class="col-md-10 col-sm-10 col-xs-12" style="padding-top:10px;">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 class="mytitleform">PERJALANAN SURAT</h2>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        <ul class="list-unstyled timeline" id="inboxplaceholder"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<div id='myModalDocViewer' class='modal'>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id='myModalContent'></div>
+            </div>
+        </div>
+    </div>*@
+
+
+<script type="text/javascript">
+    var objpdf = null;
+    var redaksi = "";
+    $('#tampilanDokumen').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    @*$("#cancel-btn").click(function (e) {
+        window.location.href = '@Url.Action("SuratForEdit", "Flow")';
+
+        e.preventDefault();
+        return false;
+    });*@
+
+    $(document).ready(function () {
+
+        $("#DivAsalSurat").hide();
+        //$("#DivTujuanSurat").hide();
+        $("#DivNomorAgenda").hide();
+        //$("#DivTanggalTerima").hide();
+        var arahsurat = '@Model.Arah';
+        if (arahsurat == 'Masuk') {
+            $("#DivAsalSurat").show();
+            $("#DivNomorAgenda").show();
+            //$("#DivTanggalTerima").show();
+        }
+        else if (arahsurat == 'Keluar') {
+            //$("#DivTujuanSurat").show();
+        }
+
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+        }
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#tglSurat, #tanggalsurat').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id',
+            maxDate: moment()
+        });
+        //$('#tglTerima, #tanggalterima').datetimepicker({
+        //    format: 'DD/MM/YYYY HH:mm',
+        //    locale: 'id',
+        //    maxDate: moment()
+        //});
+
+        loadLampiranSurat();
+
+        // Tulis jumlah lampiran
+        var suratid = $('#SuratId').val();
+        $.ajax({
+            url: '@Url.Action("GetJumlahLampiranSurat", "Flow")?suratid=' + suratid + '',
+            success: function (response) {
+                $('#LabelJumlahLampiran').html(response);
+            },
+            error: function (response) { }
+        });
+
+
+        loadSuratHistory();
+
+        $.unblockUI();
+    });
+
+    function loadLampiranSurat() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = $('#SuratId').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarLampiranSurat", "Flow")',
+            data: { suratid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                //    let frist = $(data).find('div:first-child a:first-child')[0]
+                //    $(frist).trigger('click')
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    let isexpand = false
+    var BukaFileLampiran = function (id, namafile, kantorid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFileSurat", "Flow")?id=' + id + '&kantorid=' + kantorid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+                        if (!isexpand) {
+                            $("#detailSurat").children(".row").children('div').removeClass()
+                            $("#detailSurat").addClass("col-md-4 col-xs-12")
+                            $("#detailLampiran").addClass("col-md-8 col-xs-12")
+                            $("#detailLampiran").show()
+                            isexpand = true
+                        }
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".jpg" || fileExt == ".png") {
+                // Display Image
+                var objurl = '@Url.Action("GetFileSuratWithExt", "Flow")?id=' + id + '&kantorid=' + kantorid + '&extension=' + fileExt;
+                objfile = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewer", "Konten")',
+                    success: function (data) {
+                        $('#tampilanDokumen').html(data);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+            else if (fileExt == ".doc" || fileExt == ".docx") {
+                // Download Word
+                //fileExt = ".doc";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+            else if (fileExt == ".xls" || fileExt == ".xlsx") {
+                // Download Excel
+                //fileExt = ".xls";
+                var params = "id=" + id + '&kantorid=' + kantorid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFileSuratWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+        }
+    }
+
+    var HapusFileLampiran = function (id, namafile) {
+        if (id !== null && id !== '') {
+
+            swal({
+                title: "Konfirmasi Hapus Data",
+                text: "Yakin Anda mau menghapus data lampiran surat " + namafile + " ?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal"
+            },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    var suratid = $('#SuratId').val();
+                    var frm = new FormData();
+                    frm.append("suratid", suratid);
+                    frm.append("id", id);
+                    $.ajax({
+                        url: '@Url.Action("HapusLampiranSuratById", "Flow")',
+                        type: "POST",
+                        data: frm,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data && data.Status) {
+                                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                                loadLampiranSurat();
+                                showinfo('Data berhasil dihapus');
+
+                                // Tulis ulang jumlah lampiran
+                                $.ajax({
+                                    url: '@Url.Action("GetJumlahLampiranSurat", "Flow")?suratid=' + suratid + '',
+                                    success: function (response) {
+                                        $('#LabelJumlahLampiran').html(response);
+                                    },
+                                    error: function (response) { }
+                                });
+                            }
+                            else {
+                                showalert("Error", data.Pesan);
+                            }
+                            $.unblockUI();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                    });
+                }
+            });
+        }
+    }
+
+
+    var dfFileDokumen = null;
+    $("#txtUploadFile").on("change", function (e) {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+        if (numFiles > 0) {
+            var file = dfFileDokumen = input.get(0).files[0],
+                blob = new Blob([file], { type: "application/pdf;base64" }),
+                objurl = window.URL.createObjectURL(blob);
+
+            //console.log(blob);
+            objpdf = objurl;
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                success: function (data) {
+                    $('#tampilanDokumen').html(data);
+                    //$.unblockUI();
+
+                    var suratid = $('#SuratId').val();
+
+                    var frm = new FormData();
+                    frm.append("SuratId", suratid);
+                    frm.append("namafile", dfFileDokumen.name);
+                    frm.append("file", dfFileDokumen);
+
+                    // Save to LAMPIRANSURAT
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("InsertLampiranSurat", "Flow")',
+                        data: frm,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+                                loadLampiranSurat();
+
+                                // Tulis ulang jumlah lampiran
+                                $.ajax({
+                                    url: '@Url.Action("GetJumlahLampiranSurat", "Flow")?suratid=' + suratid + '',
+                                    success: function (response) {
+                                        $('#LabelJumlahLampiran').html(response);
+                                    },
+                                    error: function (response) { }
+                                });
+                            }
+                            else {
+                            }
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    });
+
+
+    function loadSuratHistory() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = $('#SuratId').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratHistory", "Flow")',
+            data: { suratid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#inboxplaceholder').html('');
+                }
+                else {
+                    $('#inboxplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+
+    $("#frmEditSurat").submit(function (e) {
+        if ($("#frmEditSurat").valid()) {
+
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var frmdata = new FormData(this);
+
+            // Save to SURAT
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("EditSurat", "Flow")',
+                data: frmdata,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        // Success message
+                        showinfo(data.Pesan);
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+
+        function sumbersuratEdit(id) {
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("EditSumberSurat", "Flow")?Sumber=' + $("#cmbSumberSurat").val() + "&id=" + id,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+    }
+    $(document).ready(function () {
+        $('#full').hide();
+        $("#dataplaceholder").click(function () {
+            $("#hiden").hide();
+        });
+
+        $("#dataplaceholder").click(function () {
+            $("#full").show();
+        });
+    });
+
+
+
+</script>

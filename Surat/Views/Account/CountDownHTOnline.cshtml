@@ -1,0 +1,36 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>CountDownHTOnline</title>
+    <link href='@Url.Content("~/resources/css/bootstrap.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/flipper.css")' rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <script src='@Url.Content("~/resources/js/jquery.min.js")'></script>
+    <script src='@Url.Content("~/resources/jquery.flipper-responsive.js")'></script>
+</head>
+<body>
+    <div class="" style="padding-top:10px;">
+        <div class="col-md-6 col-xs-12">
+            <div class="flipper flipper-dark flipper-dark-labels" data-reverse="true" data-datetime="2020-07-08 12:00:00" data-template="dd|HH|ii|ss" data-labels="Hari|Jam|Menit|Detik" id="myFlipper"></div>
+        </div>
+        <div class="col-md-6 col-xs-12">
+            <div class="" style="vertical-align:middle; font-family: 'Varela Round', sans-serif; font-size: 17pt; padding-top:25px;">
+                Menuju Layanan HT Elektronik Nasional
+            </div>
+        </div>
+    </div>
+    <script>
+        jQuery(function ($) {
+            $('#myFlipper').flipper('init');
+        });
+    </script>
+</body>
+</html>

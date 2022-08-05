@@ -1,0 +1,68 @@
+﻿@model Dictionary<int, Surat.Models.Entities.LampiranSurat>
+
+@{
+    var niplogin = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+    int n = 0;
+    string namaLampiran = "";
+}
+
+@foreach (var lst in Model)
+{
+    n++;
+    namaLampiran = string.Concat("Lampiran ", (n + 1000).ToString().Substring(1));
+    var nmFile = lst.Value.NamaFile.Split('.');
+    string fa = "fa-file-code-o";
+    if (nmFile.Length > 1)
+    {
+        switch (nmFile[nmFile.Length-1].ToLower())
+        {
+            case "pdf":
+                fa = "fa-file-pdf-o";
+                break;
+            case "doc":
+                fa = "fa-file-word-o";
+                break;
+            case "docx":
+                fa = "fa-file-word-o";
+                break;
+            case "xls":
+                fa = "fa-file-excel-o";
+                break;
+            case "xlsx":
+                fa = "fa-file-excel-o";
+                break;
+            case "ppt":
+                fa = "fa-file-powerpoint-o";
+                break;
+            case "pptx":
+                fa = "fa-file-powerpoint-o";
+                break;
+            case "jpg":
+                fa = "fa-file-image-o";
+                break;
+            case "jpeg":
+                fa = "fa-file-image-o";
+                break;
+            case "png":
+                fa = "fa-file-image-o";
+                break;
+            case "bmp":
+                fa = "fa-file-image-o";
+                break;
+        }
+    }
+<li>
+    <div style="font-family: 'Varela Round', sans-serif;">
+        <a style="color: #1abb9c;" href="#" onclick="BukaFileLampiran('@lst.Value.LampiranSuratId','@lst.Value.NamaFile','@lst.Value.KantorId');" title="@lst.Value.NamaFile"><i class="fa @fa"></i>&nbsp;@namaLampiran</a>
+    </div>
+    <div style="font-family: 'Varela Round', sans-serif;">
+        (Diupload oleh:&nbsp;&nbsp;@lst.Value.NamaPegawai&nbsp;&nbsp;)
+    </div>
+    @if (@niplogin == @lst.Value.Nip)
+    {
+        <div class="links" style="padding-left:10px;">
+            <a href="#" style="color: #dd6136; font-size:smaller;" onclick="HapusFileLampiran('@lst.Value.LampiranSuratId', '@lst.Value.NamaFile');">Hapus</a>
+        </div>
+    }
+</li>
+}

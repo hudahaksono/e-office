@@ -1,0 +1,66 @@
+﻿@model Dictionary<int, Surat.Models.Entities.Notulen>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+<tr>
+    <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+    <td class="tdnormal">@lst.Value.TanggalInfo</td>
+    <td class="tdnormal">@lst.Value.Tempat</td>
+    <td class="tdnormal">@lst.Value.Judul</td>
+    <td style="text-align:center;cursor: pointer;" onclick="editNotulen('@lst.Value.NotulenId','@lst.Value.Judul');"><i class="fa fa-pencil"></i></td>
+    <td style="text-align:center;cursor: pointer;" onclick="hapusNotulen('@lst.Value.NotulenId','@lst.Value.Judul');"><b class="fa fa-close" style="color:red"></b></td>
+</tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editNotulen = function (v, j) {
+        window.location.href = '@Url.Action("EditNotulen", "Notulen")?id=' + v + '&acara=' + j;
+
+        @*$.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.pjax({
+            container: '#dynamic_content',
+            type: "POST",
+            url: '@Url.Action("EditNotulen", "Notulen")',
+            data: JSON.stringify({ 'id': v, 'acara': j }),
+            dataType: 'html',
+            contentType: "application/json; charset=utf-8"
+        });*@
+    }
+
+    var hapusNotulen = function (v, j) {
+        $.confirm({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data Notulen <b>" + j + "</b> ?",
+            modalOptionsBackdrop: 'static',
+            modalOptionsKeyboard: true,
+            confirmButton: "Ya",
+            cancelButton: "Batal",
+            confirm: function () {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", v);
+                $.ajax({
+                    url: '@Url.Action("HapusNotulen", "Notulen")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            showmsg('Informasi', 'Data berhasil dihapus');
+                            loadData();
+                        }
+                        else {
+                            showmsg("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    }
+</script>

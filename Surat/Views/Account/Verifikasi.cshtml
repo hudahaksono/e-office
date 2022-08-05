@@ -1,0 +1,115 @@
+﻿@model Surat.Models.VerifikasiToken
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Aplikasi Persuratan - Konfirmasi Kode Unik</title>
+    <link rel="shortcut icon" href='@Url.Content("~/resources/images/logo.png")' type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+
+    <link rel="stylesheet" href='@Url.Content("~/resources/css/login.css")' media="screen">
+    <script src='@Url.Content("~/resources/js/jquery.min.js")'></script>
+    <link href='@Url.Content("~/resources/sweetalert/sweetalert.css")' rel="stylesheet" />
+    <script src='@Url.Content("~/resources/sweetalert/sweetalert.min.js")'></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var alertmess = "@(ViewBag.AlertMess)";
+            if (alertmess !== null && alertmess !== '') {
+                swal("Peringatan", alertmess, "warning");
+                //new PNotify({ title: 'Perhatian', text: alertmess, delay: 8000, styling: 'bootstrap3', addclass: 'dark' });
+            }
+        });
+    </script>
+
+    <style type="text/css">
+        .field-validation-error {
+            color: #ff0000;
+        }
+
+        .field-validation-valid {
+            display: none;
+        }
+
+        .input-validation-error {
+            border: 1px solid #ff0000 !important;
+            background-color: #ffeeee !important;
+        }
+
+        .validation-summary-errors {
+            font-weight: bold !important;
+            color: #ff0000 !important;
+        }
+
+        .validation-summary-valid {
+            display: none;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 34px;
+        }
+
+        body {
+            background: url(@Url.Content("~/resources/images/3.jpg"));
+            background-color: #515151;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header bordered">
+            <h4 style="margin-top:0;margin-bottom:0">2-Step Verification</h4>
+            <p>Harap Masukkan Kode Unik yang telah dikirimkan ke email anda<br />@Model.KirimKe</p>
+            <span id="demo"></span>
+        </div>
+        <hr>
+        @using (Html.BeginForm("SetToken", "Account", FormMethod.Post, new { @class = "form-signin", role = "form" }))
+        {
+            @Html.HiddenFor(m => m.UserId)
+            @Html.HiddenFor(m => m.UserName)
+            @Html.HiddenFor(m => m.ReturnUrl)
+            @Html.HiddenFor(m => m.Persistent)
+            @Html.HiddenFor(m => m.Ip)
+            @Html.HiddenFor(m => m.Durasi)
+            @Html.HiddenFor(m => m.KirimKe)
+            @Html.HiddenFor(m => m.KantorId)
+            @Html.HiddenFor(m => m.Tipe)
+            <div class="login-field">
+                @Html.TextBoxFor(m => m.iToken, new { @class = "form-control ", @placeholder = "Kode Unik", @autocomplete = "off", @maxlength = "6" })
+            </div>
+            <div class="login-button clearfix">
+                <a href='@Url.Action("Index", "Account")' class="back-link"><img src='@Url.Content("~/resources/images/back.png")' alt=""> Kembali</a>
+                <button type="submit" id="btn-login" class="btn btn-success pull-right">Lanjut</button>
+            </div>
+        }
+    </div>
+
+    <script>
+        var countDownDate = new Date().getTime() + (1000 * @Model.Durasi);
+        var x = setInterval(function () {
+            var now = new Date().getTime();
+            var distance = countDownDate - now;
+
+            var hours = Math.floor((distance % (1000 * 24 * 60 * 60)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("demo").innerHTML = "Batas Waktu (" + (hours < 10 ? "0" : "") + hours + ":" +(minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + ")";
+
+            if (distance < 0) {
+                clearInterval(x);
+                window.location.href = '@Url.Action("Index", "Account")?ReturnUrl=@Url.Encode(Model.ReturnUrl)';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+﻿@model List<Surat.Models.Entities.UnitKerja>
+@{ var log = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+}
+<style>
+    .preloadTable {
+        position: absolute;
+        width: 100%;
+        height: 60vh;
+    }
+
+    .btnpreload {
+        display: inline-block;
+        vertical-align: middle;
+        float: none;
+    }
+
+    #cstmLoader {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+        grid-auto-rows: 130px;
+        place-items: center;
+    }
+
+    .shapes-5 {
+        box-sizing: border-box;
+        width: 40px;
+        height: 40px;
+        color: #2A3F54;
+        background: linear-gradient(currentColor 0 0), linear-gradient(currentColor 0 0), linear-gradient(currentColor 0 0), linear-gradient(currentColor 0 0);
+        background-size: 21px 21px;
+        background-repeat: no-repeat;
+        animation: sh5 1.5s infinite cubic-bezier(0.3,1,0,1);
+    }
+
+    @@keyframes sh5 {
+        0% {
+            background-position: 0 0,100% 0,100% 100%,0 100%
+        }
+
+        33% {
+            background-position: 0 0,100% 0,100% 100%,0 100%;
+            width: 60px;
+            height: 60px
+        }
+
+        66% {
+            background-position: 100% 0,100% 100%,0 100%,0 0;
+            width: 60px;
+            height: 60px
+        }
+
+        100% {
+            background-position: 100% 0,100% 100%,0 100%,0 0
+        }
+    }
+
+    .title_left h3 label {
+        cursor: pointer;
+        padding: 10px;
+    }
+
+        .title_left h3 label:hover {
+            background-color: rgb(230, 203, 117);
+            border-radius: 5px;
+        }
+
+    .title_left h3 .tampil {
+        border-bottom: 2px solid rgb(230, 177, 9);
+    }
+
+    .tidakAktif {
+        background-color: rgb(246, 94, 94);
+        color: white;
+    }
+</style>
+
+@*<script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>*@
+
+<div class="" id="dynamic_content">
+    <div class="page-title" style="margin-bottom:80px">
+        <div class="title_left">
+            <h3 id="optionlaporan">
+                <label class="tampil" data-tipe="0">Pengguna Eoffice</label> &nbsp;&nbsp;
+                <label data-tipe="1">Pengguna TTE</label>
+                <label data-tipe="2">Pendaftaran TTE</label>
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariSurat" method="post">
+                <div id="menuLaporan" class="col-md-8 col-sm-8 col-xs-12 pull-right" style="margin-top:0">
+                    @*<button class="btn btn-primary pull-right" type="button" style="margin-right:10px">Unduh Data &nbsp; <i class="fa fa-file-excel-o"></i> </button>*@
+                    @*<button class="btn btn-info pull-right" type="button" style="margin-right:10px">Kriteria Penilaian &nbsp; <i class="fa fa-info-circle"></i> </button>*@
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="contentisi" style="background-color:white; border-radius:10px;padding:0 10px;margin: 0 -10px">
+        <button class="btn btn-info pull-right" id="UnduhExcel"> <i class="fa fa-file-excel-o"></i> Unduh Data</button>
+        <ul id="navTab" class="nav nav-tabs" role="tablist">
+            @if (ViewBag.TipeKantor == 1)
+            {
+                <li role="presentation" class="active"><a href="#laporanPusat" aria-controls="laporanPusat" role="tab" data-toggle="tab">Kantor Pusat</a></li>
+            }
+            <li role="presentation" @if (ViewBag.TipeKantor != 1) { <text> class="active" </text> }><a href="#laporanDaerah" aria-controls="laporanDaerah" role="tab" data-toggle="tab">Kanwil/Kantah</a></li>
+        </ul>
+
+        <div class="tab-content" style="margin-top:10px">
+            <div role="tabpanel" class="tab-pane
+                 @if (ViewBag.TipeKantor == 1) { <text> active </text> }
+                 "
+                 id="laporanPusat">
+                @*<div class="preloadTable">
+                        <button class="btn btn-info btnpreload" type="button">Buka Table &nbsp; <i class="fa fa-table"></i> </button>
+                    </div>*@
+                <div class="table-responsive" style="min-height:60vh">
+                    <div class="form-group">
+                        <label for="">Unit Kerja</label>
+                        <select class="select2_single form-control formfull" name="UKES1" id="filterpusat">
+                            <option value="">Semua Unit Kerja</option>
+                            @foreach (var u in Model)
+                            {
+                                <option value="@u.UnitKerjaId" data-tipekantorid="@u.TipeKantorId">@u.NamaUnitKerja</option>
+                            }
+                        </select>
+                    </div>
+                    <table id="tablePusat" class="table table-striped table-bordered dt-responsive" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">No.</th>
+                                <th style="text-align:center;">Nama Satker</th>
+                                <th style="text-align:center;">Jumlah Pegawai</th>
+                                <th style="text-align:center;"><span id="PusatHeaderOptional">Pengguna Aktif</span></th>
+                                <th style="text-align:center;">Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="ketTableGenerate text-center" style="margin-top:10%">
+                        <label>-Klik Tombol di bawah ini untuk menampilkan table laporan-</label><br>
+                        <button type="button" class="btn btn-success btnketTableGenerate"> <i class="fa fa-table"></i> Tampilkan Tabel</button>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane
+                 @if (ViewBag.TipeKantor != 1) { <text> active </text> }
+                 " id="laporanDaerah">
+                <div class="tabControl form-inline" style="margin-bottom:10px;background-color:cadetblue;padding:10px;color:white">
+                    <div class="form-group" style="min-width:45%;margin-right:10px">
+                        <label for="berdasarkan">Tingkat Laporan</label>
+                        <select class="form-control" id="berdasarkan" style="width:100%">
+                            <option value="0">Pilih</option>
+                            @if (ViewBag.TipeKantor == 1 && log.UnitKerjaId == "02010208")
+                            {
+                                <option value="3">Nasional</option>
+                            }
+                            @if (ViewBag.TipeKantor != 3)
+                            {
+                                <option value="1">Provinsi</option>
+                            }
+                            <option value="2">Kantor</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="min-width:45%;margin-right:10px;" id="nextSelect">
+                        <label for="rinci">-</label>
+                        <select class="select2_single form-control" id="rinci" style="width:100%">
+                            @* add by jquery *@
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="tableDaerah" class="table table-striped table-bordered dt-responsive" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">No.</th>
+                                <th style="text-align:center;">Nama Satker</th>
+                                <th style="text-align:center;">Jumlah Pegawai</th>
+                                <th style="text-align:center;"><span id="headerOptional">Pengguna Aktif</span></th>
+                                <th style="text-align:center;">Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="ketTableGenerate text-center" style="margin-top:10%">
+                        <label>-Klik Tombol di bawah ini untuk menampilkan table laporan-</label><br>
+                        <button type="button" class="btn btn-success btnketTableGenerate"> <i class="fa fa-table"></i> Tampilkan Tabel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cstmLoader" style="display:none">
+        <div class="shapes-5"></div>
+    </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalconfirm">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close modaldec" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Apakah Anda Ingin Merubah Data Laporan?</h4>
+            </div>
+            @*<div class="modal-body">
+                    <p>One fine body&hellip;</p>
+                </div>*@
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default modaldec" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" id="modalacc">Ubah</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalDataPegawai">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close modaldec" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Detail Data</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered dt-responsive" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>NIP</th>
+                            <th>Nama Pegawai</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default modaldec" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<iframe id="txtArea1" style="display:none"></iframe>
+
+
+<script>
+    @if (ViewBag.TipeKantor == 1)
+    {
+        <Text>
+            var activeTab = "laporanPusat"
+        </Text>
+    }
+    else
+    {
+        <Text>
+            var activeTab = "laporanDaerah"
+        </Text>
+    }
+
+
+    var tabledaerahgenerated = false
+    var tablepusatgenerated = false
+    var onloadproses = false
+    var tipelaporan = 0
+
+    $('.select2_single').select2({ width: 'resolve' });
+
+    $("#optionlaporan label").click(function () {
+        if (!onloadproses) {
+            let thisel = $(this)
+            let toData = $(this).attr("data-tipe")
+            swal({
+                title: "Konfirmasi",
+                text: "Perubahan Jenis Laporan Menghapus Data yang telah ditampilkan",
+                type: "info",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Lakukan",
+                cancelButtonText: "Batal",
+                showLoaderOnConfirm: false
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    thisel.siblings().removeClass("tampil")
+                    thisel.addClass("tampil")
+                    $("#tableDaerah tbody").html("")
+                    $("#tablePusat tbody").html("")
+                    $(".ketTableGenerate").children().show()
+                    $("#cstmLoader").hide()
+                    tipelaporan = toData
+                    swal("Informasi", "Tipe Laporan Diubah", "success")
+                } else {
+
+                }
+            })
+        }
+    })
+
+
+    $("#navTab li").click(function () {
+                    let thishref = $(this).find('a').attr("href")
+        activeTab = thishref.replace("#", "")
+    })
+
+    $(".ketTableGenerate .btnketTableGenerate").click(function () {
+        let tableid = $(this).parent().siblings("table").attr("id")
+        let parent = $(this).parent()
+        let tngkt = $("#berdasarkan").val()
+        if (tngkt != 0 || activeTab != "laporanDaerah") {
+            let loader = $("#cstmLoader")
+            parent.children().hide()
+            parent.append(loader)
+            loader.show()
+            loadingAct("load")
+            if (activeTab == "laporanPusat") {
+                generateTablePusat()
+            } else if (activeTab == "laporanDaerah") {
+                generateTableDaerah()
+            }
+        } else {
+            swal("Informasi", "Tingkat Laporan Belum dipilih", "warning")
+        }
+    })
+
+    //jika sedang load jangan ada action tambahan
+    function loadingAct(param) {
+    if (param == "load") {
+        $("#menuLaporan button").prop('disabled', true);
+        $(".tabControl select").prop('disabled', true);
+        $(".btnketTableGenerate").prop('disabled', true);
+        onloadproses = true
+    } else if (param == "idle") {
+        $("#menuLaporan button").prop('disabled', false);
+        $(".tabControl select").prop('disabled', false);
+        $(".btnketTableGenerate").prop('disabled', false);
+        onloadproses = false
+        }
+    }
+
+    $("#berdasarkan").val(0)
+    $("#berdasarkan").change(function () {
+                    let thisval = $(this).val()
+        let selectElmnt = $("#rinci")
+        if (thisval > 0) {
+            $("#nextSelect").show()
+            selectRincian(thisval)
+        } else {
+                        selectElmnt.siblings("label").html("-")
+            selectElmnt.html("")
+        }
+                })
+
+    function selectRincian(param) {
+        let selectElmnt = $("#rinci")
+        if (param == 1) {
+                        selectElmnt.siblings("label").html("Provinsi")
+        } else if (param == 2) {
+                        selectElmnt.siblings("label").html("Nama Kantor")
+        }
+        if (param) {
+            addSelectFrom(selectElmnt,param)
+        }
+    }
+
+    function addSelectFrom(elmnt, param) {
+        let urlFrom = "";
+        if (param == 1) {
+            urlFrom = '@Url.Action("GetProvinsiKantorid", "Laporan")'
+        } else if (param == 2) {
+            urlFrom = '@Url.Action("GetListKantorid", "Laporan")'
+        }
+        if (urlFrom) {
+            elmnt.html("")
+            $.ajax({
+                type: "GET",
+                url: urlFrom,
+                success: function (rsp) {
+                    if (rsp.Status) {
+                        for (let data of rsp.data) {
+                            let splt = data.split("|")
+                            elmnt.append($('<option>', {
+                                value: splt[0],
+                                text: splt[1]
+                            }));
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    var before = ""
+    $("#rinci").change(function () {
+        if (tabledaerahgenerated) {
+            $("#modalconfirm").modal("show")
+            before = $(this).val()
+        }
+    })
+
+    $("#modalacc").click(function () {
+        if (tabledaerahgenerated && before) {
+            $("#tableDaerah tbody").html("")
+            let loader = $("#cstmLoader")
+            if (!$(".ketTableGenerate").find("#cstmLoader")) {
+                $(".ketTableGenerate").append(loader)
+            }
+            loadingAct("load")
+            loader.show()
+            $("#modalconfirm").modal("hide")
+            generateTableDaerah()
+        }
+    })
+
+    $(".modaldec").click(function () {
+        if (tabledaerahgenerated && before) {
+            $("#rinci").val(before)
+        }
+    })
+
+    function generateTableDaerah() {
+        let loader = $("#cstmLoader")
+        let tngkt = $("#berdasarkan").val()
+        let rinci = $("#rinci").val()
+        let urlForm = "";
+        let tabletarget = $("#tableDaerah tbody")
+        if (tngkt == 0) {
+            urlForm = ''
+        } else if (tngkt > 0) {
+            if (tipelaporan == 0) {
+                urlForm = '@Url.Action("GetPenggunaKantor", "Laporan")?kantorid=' + rinci + "&tipe=" + tngkt
+            } else if (tipelaporan == 1) {
+                urlForm = '@Url.Action("GetTTEKantor", "Laporan")?kantorid=' + rinci + "&tipe=" + tngkt
+            } else if (tipelaporan == 2) {
+                urlForm = '@Url.Action("GetPendaftarTTE", "Laporan")?kantorid=' + rinci + "&tipe=" + tngkt
+            } else if (tipelaporan == 3) {
+                urlForm = '@Url.Action("GetPendaftarTTE", "Laporan")?kantorid=' + rinci + "&tipe=" + tngkt
+            }
+        }
+
+        if (urlForm) {
+            $.ajax({
+            type: "GET",
+                url: urlForm,
+                success: function (rsp) {
+                    if (rsp.Status) {
+                        tabletarget.html("")
+                        if (tipelaporan == 2) {
+                            $("#headerOptional").html('Jumlah Pendaftar')
+                        } else {
+                            $("#headerOptional").html('Pengguna Aktif')
+                        }
+                        let count = 1
+                        for (let data of rsp.data) {
+                            tabletarget.append(`
+                                <tr data-kantorid='${data.KantorId}'>
+                                    <td style="text-align:center;">${count}</td>
+                                    <td style="text-align:center;">${data.KantorNama}</td>
+                                    <td style="text-align:center;">${data.TotalPegawai}</td>
+                                    <td style="text-align:center;">${data.Jumlah}</td>
+                                    <td style="text-align:center;">${Math.round((data.Jumlah / data.TotalPegawai)*100)}%</td>
+                                </tr>
+                            `)
+                            count++
+                        }
+                        loader.hide()
+                        loadingAct("idle")
+                        tabledaerahgenerated = true
+                    }
+                }
+            })
+        }
+    }
+
+    function generateTablePusat() {
+        let loader = $("#cstmLoader")
+        let urlForm = "";
+        let tabletarget = $("#tablePusat tbody")
+        if (tipelaporan == 0) {
+                urlForm = '@Url.Action("GetPenggunaPusat", "Laporan")?type=eoffice'
+            } else if (tipelaporan == 1) {
+                urlForm = '@Url.Action("GetPenggunaPusat", "Laporan")?type=TTE'
+            } else if (tipelaporan == 2) {
+                urlForm = '@Url.Action("GetPenggunaPusat", "Laporan")?type=PendaftarTTE'
+        }
+
+        let filter = $("#filterpusat").val()
+        if (filter) {
+            urlForm += (`&unitkerjaid=` + filter)
+        }
+
+        if (urlForm) {
+            $.ajax({
+            type: "GET",
+                url: urlForm,
+                success: function (rsp) {
+                    if (rsp.Status) {
+                        tabletarget.html("")
+                        if (tipelaporan == 2) {
+                            $("#PusatHeaderOptional").html('Jumlah Pendaftar')
+                        } else {
+                            $("#PusatHeaderOptional").html('Pengguna Aktif')
+                        }
+                        let count = 1
+                        for (let data of rsp.data) {
+                            if (data.KantorId != "02") {
+                                tabletarget.append(`
+                                    <tr data-kantorid='${data.KantorId}'>
+                                        <td style="text-align:center;">${count}</td>
+                                        <td style="text-align:center;">${data.KantorNama}</td>
+                                        <td style="text-align:center;">${data.TotalPegawai}</td>
+                                        <td style="text-align:center;">${data.Jumlah}</td>
+                                        <td style="text-align:center;">${Math.round((data.Jumlah / data.TotalPegawai) * 100)}%</td>
+                                    </tr>
+                                `)
+                                count++
+                            }
+                        }
+                        loader.hide()
+                        loadingAct("idle")
+                        tablepusatgenerated = true;
+                    }
+                }
+            })
+        }
+    }
+
+    $("#filterpusat").change(function () {
+        if (tablepusatgenerated) {
+            let thisval = $(this).val()
+            if (thisval) {
+                generateTablePusat()
+            }
+        }     
+    })
+
+    let allow = false;
+    $("tbody", "#tableDaerah, #tablePusat").delegate("tr", "click", function () {
+        var thisdataid = $(this).attr("data-kantorid")
+        let menuDetails = "";
+        if (tipelaporan == 0) {
+            menuDetails = "PenggunaEoffice"
+        } else if (tipelaporan == 1) {
+            menuDetails = "PenggunaTTE"
+        } else if (tipelaporan == 2) {
+            menuDetails = "PendaftarTTE"
+        }
+        if (activeTab == "laporanPusat" && allow) {
+            $.ajax({
+                type: "GET",
+                url: `@Url.Action("GetDetailPenggunaPusat", "Laporan")?unitkerja=${thisdataid}&menu=${menuDetails}`,
+                success: function (rsp) {
+                    if (rsp.Status) {
+                        $("#modalDataPegawai table tbody").html("");
+                        let classAdd = "";
+                        for (var detail of rsp.data) {
+                            classAdd = "";
+                            if (detail.Status == "TIDAK") {
+                                classAdd = "tidakAktif";
+                            }
+                            $("#modalDataPegawai table tbody").append(`
+                                 <tr class="${classAdd}" >
+                                    <td>${detail.PegawaiId}</td>
+                                    <td>${detail.NamaPegawai}</td>
+                                    <td style="text-align:center;">${detail.Status}</td>
+                                 </tr>
+                            `)
+                        }
+                        $("#modalDataPegawai").modal("show")
+                    }
+                }
+            })
+        } else if (activeTab == "laporanDaerah" && allow) {
+            $.ajax({
+                type: "GET",
+                url: `@Url.Action("GetDetailPengguna", "Laporan")?kantorid=${thisdataid}&menu=${menuDetails}`,
+                success: function (rsp) {
+                    if (rsp.Status) {
+                        $("#modalDataPegawai table tbody").html("");
+                        let classAdd = "";
+                        for (var detail of rsp.data) {
+                            classAdd = "";
+                            if (detail.Status == "TIDAK") {
+                                classAdd = "tidakAktif";
+                            }
+                            $("#modalDataPegawai table tbody").append(`
+                                 <tr class="${classAdd}" >
+                                    <td>${detail.PegawaiId}</td>
+                                    <td>${detail.NamaPegawai}</td>
+                                    <td style="text-align:center;">${detail.Status}</td>
+                                 </tr>
+                            `)
+                        }
+                        $("#modalDataPegawai").modal("show")
+                    }
+                }
+            })
+        }
+    })
+
+
+    $("#UnduhExcel").click(function () {
+        var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+        var textRange; var j = 0;
+        var idtarget = (activeTab == "laporanDaerah") ? "tableDaerah" : "tablePusat"
+        var tab = document.getElementById(idtarget); 
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+           
+        }
+
+        tab_text = tab_text + "</table>";
+        tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");
+        tab_text = tab_text.replace(/<img[^>]*>/gi, "");
+        tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, "");
+
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+        {
+            txtArea1.document.open("txt/html", "replace");
+            txtArea1.document.write(tab_text);
+            txtArea1.document.close();
+            txtArea1.focus();
+            sa = txtArea1.document.execCommand("SaveAs", true, "data.xls");
+        }
+        else                 //other browser not tested on IE 11
+            sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+        return (sa);
+    })
+</script>

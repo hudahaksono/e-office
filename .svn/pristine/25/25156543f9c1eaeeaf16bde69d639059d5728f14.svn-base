@@ -1,0 +1,163 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net.Http;
+using System.Web.Mvc;
+
+namespace Surat.Models
+{
+    public class ApiServices
+    {
+        private string getUrlGateway(string kantorid, string servicename)
+        {
+            string urlgateway;
+            using (var ctx = new BpnDbContext())
+            {
+                string sql = "select urlgateway from webservicekantor where kantorid= :idkantor and tipeservice= :servicename ";
+                Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("idkantor", kantorid);
+                Oracle.ManagedDataAccess.Client.OracleParameter p2 = new Oracle.ManagedDataAccess.Client.OracleParameter("servicename", servicename);
+                object[] parameters = new object[2] { p1, p2 };
+                urlgateway = ctx.Database.SqlQuery<string>(sql, parameters).FirstOrDefault();
+            }
+            return urlgateway;
+        }
+
+        public string PostApiService(string url, string jsonContent)
+        {
+            string responseHTML = "";
+            System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+            request.Method = "POST";
+            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+            Byte[] byteArray = encoding.GetBytes(jsonContent);
+
+            request.ContentLength = byteArray.Length;
+            request.ContentType = @"application/json";
+
+            using (System.IO.Stream dataStream = request.GetRequestStream())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);
+            }
+            long length = 0;
+            try
+
+            {
+                using (System.Net.HttpWebResponse response = (System.Net.HttpWebResponse)request.GetResponse())
+                {
+                    length = response.ContentLength;
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        using (var stream = response.GetResponseStream())
+                        {
+                            if (stream != null)
+                            {
+                                var reader = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8);
+                                responseHTML = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (System.Net.WebException ex)
+            {
+                // Log exception and throw as for GET example above
+            }
+            return responseHTML;
+        }
+
+        public Entities.NIKResult Call_NIK(string nik)
+        {
+            Entities.NIKResult _nikResult = new Entities.NIKResult();
+            string urlgateway = getUrlGateway("PUSDATIN", "DUKCAPIL");
+            if (!string.IsNullOrEmpty(urlgateway))
+            {
+                string jsondata = "{\"user_id\":\"Pusdatin\",\"password\":\"a\",\"nik\":\":nik\"}";
+                jsondata = jsondata.Replace(":nik", nik);
+                string result = PostApiService(urlgateway, jsondata);
+
+                if (!string.IsNullOrEmpty(result) && result.Contains("Respone_Code"))
+                {
+                    var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                    var _result = jsSerializer.Deserialize<dynamic>(result);
+                    //_nikResult = jsSerializer.Deserialize<NIKResult>(result);
+                    //_NIKResult.NIK = Convert.ToString((dataResult["content"])[0]["NIK"]);
+                    if (!String.IsNullOrEmpty(_result["result"]["NIK"]))
+                    {
+                        _nikResult.AGAMA = _result["result"]["AGAMA"];
+                        _nikResult.ALAMAT = _result["result"]["ALAMAT"];
+                        _nikResult.DUSUN = _result["result"]["DUSUN"];
+                        _nikResult.EKTP_STATUS = _result["result"]["EKTP_STATUS"];
+                        _nikResult.GOLONGAN_DARAH = _result["result"]["GOLONGAN_DARAH"];
+                        _nikResult.JENIS_KELAMIN = _result["result"]["JENIS_KELAMIN"];
+                        _nikResult.JENIS_PEKERJAAN = _result["result"]["JENIS_PEKERJAAN"];
+                        //  _NIKResult.KODE_POS = _result["result"]["KODE_POS"];
+                        _nikResult.NAMA_KABUPATEN = _result["result"]["NAMA_KABUPATEN"];
+                        _nikResult.NAMA_KECAMATAN = _result["result"]["NAMA_KECAMATAN"];
+                        _nikResult.NAMA_KELURAHAN = _result["result"]["NAMA_KELURAHAN"];
+                        _nikResult.NAMA_LENGKAP = _result["result"]["NAMA_LENGKAP"];
+                        _nikResult.NAMA_LENGKAP_AYAH = _result["result"]["NAMA_LENGKAP_AYAH"];
+                        _nikResult.NAMA_LENGKAP_IBU = _result["result"]["NAMA_LENGKAP_IBU"];
+                        _nikResult.NAMA_PROPINSI = _result["result"]["NAMA_PROPINSI"];
+
+                        _nikResult.NO_KECAMATAN = Convert.ToString(_result["result"]["NO_KECAMATAN"]);
+                        _nikResult.NO_KELURAHAN = Convert.ToString(_result["result"]["NO_KELURAHAN"]);
+                        _nikResult.NO_PROPINSI = Convert.ToString(_result["result"]["NO_PROPINSI"]);
+                        _nikResult.NO_RT = Convert.ToString(_result["result"]["NO_RT"]);
+                        _nikResult.NO_RW = Convert.ToString(_result["result"]["NO_RW"]);
+                        _nikResult.NOMOR_KARTUKELUARGA = Convert.ToString(_result["result"]["NOMOR_KARTUKELUARGA"]);
+                        _nikResult.PENDIDIKAN_TERAKHIR = _result["result"]["PENDIDIKAN_TERAKHIR"];
+                        //_NIKResult.STATUS_HUBUNGAN_BKELUARGA = _result["result"]["RESPON"];
+                        _nikResult.STATUS_KAWIN = _result["result"]["STATUS_KAWIN"];
+                        _nikResult.TANGGAL_LAHIR = _result["result"]["TANGGAL_LAHIR"];
+                        _nikResult.TEMPAT_LAHIR = _result["result"]["TEMPAT_LAHIR"];
+                        //_nikResult.TANGGAL_LAHIR = _nikResult.TANGGAL_LAHIR;
+                        _nikResult.Respone_Code = "OK";
+
+                    }
+                }
+            }
+            return _nikResult;
+        }
+
+        private class ResultDukcapil
+        {
+            public string result { get; set; }
+        }
+        public Entities.TransactionResult Cek_NIK(Entities.ParameterDukcapil paramDukcapil)
+        {
+            Entities.TransactionResult resultCek = new Entities.TransactionResult() { Status = false, Pesan = "Data tidak ditemukan pada dukcapil" };
+            bool serverProduction = OtorisasiUser.NamaSkema.Equals("surat");
+            if (serverProduction)
+            {
+                string urlgateway = getUrlGateway("PUSDATIN", "DUKCAPIL");
+                urlgateway = urlgateway.Replace("QueryNIK", "ValidasiNIK");
+                if (!string.IsNullOrEmpty(urlgateway))
+                {
+                    paramDukcapil.USER_ID = "PUSDATIN";
+                    string jsondata = JsonConvert.SerializeObject(paramDukcapil);
+                    string result = PostApiService(urlgateway, jsondata);
+
+                    if (!string.IsNullOrEmpty(result) && result.Contains("result"))
+                    {
+                        ResultDukcapil jsSerializer = JsonConvert.DeserializeObject<ResultDukcapil>(result);
+                        if (jsSerializer.result == "OK")
+                        {
+                            resultCek.Status = true;
+                        }
+                        else
+                        {
+                            resultCek.Pesan = jsSerializer.result;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                resultCek.Status = true;
+            }
+            return resultCek;
+        }
+    }
+}

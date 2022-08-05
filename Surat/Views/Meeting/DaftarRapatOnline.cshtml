@@ -1,0 +1,60 @@
+﻿@model Dictionary<int, Surat.Models.Entities.RapatOnline>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+        <td class="tdnormal" style="width:200px;">@lst.Value.TanggalInfo</td>
+        <td class="tdnormal">@lst.Value.Judul</td>
+        <td class="tdnormal"><a href="@lst.Value.UrlMeeting" target="_blank">@lst.Value.UrlMeeting</a></td>
+        <td style="text-align:center;cursor: pointer;" onclick="openAbsenData('@lst.Value.RapatOnlineId');"><i class="fa fa-book"></i></td>
+        <td style="text-align:center;cursor: pointer;" onclick="editRapatOnline('@lst.Value.RapatOnlineId');"><i class="fa fa-pencil"></i></td>
+        <td style="text-align:center;cursor: pointer;" onclick="hapusRapatOnline('@lst.Value.RapatOnlineId','@lst.Value.Judul');"><b class="fa fa-close" style="color:red"></b></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editRapatOnline = function (v) {
+        window.location.href = '@Url.Action("EntriDataRapatOnline", "Meeting")?id=' + v;
+    }
+    var openAbsenData = function (v) {
+        window.location.href = '@Url.Action("DataAbsensi", "Meeting")?rapatid=' + v;
+    }
+
+    var hapusRapatOnline = function (v, j) {
+        $.confirm({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data Rapat Online <b>" + j + "</b> ?",
+            modalOptionsBackdrop: 'static',
+            modalOptionsKeyboard: true,
+            confirmButton: "Ya",
+            cancelButton: "Batal",
+            confirm: function () {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", v);
+                $.ajax({
+                    url: '@Url.Action("HapusRapatOnline", "Meeting")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            showmsg('Informasi', 'Data berhasil dihapus');
+                            loadData();
+                        }
+                        else {
+                            showmsg("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    }
+</script>

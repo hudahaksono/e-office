@@ -1,0 +1,1670 @@
+﻿@model Surat.Models.Entities.FindUserLogin
+@{
+    var lstnull = new List<SelectListItem>();
+
+    var usr = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+
+    int _tipekantor = new Surat.Models.DataMasterModel().GetTipeKantor(usr.KantorId);
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style type="text/css">
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(46px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 24px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .swal-wide {
+        width: 800px !important;
+    }
+
+    .start {
+        filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+        filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        filter: gray; /* IE6-9 */
+        -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
+
+        .start:hover {
+            filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+            filter: grayscale(0%);
+            -moz-filter: grayscale(0%);
+            -ms-filter: grayscale(0%);
+            -o-filter: grayscale(0%);
+            filter: none; /* IE6-9 */
+            zoom: 1; /* needed to trigger "hasLayout" in IE if no width or height is set */
+            -webkit-filter: grayscale(0%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+
+    .textright {
+        text-align: right;
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Akses User
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    @*<h4>
+                            <i class="fa fa-search"></i>&nbsp;&nbsp;
+                            <label id="lblTitle">Pencarian Akses User</label>
+                        </h4>*@
+                    @*<label class="switch">
+                            @Html.CheckBox("showlist")
+                            <div class="slider round">
+                            </div>
+                        </label>*@
+
+                    <div class="form-group pull-right top_search" style="width:250px">
+                        <div class="input-group">
+                            @*@Html.TextBoxFor(model => model.CariNip, new { @class = "form-control", @id = "nip", @placeholder = "Masukkan NIP", title="Silakan masukkan nip", @data-toggle = "tooltip" })*@
+                            <input type="text" class="form-control" id="nip" placeholder="Masukkan NIP/NIK" data-html="true" data-toggle="tooltip" data-placement="left" title="Masukkan NIP ASN<br>atau NIK PPNPN" autocomplete = "off" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btnCari" onclick="cariData()"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        <div id="tab-content" class="tab-content">
+                            <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="cariakun-tab">
+                                @*<div class="form-group col-md-12 col-xs-12" style="padding-top:0px;">
+                                        @Html.DropDownListFor(model => model.CariNip, lstnull, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbNip", @onchange = "loadIsi()" })
+                                    </div>*@
+                                <div id="Starting" class="text-center" style="margin-top:30px;margin-bottom:30px;">
+                                    <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG" class="start">
+                                </div>
+                                <div id="UserDetailASN">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA SIMPEG</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("namalengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Email</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("email", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">No.HP</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("nomorhp", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Jabatan</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("namajabatan", new { @class = "form-control", @rows = 3, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Satker</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("namasatker", new { @class = "form-control", @rows = 4, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA EOFFICE</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama Pengguna</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("namapengguna", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group" style="padding-right:10px;">
+                                            <div class="col-md-12">
+                                                @Html.DropDownList("kantorid", lstnull, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbKantorId", @onchange = "loadProfiles()" })
+                                            </div>
+                                            <table id="UserProfiles" class="table table-striped col-md-12" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Jabatan</th>
+                                                        <th style="width: 60px;">&nbsp;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            @if (ViewBag.IsAdmin)
+                                            {
+                                                <div class="col-md-4 col-xs-12 pull-right" id="divTambah">
+                                                    <span class="btn btn-success" id="btnTambahProfile" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                        <span class="fa fa-plus" style="font-size:20pt"></span><br />Tambah Jabatan
+                                                    </span>
+                                                </div>
+                                                if (ViewBag.UnitKerjaId == "020116")
+                                                {
+                                                    <div class="col-md-4 col-xs-12 pull-right" style="display:none;">
+                                                        <span class="btn btn-success" id="btnLoginAs" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                            <span class="fa fa-sign-in" style="font-size:20pt"></span><br />Masuk Sebagai User
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-md-4 col-xs-12 pull-right" style="display:none;">
+                                                        <span class="btn btn-success" id="btnAksesKKP" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                            <span class="fa fa-sign-in" style="font-size:20pt"></span><br />Akses KKP
+                                                        </span>
+                                                    </div>
+                                                }
+                                            }
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divJabatan">
+                                                <span class="btn btn-primary" id="btnJabatan" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-briefcase" style="font-size:20pt"></span><br />Jabatan PLT/H
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divAktifkan">
+                                                <span class="btn btn-primary" id="btnAktifkan" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-key" style="font-size:20pt"></span><br />Aktifkan User
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divSynch">
+                                                <span class="btn btn-primary" id="btnSynch" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-refresh" style="font-size:20pt"></span><br />Sinkronisasi User
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divAkses">
+                                                <span class="btn btn-success" onclick="bukaHakAkses()" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-check-square-o" style="font-size:20pt"></span><br />Hak Akses
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="UserDetailPPNPN">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PPNPN</div>
+                                                @Html.Hidden("ppnpn_kantorid")
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nik</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_nik", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_namalengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Email</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_email", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">No.HP</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_nomorhp", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Kantor Terdaftar</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("ppnpn_kantornama", new { @class = "form-control", @rows = 4, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA EOFFICE</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama Pengguna</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_namapengguna", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Satker Aktif</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("ppnpn_satker", new { @class = "form-control", @rows = 2, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divAktifkanPPNPN">
+                                                <span class="btn btn-primary" id="btnAktifkanPPNPN" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-key" style="font-size:20pt"></span><br />Aktifkan User
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divAksesPPNPN">
+                                                <span class="btn btn-success" onclick="bukaHakAkses()" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-check-square-o" style="font-size:20pt"></span><br />Hak Akses
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 col-xs-12 pull-right" id="divNonAktifkanPPNPN">
+                                                <span class="btn btn-warning" id="btnNonAktifkanPPNPN" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-trash" style="font-size:20pt"></span><br />Non-Aktifkan User
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='UserLoginEditorModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Tambah Jabatan</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="form-horizontal form-label-left">
+                                @Html.HiddenFor(m => m.PegawaiId)
+                                @Html.HiddenFor(m => m.UserId)
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Unit Kerja</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.DropDownListFor(model => model.UnitKerjaIdTujuan, lstnull, "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbEditUnitKerja", @onchange = "UnitKerjaChanged()" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Jabatan</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.DropDownListFor(model => model.ProfileId, lstnull, "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbEditProfiles" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">SK</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <div class="input-group" style="margin-bottom:0px">
+                                            @Html.TextBox("FileName", "", new { @class = "form-control", id = "namafile", type = "text", @readonly = "readonly", @onclick = "$('#btnUploadFile').click();" })
+                                            <div class="input-group-btn">
+                                                <label class="btn btn-success btn-file">
+                                                    <i class="fa fa-search"></i><input class="" type="file" name="filename" id="btnUploadFile" accept=".pdf" hidden style="width:70px;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var dfFileDokumen = null;
+                                    $("#btnUploadFile").on("change", function (e) {
+                                        var input = $(this),
+                                            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+                                        if (numFiles > 0) {
+                                            var file = dfFileDokumen = input.get(0).files[0];
+
+                                            if (file.size > 20000 * 1024) {
+                                                dfFileDokumen = null;
+                                                swal("Peringatan", "File maksimum 20Mb", "warning")
+                                                $("#namafile").val("");
+                                                return false;
+                                            }
+                                            else {
+                                                if (dfFileDokumen == null) {
+                                                    swal("Peringatan", "File tidak ditemukan", "warning")
+                                                    $("#namafile").val("");
+                                                    return false;
+                                                }
+                                                var namafile = dfFileDokumen.name;
+                                                $("#namafile").val(namafile);
+                                                var filedokumen = dfFileDokumen;
+                                                var tipefile = filedokumen.type;
+
+                                                if (tipefile == 'application/pdf') {
+
+                                                } else {
+                                                    dfFileDokumen = null;
+                                                    swal("Peringatan", "File bukan PDF", "warning")
+                                                    $("#namafile").val("");
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Tipe</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.DropDownList("ddlTipeJabatan", lstnull, new { @class = "select2_single form-control input-md", @style = "width:100%", @onchange = "chkPLT()" })
+                                    </div>
+                                </div>
+                                @*<div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">PLT/H</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("isPLT", false, new { @onchange = "chkPLT()" })
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>*@
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Sejak</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12" style="max-width:200px;">
+                                        <div class='input-group date' style="margin-bottom: 0px;">
+                                            @Html.TextBox("JabatanValidSejak", "", new { @class = "form-control" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="jbtValidSampai">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="text-align:left;">Hingga</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12" style="max-width:200px;">
+                                        <div class='input-group date' style="margin-bottom: 0px;">
+                                            @Html.TextBox("JabatanValidSampai", "", new { @class = "form-control" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="ln_solid"></div>*@
+                                <div class="form-group">
+                                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-4">
+                                        <button type="button" class="btn btn-success" id="btnsimpandataprofile">SIMPAN</button>
+                                        <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='UserAksesEditorModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:20px">
+                    <div class="x_title">
+                        <h2>Setting Hak Akses</h2>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-horizontal form-label-left">
+                            @if (OtorisasiUser.IsProfile("Administrator") || !(User.Identity as Surat.Models.Entities.InternalUserIdentity).KantorId.Equals("980FECFC746D8C80E0400B0A9214067D") || (User.Identity as Surat.Models.Entities.InternalUserIdentity).UnitKerjaId.Equals("02010208"))
+                            {
+                                <div class="form-group">
+                                    <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Pembuat Surat Masuk</label>
+                                    <div class="col-md-7 col-sm-6 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("A81001")
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Pembuat Nomor Agenda</label>
+                                <div class="col-md-7 col-sm-6 col-xs-12">
+                                    <label class="switch">
+                                        @Html.CheckBox("A81002")
+                                        <div class="slider round">
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Pembuat Nomor Surat</label>
+                                <div class="col-md-7 col-sm-6 col-xs-12">
+                                    <label class="switch">
+                                        @Html.CheckBox("A81003")
+                                        <div class="slider round">
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Pembuat Surat Elektronik</label>
+                                <div class="col-md-7 col-sm-6 col-xs-12">
+                                    <label class="switch">
+                                        @Html.CheckBox("A81004")
+                                        <div class="slider round">
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            @*@if ((OtorisasiUser.IsProfile("Administrator") || OtorisasiUser.IsProfile("AdminSatker")) && OtorisasiUser.NamaSkema.Equals("surattrain"))
+                            {
+                                <div class="form-group tab-col-yellow">
+                                    <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Operator SPBE</label>
+                                    <div class="col-md-7 col-sm-6 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("A80200")
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            }*@
+
+                            @if (OtorisasiUser.IsProfile("Administrator") || OtorisasiUser.isTU())
+                            {
+                                <div class="form-group tab-col-yellow">
+                                    <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Administrator Satker</label>
+                                    <div class="col-md-7 col-sm-6 col-xs-12">
+                                        <label class="switch">
+                                            @Html.CheckBox("A80300")
+                                            <div class="slider round">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                if (ViewBag.UnitKerjaId == "020116" && ViewBag.Tipe == "ASN" && OtorisasiUser.IsProfile("Administrator"))
+                                {
+                                    <div class="form-group tab-col-yellow">
+                                        <label class="control-label col-md-5 col-sm-6 col-xs-12" style="text-align:left;">Super Administrator</label>
+                                        <div class="col-md-7 col-sm-6 col-xs-12">
+                                            <label class="switch">
+                                                @Html.CheckBox("A80100")
+                                                <div class="slider round">
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-4">
+                                    <button type="button" class="btn btn-success" id="btnsimpanakses">SIMPAN</button>
+                                    <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myDocContent'></div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalAksesKKP' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myAksesContent'></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    var tipeuser = '';
+
+    var chkPLT = function () {
+        //var chk = $("#isPLT").prop('checked');
+        var chk = $('#ddlTipeJabatan').val();
+        $("div#jbtValidSampai").hide();
+        if (chk != "0") {
+            $('#JabatanValidSampai').val("");
+            $("div#jbtValidSampai").show();
+        }
+    }
+
+    $(document).ready(function () {
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $('#myModalAksesKKP').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '80%',
+                height: '98%',
+                'max-height': '98%'
+            });
+        });
+
+        $('.select2_single').select2({ width: 'resolve' });
+        $('#JabatanValidSampai, #JabatanValidSejak').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+        });
+        $("div#jbtValidSampai").hide();
+
+        $("div#Starting").show();
+        $("div#UserDetailASN").hide();
+        $("div#UserDetailPPNPN").hide();
+        createPagingUserProfiles();
+        $('#nip').tooltip({ trigger: 'manual' }).tooltip('show');
+
+        var isAdmin = "@ViewBag.IsAdmin";
+        $('#ddlTipeJabatan').html("");
+        if (isAdmin == "True") {
+            $('#ddlTipeJabatan').append(
+                $('<option></option>').html("Definitif").val("0"));
+        }
+        $('#ddlTipeJabatan').append(
+            $('<option></option>').html("Pelaksana Tugas").val("1"));
+        $('#ddlTipeJabatan').append(
+            $('<option></option>').html("Pelaksana Harian").val("2"));
+    });
+
+    $('#nip').keyup(function (e) {
+        if (e.keyCode == 13) {
+            cariData();
+        } else {
+            if ($(this).val() != "") {
+                $(this).tooltip('hide');
+            } else {
+                $(this).tooltip('show');
+            }
+        }
+    });
+
+    function getList() {
+        showloading("Mencari List Pegawai");
+        $.ajax({
+            url: '@Url.Action("ListPegawai", "Admin")',
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                $('#cmbNip').html("");
+                $('#cmbNip').append($('<option disabled></option>').val("").html("Cari pegawai..."));
+                $.each(data, function (i, data) {
+                    $('#cmbNip').append(
+                        $('<option></option>').val(data.idpegawai).html(data.namalengkap));
+                });
+                $('#cmbNip').val("");
+                closeloading();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+    }
+
+    function cariData() {
+        var val = $('#nip').val().trim().replace(/\s/g, '');
+        $('#nip').val(val);
+        $.ajax({
+            url: '@Url.Action("GetTipeUser", "Admin")',
+            type: "POST",
+            data: { nr: $('#nip').val() },
+            success: function (rst) {
+                if (rst.Status) {
+                    tipeuser = rst.ReturnValue;
+                    loadIsi();
+                } else {
+                    swal("Informasi", rst.Pesan, "info");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+    }
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    $("#showlist").change(function () {
+        if ($("#showlist").is(":checked")) {
+            $("#lblTitle").html("Pencarian List Akun");
+            $('.nav-tabs li:eq(0) a').hide();
+            $('.nav-tabs li:eq(1) a').tab('show');
+            $('.nav-tabs li:eq(1) a').show();
+        } else {
+            $("#lblTitle").html("Pencarian Data Akun");
+            $('.nav-tabs li:eq(1) a').hide();
+            $('.nav-tabs li:eq(0) a').tab('show');
+            $('.nav-tabs li:eq(0) a').show();
+        }
+    });
+
+    var dtableUserProfiles;
+    var createPagingUserProfiles = function () {
+        dtableUserProfiles = $('#UserProfiles').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarProfilesPegawai", "Admin")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmUserProfiles').serializeArray(); data.form = ftp; ftp.push({ name: "nip", value: $('#PegawaiId').val() }); ftp.push({ name: "kantorid", value: $('#cmbKantorId').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "NamaProfileLengkap" },
+                {
+                    "data": "StatusPlt",
+                    "className": "textright",
+                    "width": "80px",
+                    render: function (data, type, row) {
+                        if (data == 1)
+                            return '<i class="fa fa-eye" style="cursor: pointer;" title="Lihat SK Pengangkatan"></i>&nbsp;&nbsp;&nbsp;<d class="fa fa-trash" style="cursor: pointer;" title="Hapus Jabatan"></d>';
+                        else
+                            return '';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#UserProfiles tbody').delegate('tr d', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableUserProfiles.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus",
+            text: "Yakin Anda mau menghapus Jabatan : \n" + data.NamaProfileLengkap.replace("<br>","\n") + " ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                var frm = new FormData();
+                frm.append("id", data.ProfilePegawaiId);
+                $.ajax({
+                    url: '@Url.Action("HapusProfilePegawai", "Admin")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableUserProfiles.ajax.reload(null, true);
+                            swal("Informasi", "Data berhasil dihapus", "success");
+                        }
+                        else {
+                            swal("Peringatan", data.Pesan, "warning")
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            }
+        });
+    });
+
+    $('#UserProfiles tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var options = { "backdrop": "static", keyboard: true };
+        var data = dtableUserProfiles.row($(this).closest('tr')).data();
+        var id = data.ProfilePegawaiId;
+        if (data.ProfilePegawaiId !== null && data.ProfilePegawaiId !== '') {
+            showloading("Menyiapkan Dokumen");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("cekDokumen", "Admin")',
+                data: { id: id, tip: "AksesKKP" },
+                success: function (data) {
+                    if (data.Status === false) {
+                        swal("Peringatan", data.Pesan, "warning")
+                    }
+                    else {
+                        var objurl = '@Url.Action("getDokumen", "Admin")?id=' + id + '&tip=AksesKKP';
+                        objpdf = objurl;
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("DocViewer", "Konten")',
+                            success: function (data) {
+                                $('#myDocContent').html(data);
+                                $('#myModalDocViewer').modal(options);
+                                $('#myModalDocViewer').modal('show');
+                                closeloading();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                            }
+                        });
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                }
+            });
+        } else {
+            swal("Peringatan", "File tidak ditemukan", "warning")
+        }
+    });
+
+    function loadIsi() {
+        if ($('#nip').val() != "") {
+            if (tipeuser == 'ASN') {
+                showloading("Mencari Data Pegawai");
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetPegawaiSimpegDetail", "Admin")',
+                    data: { pegawaiid: $('#nip').val() },
+                    success: function (rst, textStatus, XMLHttpRequest) {
+                        if (rst == "noresult") {
+                            swal("Peringatan", "NIP yang anda masukkan tidak terdaftar", "warning")
+                            $('#nip').val($('#PegawaiId').val());
+                            if ($('#nip').val() != "") {
+                                $('#nip').tooltip('hide');
+                            } else {
+                                $('#nip').tooltip('show');
+                                $("div#Starting").show();
+                                $("div#UserDetailASN").hide();
+                                $("div#UserDetailPPNPN").hide();
+                            }
+                        } else {
+                            $('#UserId').val(rst.UserId);
+                            $('#PegawaiId').val(rst.PegawaiId);
+                            $('#namalengkap').val(rst.NamaLengkap);
+                            $('#namasatker').val(rst.NamaSatker);
+                            $('#namajabatan').val(rst.NamaJabatan);
+                            $('#email').val(rst.Email);
+                            $('#nomorhp').val(rst.NomorHP);
+
+                            $('#namapengguna').val(rst.Username);
+
+                            $('#cmbKantorId').html("");
+                            $.each(rst.KantorIds, function (i, data) {
+                                $('#cmbKantorId').append(
+                                    $('<option></option>').val(data.KantorId).html(data.NamaKantor));
+                            });
+                            $("#divAktifkan").hide();
+                            $("#divSynch").hide();
+                            $("#divTambah").hide();
+                            $("#divJabatan").hide();
+                            $("#divAkses").hide();
+                            $("#divReset").hide();
+                            if (rst.Username != "" && rst.Username != null) {
+                                if (!rst.IsActive) {
+                                    if ($('#namapengguna').val() != "") {
+                                        $("#divAktifkan").show();
+                                        $("#divTambah").show();
+                                    }
+                                } else {
+                                    if (rst.NamaJabatan != rst.JabatanKKP && rst.JabatanKKP != "") {
+                                        $("#divSynch").show();
+                                    }
+                                    $("#divReset").show();
+                                    $("#divTambah").show();
+                                    $("#divJabatan").show();
+                                    $("#divAkses").show();
+                                }
+                                loadProfiles();
+                                if (rst.Total > 1) {
+                                    $("#divSynch").show();
+                                }
+                                if ('@_tipekantor' == '2') {
+                                    $("#divJabatan").show();
+                                }
+                            }
+                            $("div#Starting").hide();
+                            $("div#UserDetailASN").show();
+                            $("div#UserDetailPPNPN").hide();
+                        }
+                        closeloading();
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetPPNPNDetail", "Admin")',
+                    data: { nik: $('#nip').val() },
+                    success: function (rst, textStatus, XMLHttpRequest) {
+                        if (rst == "noresult") {
+                            swal("Peringatan", "NIK yang anda masukkan tidak terdaftar", "warning")
+                            $('#nip').val($('#PegawaiId').val());
+                            if ($('#nip').val() != "") {
+                                $('#nip').tooltip('hide');
+                            } else {
+                                $('#nip').tooltip('show');
+                                $("div#Starting").show();
+                                $("div#UserDetailASN").hide();
+                                $("div#UserDetailPPNPN").hide();
+                            }
+                        } else {
+                            $('#UserId').val(rst.UserId);
+                            $('#PegawaiId').val(rst.NIK);
+                            $('#ppnpn_nik').val(rst.NIK);
+                            $('#ppnpn_namalengkap').val(rst.Nama);
+                            $('#ppnpn_email').val(rst.Email);
+                            $('#ppnpn_nomorhp').val(rst.NomorTelepon);
+                            $('#ppnpn_kantorid').val(rst.KantorId);
+                            $('#ppnpn_kantornama').val(rst.KantorNama);
+
+                            $('#ppnpn_namapengguna').val(rst.Username);
+
+                            $("#divAktifkanPPNPN").hide();
+                            $("#divAksesPPNPN").hide();
+                            $("#divNonAktifkanPPNPN").hide();
+                            if (rst.Username != "" && rst.Username != null) {
+                                if (rst.Satker == "" || rst.Satker == null) {
+                                    $('#ppnpn_satker').val("Belum diaktifkan");
+                                    $("#divAktifkanPPNPN").show();
+                                    $("#divAksesPPNPN").hide();
+                                } else {
+                                    $('#ppnpn_satker').val(rst.Satker);
+                                    $("#divAktifkanPPNPN").hide();
+                                    $("#divAksesPPNPN").show();
+                                    if (rst.inSatker == "0") {
+                                        $('#ppnpn_satker').val(rst.Satker + " [Kantor Tidak Sesuai]");
+                                    }
+                                    $("#divNonAktifkanPPNPN").show();
+                                }
+                            }
+
+                            $("div#Starting").hide();
+                            $("div#UserDetailASN").hide();
+                            $("div#UserDetailPPNPN").show();
+                        }
+                        closeloading();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            }
+        }
+    }
+
+    $("#btnAktifkan").click(function (e) {
+        var nip = $('#PegawaiId').val();
+        var kid = $('#cmbKantorId').val();
+
+        $.ajax({
+            url: '@Url.Action("cekSimpegkantor", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { nip: nip },
+            success: function (kis, textStatus, jqXHR) {
+                if (kis.KantorId && kis.KantorId.trim()) {
+                    if (kid == null || kid == "") {
+                        kid = kis.KantorId;
+                    }
+                    if (kis.KantorId != kid) {
+                        var kantor = $('#namasatker').val().split('|');
+                        swal({
+                            title: "Informasi",
+                            text: "Status Pegawai ini, masih di :<br>" + kis.NamaKantor + "<br>(" + kantor[1] + ")<br><br><b>Silahkan Update data SIMPEG</b>",
+                            html: true,
+                            customClass: 'swal-wide',
+                            type: "info",
+                        })
+                        e.preventDefault();
+                    }
+                    //else if (kis == '980FECFC746D8C80E0400B0A9214067D') {
+                    //    swal({
+                    //        title: "Informasi",
+                    //        text: "Sinkronisasi dan Aktifkan User ditutup untuk Kantor Pusat<br><br><b>Mohon Kesabarannya</b>",
+                    //        html: true,
+                    //        customClass: 'swal-wide',
+                    //        type: "info",
+                    //    })
+                    //}
+                    else {
+                        swal({
+                            title: "Konfirmasi Aktifasi User",
+                            text: "Mengaktifkan user : " + $('#namalengkap').val() + " ?",
+                            type: "warning",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            showLoaderOnConfirm: true
+                        },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    $.ajax({
+                                        url: '@Url.Action("AktifasiUser", "Admin")',
+                                        type: "POST",
+                                        dataType: "JSON",
+                                        data: { nip: nip, kid: kid },
+                                        success: function (res, textStatus, jqXHR) {
+                                            if (res.Status) {
+                                                loadIsi();
+                                                swal("Informasi", "User Berhasil Diaktifasi", "success");
+                                            }
+                                            else {
+                                                if (res.ReturnValue == "TambahJabatan") {
+                                                    swal({
+                                                        title: res.Pesan,
+                                                        text: "Tambah Jabatan : " + $('#namajabatan').val() + " ?",
+                                                        type: "warning",
+                                                        showCancelButton: true,
+                                                        closeOnConfirm: false,
+                                                        confirmButtonColor: "#DD6B55",
+                                                        confirmButtonText: "Ya",
+                                                        cancelButtonText: "Batal",
+                                                        showLoaderOnConfirm: true
+                                                    },
+                                                        function (isConfirm) {
+                                                            if (isConfirm) {
+                                                                $.ajax({
+                                                                    url: '@Url.Action("AktifasiUser", "Admin")',
+                                                                    type: "POST",
+                                                                    data: { nip: nip, kid: kid, kgt: res.ReturnValue },
+                                                                    success: function (data, textStatus, jqXHR) {
+                                                                        if (data.Status) {
+                                                                            loadIsi();
+                                                                            swal("Informasi", "User Berhasil Diaktifasi", "success");
+                                                                        }
+                                                                        else {
+                                                                            swal("Peringatan", data.Pesan, "warning");
+                                                                        }
+                                                                    },
+                                                                    error: function (jqXHR, textStatus, errorThrown) { swal("Peringatan", errorThrown, "warning"); }
+                                                                });
+                                                            }
+                                                        });
+                                                } else {
+                                                    swal("Peringatan", res.Pesan, "warning");
+                                                }
+                                            }
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                        }
+                                    });
+                                }
+                            });
+                    }
+                } else {
+                    swal("Informasi", "Unit Kerja Pegawai, Tidak terdaftar di data Eoffice", "info");
+                    e.preventDefault();
+                    return false;
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnAktifkanPPNPN").click(function (e) {
+        var nik = $('#PegawaiId').val();
+        swal({
+            title: "Konfirmasi Aktifasi PPNPN",
+            text: "Mengaktifkan PPNPN : " + $('#ppnpn_namalengkap').val() + " ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: '@Url.Action("AktifasiPPNPN", "Admin")',
+                        type: "POST",
+                        dataType: "JSON",
+                        data: { nik: nik },
+                        success: function (res, textStatus, jqXHR) {
+                            if (res.Status) {
+                                loadIsi();
+                                swal("Informasi", "PPNPN Berhasil Diaktifasi", "success");
+                            }
+                            else {
+                                swal("Peringatan", res.Pesan, "warning");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnNonAktifkanPPNPN").click(function (e) {
+        var nik = $('#PegawaiId').val();
+        swal({
+            title: "Konfirmasi Non-Aktifasi PPNPN",
+            text: "Menonaktifkan PPNPN : " + $('#ppnpn_namalengkap').val() + " ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: '@Url.Action("NonAktifasiPPNPN", "Admin")',
+                        type: "POST",
+                        dataType: "JSON",
+                        data: { nik: nik },
+                        success: function (res, textStatus, jqXHR) {
+                            if (res.Status) {
+                                loadIsi();
+                                swal("Informasi", "PPNPN Berhasil Dinonaktifasi", "success");
+                            }
+                            else {
+                                swal("Peringatan", res.Pesan, "warning");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    });
+
+    function ResetSandi() {
+        pass = "atrbpn" + new Date().getFullYear();
+        swal({
+            title: "Mengganti Sandi Akun",
+            text: "Menjadi : " + pass + " ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: '@Url.Action("ResetSandi", "Admin")',
+                        type: "POST",
+                        dataType: "JSON",
+                        data: { pid: $('#PegawaiId').val(), pass: pass, tip: tipeuser },
+                        success: function (res, textStatus, jqXHR) {
+                            if (res.Status) {
+                                loadIsi();
+                                swal("Informasi", "Sandi Berhasil diganti", "success");
+                            }
+                            else {
+                                swal("Peringatan", res.Pesan, "warning");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    }
+
+    $("#btnSynch").click(function (e) {
+        var nip = $('#PegawaiId').val();
+        var kid = $('#cmbKantorId').val();
+            swal({
+                title: "Konfirmasi Sinkronisasi User",
+                text: "Sinkronisasi user : " + $('#namalengkap').val() + " ?",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                showLoaderOnConfirm: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            url: '@Url.Action("AktifasiUser", "Admin")',
+                            type: "POST",
+                            data: { nip: nip, kid: kid },
+                            success: function (data, textStatus, jqXHR) {
+                                if (data.Status) {
+                                    loadIsi();
+                                    swal("Informasi", "Sinkronisasi Berhasil", "success");
+                                }
+                                else {
+                                    if (data.ReturnValue == "TambahJabatan") {
+                                        swal({
+                                            title: data.Pesan,
+                                            text: "Tambah Jabatan : " + $('#namajabatan').val() + " ?",
+                                            type: "warning",
+                                            showCancelButton: true,
+                                            closeOnConfirm: false,
+                                            confirmButtonColor: "#DD6B55",
+                                            confirmButtonText: "Ya",
+                                            cancelButtonText: "Batal",
+                                            showLoaderOnConfirm: true
+                                        },
+                                            function (isConfirm) {
+                                                if (isConfirm) {
+                                                    $.ajax({
+                                                        url: '@Url.Action("AktifasiUser", "Admin")',
+                                                        type: "POST",
+                                                        data: { nip: nip, kid: kid, kgt: data.ReturnValue },
+                                                        success: function (data, textStatus, jqXHR) {
+                                                            if (data.Status) {
+                                                                loadIsi();
+                                                                swal("Informasi", "Sinkronisasi Berhasil", "success");
+                                                            }
+                                                            else {
+                                                                swal("Peringatan", data.Pesan, "warning");
+                                                            }
+                                                        },
+                                                        error: function (jqXHR, textStatus, errorThrown) {
+                                                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                    } else if (data.ReturnValue == "HapusJabatan") {
+                                        swal({
+                                            title: "Penghapusan Jabatan",
+                                            text: "Menghapus Jabatan Pegawai : " + $('#namalengkap').val() + " ?",
+                                            type: "warning",
+                                            showCancelButton: true,
+                                            closeOnConfirm: false,
+                                            confirmButtonColor: "#DD6B55",
+                                            confirmButtonText: "Ya",
+                                            cancelButtonText: "Batal",
+                                            showLoaderOnConfirm: true
+                                        },
+                                            function (isConfirm) {
+                                                if (isConfirm) {
+                                                    $.ajax({
+                                                        url: '@Url.Action("AktifasiUser", "Admin")',
+                                                        type: "POST",
+                                                        data: { nip: nip, kid: kid, kgt: data.ReturnValue },
+                                                        success: function (data, textStatus, jqXHR) {
+                                                            if (data.Status) {
+                                                                loadIsi();
+                                                                swal("Informasi", "Sinkronisasi Berhasil", "success");
+                                                            }
+                                                            else {
+                                                                swal("Peringatan", data.Pesan, "warning");
+                                                            }
+                                                        },
+                                                        error: function (jqXHR, textStatus, errorThrown) {
+                                                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                    } else {
+                                        swal("Peringatan", data.Pesan, "warning");
+                                    }
+                                }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                            }
+                        });
+                    }
+                });
+        e.preventDefault();
+        return false;
+    });
+
+    function loadProfiles() {
+        if ($('#cmbKantorId').val() != "") {
+            dtableUserProfiles.ajax.reload(null, true);
+        }
+    }
+
+    $("#btnTambahProfile").click(function (e) {
+        var kid = $('#cmbKantorId').val();
+        if (kid != "") {
+            showloading("Menyiapkan Data Profile");
+            $.ajax({
+                url: '@Url.Action("GetListUnitKerjaByKantorId", "Admin")',
+                type: "GET",
+                dataType: "JSON",
+                data: { kid: kid },
+                success: function (data) {
+                    $('#cmbEditUnitKerja').html("");
+                    $('#cmbEditUnitKerja').append($('<option disabled></option>').val("").html("Pilih Unit Kerja"));
+                    $.each(data, function (i, data) {
+                        $('#cmbEditUnitKerja').append(
+                            $('<option></option>').val(data.UnitKerjaId).html(data.NamaUnitKerja));
+                    });
+                    $('#cmbEditUnitKerja').val("");
+                    $('#cmbEditProfiles').html("");
+                    $('#UserLoginEditorModal').modal('show');
+                    closeloading();
+                }
+            });
+            //$("#isPLT").prop('checked', false);
+            $('#ddlTipeJabatan').val("0").trigger('change');
+            $("div#jbtValidSampai").hide();
+            $('#JabatanValidSejak').val("");
+            $('#JabatanValidSampai').val("");
+            dfFileDokumen = null;
+            $("#namafile").val("");
+        } else {
+            swal("Peringatan", "Akun Belum Diaktifasi", "warning");
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnJabatan").click(function (e) {
+        var kid = $('#cmbKantorId').val();
+        if (kid != "") {
+            showloading("Menyiapkan Data Profile");
+            $.ajax({
+                url: '@Url.Action("GetListUnitKerjaByKantorInduk", "Admin")',
+                type: "GET",
+                dataType: "JSON",
+                data: { kid: kid },
+                success: function (data) {
+                    $('#cmbEditUnitKerja').html("");
+                    $('#cmbEditUnitKerja').append($('<option disabled></option>').val("").html("Pilih Unit Kerja"));
+                    $.each(data, function (i, data) {
+                        $('#cmbEditUnitKerja').append(
+                            $('<option></option>').val(data.UnitKerjaId).html(data.NamaUnitKerja));
+                    });
+                    $('#cmbEditUnitKerja').val("");
+                    $('#cmbEditProfiles').html("");
+                    $('#UserLoginEditorModal').modal('show');
+                    closeloading();
+                }
+            });
+            //$("#isPLT").prop('checked', false);
+            $('#ddlTipeJabatan').val("1").trigger('change');
+            $("div#jbtValidSampai").show();
+            $('#JabatanValidSejak').val("");
+            $('#JabatanValidSampai').val("");
+            dfFileDokumen = null;
+            $("#namafile").val("");
+        } else {
+            swal("Peringatan", "Akun Belum Diaktifasi", "warning");
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    function bukaHakAkses() {
+        var pid = $('#PegawaiId').val();
+        var kid = "";
+        if (tipeuser == "ASN") kid = $('#cmbKantorId').val();
+        else kid = $('#ppnpn_kantorid').val();
+        showloading("Menyiapkan Data Hak Akses");
+        $.ajax({
+            url: '@Url.Action("GetAksesKhusus", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { pid: pid, kid: kid },
+            success: function (data) {
+                $.each(data, function (i, data) {
+                    if (data.Status == 1) $('#' + data.ProfileId).prop("checked", true);
+                    else $('#' + data.ProfileId).prop("checked", false);
+                });
+                $('#UserAksesEditorModal').modal('show');
+                closeloading();
+            }
+        });
+    }
+
+    function UnitKerjaChanged() {
+        var id = $('#cmbEditUnitKerja').val();
+        $('#cmbEditProfiles').html("");
+        if (id != "" && id != null) {
+            showloading("Menyiapkan List Profile");
+            $.ajax({
+                url: '@Url.Action("GetProfilesByUnitKerja", "Admin")',
+                type: "GET",
+                dataType: "JSON",
+                data: { unitkerjaid: id },
+                success: function (data) {
+                    $('#cmbEditProfiles').append($('<option disabled></option>').val("").html("Pilih Profile Jabatan"));
+                    $.each(data, function (i, data) {
+                        $('#cmbEditProfiles').append(
+                            $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                    });
+                    $('#cmbEditProfiles').val("");
+                    closeloading();
+                }
+            });
+        }
+    };
+
+    $("#btnsimpanakses").click(function (e) {
+        var vcheck_nip = $('#PegawaiId').val();
+        var vcheck_kid = "";
+        if (tipeuser == "ASN") vcheck_kid = $('#cmbKantorId').val();
+        else vcheck_kid = $('#ppnpn_kantorid').val();
+
+        var vA81001 = $("#A81001").is(':checked');
+        var vA81002 = $("#A81002").is(':checked');
+        var vA81003 = $("#A81003").is(':checked');
+        var vA81004 = $("#A81004").is(':checked');
+        var vA80100 = $("#A80100").is(':checked');
+        //var vA80200 = $("#A80200").is(':checked');
+        var vA80300 = $("#A80300").is(':checked');
+
+        if (vcheck_nip == '' || vcheck_kid == '' ) {
+            swal("Peringatan", "Data input wajib belum Anda masukkan", "warning");
+            return false;
+        }
+        swal({
+            title: "Hak Akses",
+            text: "Simpan Perubahan Data",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SetHakAkses", "Admin")',
+                        data: { pid: vcheck_nip, kid: vcheck_kid, vA81001: vA81001, vA81002: vA81002, vA81003: vA81003, vA81004: vA81004, vA80100: vA80100, vA80300: vA80300 },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                loadIsi();
+                                $('#UserAksesEditorModal').modal('hide');
+                                swal("Informasi", data.Pesan, "success");
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnsimpandataprofile").click(function (e) {
+        // Validasi Input
+        var vcheck_nip = $('#PegawaiId').val();
+        var vcheck_profile = $('#cmbEditProfiles').val();
+        var validSejak = $('#JabatanValidSejak').val();
+
+        if (vcheck_nip == "" ||
+            vcheck_profile == "" || vcheck_profile == null ||
+            validSejak == "" || validSejak == null) {
+            swal("Peringatan", "Data input wajib belum Anda masukkan", "warning");
+            return false;
+        }
+        var frmdata = new FormData();
+        if (dfFileDokumen !== null) {
+            var namafile = dfFileDokumen.name;
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+            if (fileExt !== null && fileExt !== '') {
+                if (fileExt != ".pdf") {
+                    dfFileDokumen = null;
+                    $("#namafile").val("");
+                    swal("Peringatan", "File harus pdf", "warning");
+                    return false;
+                }
+                frmdata.append("NamaFile", namafile);
+                frmdata.append("Ekstensi", fileExt);
+                frmdata.append("file", dfFileDokumen);
+            }
+            else {
+                dfFileDokumen = null;
+                $("#namafile").val("");
+                swal("Peringatan", "File tidak diketemukan", "warning");
+                return false;
+            }
+        }
+        else {
+            swal("Peringatan", "File wajib dipilih", "warning");
+            return false;
+        }
+
+        var pTitle = "Tambah Jabatan PLT/PLH";
+        var vcheck_tipejabatan = $("#ddlTipeJabatan").val();
+        if (vcheck_tipejabatan == "0") {
+            pTitle = "Ganti Jabatan Definitif"
+        } else if (vcheck_tipejabatan == "1") {
+            pTitle = "Ganti Jabatan Pelaksana Tugas"
+        } else if (vcheck_tipejabatan == "2") {
+            pTitle = "Ganti Jabatan Pelaksana Harian"
+        }
+        swal({
+            title: pTitle,
+            text: "sebagai : " + $("#cmbEditProfiles option:selected").text(),
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    frmdata.append("nip", vcheck_nip);
+                    frmdata.append("unit", $('#cmbEditUnitKerja').val());
+                    frmdata.append("pid", vcheck_profile);
+                    frmdata.append("tjt", vcheck_tipejabatan);
+                    frmdata.append("jbt", $("#cmbEditProfiles option:selected").text());
+                    frmdata.append("nap", $('#namalengkap').val());
+                    frmdata.append("vsk", validSejak);
+                    frmdata.append("vsp", $('#JabatanValidSampai').val());
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("AddProfilePegawai", "Admin")',
+                        data: frmdata,
+                        contentType: false,
+                        processData: false,
+                        //data: { nip: vcheck_nip, unit: $('#cmbEditUnitKerja').val(), pid: vcheck_profile, plt: $("#isPLT").is(":checked"), jbt: $("#cmbEditProfiles option:selected").text(), nap: $('#namalengkap').val() },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                loadIsi();
+                                $('#UserLoginEditorModal').modal('hide');
+                                //$("#isPLT").prop('checked', false);
+                                $('#JabatanValidSampai').val("");
+                                $("div#jbtValidSampai").hide();
+                                dfFileDokumen = null;
+                                $("#namafile").val("");
+                                swal("Informasi", data.Pesan, "success");
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnLoginAs").click(function (e) {
+        pass = "atrbpn" + new Date().getFullYear();
+        var namalengkap = $('#namalengkap').val();
+        swal({
+            title: "Sign In",
+            text: "sebagai : " + namalengkap,
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: '@Url.Action("LoginAs", "Account")',
+                        type: "POST",
+                        data: { uid: $('#UserId').val(), tipe: tipeuser },
+                        success: function () {
+                            window.open("@Url.Action("Index", "Home")","_self");
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnAksesKKP").click(function (e) {
+        var kid = $('#cmbKantorId').val();
+        var uid = $('#UserId').val();
+        var pid = $('#PegawaiId').val();
+        if (kid != "" && uid != "" && pid != "") {
+            showloading("Menyiapkan Akses KKP");
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("openSettingAksesKKP", "Admin")',
+                data: { kid: kid, uid: uid, pid: pid },
+                success: function (data) {
+                    if (data == 'noresults') {
+                        $('#myAksesContent').html('');
+                    }
+                    else {
+                        $('#myAksesContent').html(data);
+                        $('#myModalAksesKKP').modal('show');
+                    }
+                    closeloading();
+                }
+            });
+        } else {
+            swal("Peringatan", "Akun Belum Diaktifasi", "warning");
+        }
+        e.preventDefault();
+        return false;
+    });
+</script>

@@ -1,0 +1,95 @@
+﻿
+@{
+    var log = new Surat.Codes.Functions().claimUser();
+    if (log == null)
+    {
+        Response.Redirect(Url.Action("LogOff", "Account"));
+    }
+    string nip = log.PegawaiId;
+    string kid = log.KantorId;
+    string nama = log.NamaPegawai;
+    var _profile = "../resources/images/tn64.jpg";
+
+    if (!IsPost)
+    {
+        var tr = new Surat.Models.DataMasterModel().GetTipeUser(nip, kid);
+        if (tr.Status)
+        {
+            string tipe = tr.ReturnValue;
+            if (tipe.Equals("ASN"))
+            {
+
+                string foto = new Surat.Models.AccountModel().GetFotoPegawai(nip);
+
+                if (!string.IsNullOrEmpty(foto))
+                {
+                    _profile = "https://simpeg.atrbpn.go.id/app/client/bpn/uploads/siap/foto/" + foto;
+                    _profile = Url.Action("WebsiteImage", "Konten") + "?url=" + _profile;
+                }
+            }
+            if (tipe.Equals("PPNPN"))
+            {
+                _profile = Url.Action("getPhotoPPNPN", "Konten") + "?id=" + nip;
+            }
+        }
+    }
+}
+@*<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+</script>*@
+<script src='@Url.Content("~/resources/face/face-api.min.js")'></script>
+@*<style>
+    #vid_presensi {
+        background-color: #666;
+        /*Mirror code starts*/
+        transform: rotateY(180deg);
+        -webkit-transform: rotateY(180deg); /* Safari and Chrome */
+        -moz-transform: rotateY(180deg); /* Firefox */
+        /*Mirror code ends*/
+    }
+</style>*@
+
+<div class="row" id="dynamic_content" style="background: black;min-height: 700px;">
+    <div id="container" style="background: black;min-height: 700px;">
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <h4>
+                Presensi Daring
+            </h4><hr />
+            <center>
+                <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                    <p style="height:15px;">Referensi Foto Anda :</p>
+                    <div class="row" style="background: white; margin-left: 1px; margin-right: 1px;">
+                        <img id="imgBase" src="@_profile" style="border: 1px solid white; max-width: 100%; height: 425px; object-fit: cover;" onclick="getImg64()" />
+                    </div>
+                </div>
+                <div class="form-group col-md-5 col-sm-5 col-xs-12">
+                    <p id="pResult" style="min-height: 15px;"></p>
+                    <div class="row" id="vid_container" style="padding-left: 10px; padding-right: 10px;">
+                        <video id="vid_presensi" width="720" height="425" style="border:2px solid white; max-width:100%;" controls muted ></video>
+                    </div>
+                </div>
+                <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                    <p id="pGeoLocation" style="height:15px;">Anda melakukan presensi dari lokasi ini :</p>
+                    <p id="pPosisi" style="min-height: 40px;"></p>
+                    @Html.Hidden("hStatus")
+                    <div id="mapholder"></div>
+                </div>
+            </center>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var modelsUrl = '@Url.Content("~/resources/face/weights/")',//'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/',
+        simpanPresensi = '@Url.Action("simpanPresensi", "Account")',
+        cekJarak = '@Url.Action("GetDistanceString", "Account")',
+        cekPresensi = '@Url.Action("GetPresensi", "Account")';
+    var _namaPegawai = "@nama";
+    var _profile = '@_profile';
+</script>
+<script src='@Url.Content("~/resources/face/recogV3.js")'></script>
+<script src="https://maps.google.com/maps/api/js?key=@OtorisasiUser.ApiKeyGoogle"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        getLocation();
+    });
+</script>

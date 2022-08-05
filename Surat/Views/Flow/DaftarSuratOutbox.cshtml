@@ -1,0 +1,56 @@
+﻿@model Dictionary<int, Surat.Models.Entities.SuratOutbox>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+<tr>
+    <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+    <td class="centertaligncolumn" style="width: 150px; font-weight: normal;">@lst.Value.TanggalKirim</td>
+    <td class="tdnormal">@lst.Value.NomorSurat</td>
+    <td class="tdnormal">@lst.Value.PengirimSurat</td>
+    <td class="tdnormal">@lst.Value.PenerimaSurat</td>
+    <td class="tdnormal">@lst.Value.Perihal</td>
+    <td class="tdnormal">@lst.Value.SifatSurat</td>
+    <td style="text-align:center;cursor: pointer;" onclick="bukaSuratOutbox('@lst.Value.SuratId','@lst.Value.NomorSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-eye-open"></i></td>
+    <td style="text-align:center;cursor: pointer;" onclick="kirimUlangSurat('@lst.Value.SuratId','@lst.Value.NomorSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-share-alt"></i></td>
+</tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaSuratOutbox = function (s, n) {
+        window.location.href = '@Url.Action("ViewSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;
+
+        @*$.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var pdata = { suratid: s, nomorsurat: n };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ViewSuratFromList", "Flow")',
+            data: pdata,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#informasisuratholder').html(data);
+                }
+                //$.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.unblockUI();
+            }
+        });
+
+        $('#popuptitleInfoSurat').text('Informasi Surat No. ' + n);
+
+        var options = { "backdrop": "static", keyboard: true };
+        $('#myModalDocViewer').modal(options);
+        $('#myModalDocViewer').modal('show');
+
+        $.unblockUI();*@
+    }
+
+    var kirimUlangSurat = function (s, n) {
+        window.location.href = '@Url.Action("KirimUlangSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;
+    }
+</script>

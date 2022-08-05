@@ -1,0 +1,69 @@
+﻿@model Dictionary<int, Surat.Models.Entities.Surat>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr style="cursor: pointer;" onclick="bukaSurat(event,'@lst.Value.SuratId','@lst.Value.NomorSurat');">
+        <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+        <td class="centertaligncolumn" style="width: 150px; font-weight: normal;">@lst.Value.TanggalSurat</td>
+        <td class="tdnormal">@lst.Value.NomorSurat</td>
+        <td class="tdnormal">@lst.Value.NomorAgendaSurat</td>
+        <td class="tdnormal">@lst.Value.Kategori</td>
+        <td class="tdnormal">@lst.Value.PengirimSurat</td>
+        <td class="tdnormal">@lst.Value.Perihal</td>
+        @*<td class="tdnormal">@lst.Value.SifatSurat</td>*@
+        <td class="centertaligncolumn" style="width: 120px; font-weight: normal;">@lst.Value.TanggalTerima</td>
+        @if (@lst.Value.StatusArsip == 1)
+        {
+            <td style="color:#249c2f; text-align:center;"><i class="fa fa-check"></i> Selesai</td>
+        }
+        else
+        {
+            <td style="color:#6779e3; text-align:center;"><i class="fa fa-pencil-square-o"></i> Aktif</td>
+        }
+        <td class="tdnormal">@lst.Value.Output</td>
+        <td class="tdnormal">@lst.Value.Sumber_Keterangan</td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaSurat = function (event, s, n) {
+        @*window.location.href = '@Url.Action("ViewSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;*@
+        @*$.pjax({
+            container: '#dynamic_content',
+            type: "POST",
+            url: '@Url.Action("ViewSurat", "Flow")',
+            data: JSON.stringify({ 'suratid': s, 'nomorsurat': n }),
+            dataType: 'html',
+            contentType: "application/json; charset=utf-8"
+        });*@
+
+        $("#formHidde").html("")
+
+        var form = document.createElement("form");
+        var el1 = document.createElement("input");
+        var el2 = document.createElement("input");
+
+        form.method = "POST";
+        form.action = "@Url.Action("ViewSurat", "Flow")";
+
+        console.log(event)
+
+        if (event.altKey || event.ctrlKey) {
+            form.setAttribute("target", "_blank");
+        }
+
+        el1.value = s;
+        el1.name = "suratid";
+        form.appendChild(el1);
+
+        el2.value = n;
+        el2.name = "nomorsurat";
+        form.appendChild(el2);
+
+        form.style.display = "none"
+        document.body.appendChild(form)
+        form.submit();
+    }
+</script>

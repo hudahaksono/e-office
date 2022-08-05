@@ -1,0 +1,615 @@
+﻿@model Surat.Models.Entities.RapatOnline
+
+
+<link rel="stylesheet" href="@Url.Content("~/resources/leaflet/leaflet.css")" />
+<script src="@Url.Content("~/resources/leaflet/leaflet.js")"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<style>
+    #map {
+        height: 70vh;
+        width: 100%;
+    }
+
+    #tabs {
+        position: relative;
+    }
+
+    #test {
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        background-color: #169F85;
+        color: white;
+        padding: .7em 1.5em;
+        margin-bottom: 1em;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+    .legend {
+        line-height: 18px;
+        color: #555;
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    #expand {
+        position: absolute;
+        top: 4px;
+        right: 0;
+        border-radius: 10px;
+    }
+
+    #showed {
+        top: 4px;
+        right: 0;
+        border-radius: 10px;
+    }
+
+    .flex-container {
+        display: flex;
+        flex-direction: row;
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .flex-item {
+        background-color: #f1f1f1;
+        padding: 10px;
+        flex: 75%;
+    }
+
+    .flex-item-mini {
+        padding: 10px;
+        flex: 25%;
+    }
+</style>
+
+
+<div class="x_title">
+    <h2 class="mytitleform">@Model.Judul.ToUpper() : @Model.TanggalInfo2</h2>
+    <div class="clearfix"></div>
+</div>
+
+<div role="tabpanel" data-example-id="togglable-tabs" id="tabs">
+    <a href="#" id="test" onclick="toExcel('TableList', '@Model.Judul')" ;">Unduh Data (.xls)</a>
+    <ul id="actTabs" class="nav nav-tabs hidden-print" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#tab1" role="tab" id="step1-tab" data-toggle="tab" aria-expanded="true">Sebaran Peserta Rapat</a>
+        </li>
+        <li role="presentation" class="" id="tabStep2">
+            <a href="#tab2" role="tab" id="step2-tab" data-toggle="tab" aria-expanded="false">Statistik Kehadiran Rapat</a>
+        </li>
+        <li role="presentation" class="" id="tabStep3">
+            <a href="#tab3" role="tab" id="step3-tab" data-toggle="tab" aria-expanded="false">Rincian Kehadiran Rapat</a>
+        </li>
+    </ul>
+</div>
+<div id="tab-content" class="tab-content">
+    <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="step1-tab" style="padding-top:5px;">
+        <div id="map"></div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" id="tab2" aria-labelledby="step2-tab">
+        <div id="chart" style="height: 300px; width: 100%"></div>
+        <div class="row" style="padding:10px">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                    <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                        <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Daftar Kantor Pertanahan Yang Hadir (dari <span id="jumlahKantah2" style="color:black;"></span> kantor)</b></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="flex-container">
+                            <div class="flex-item-mini" style="background-color: darkkhaki;"><i class="fa fa-building" aria-hidden="true" style="color:azure;"></i></div>
+                            <div class="flex-item count"><span id="jumlahKantahHadir2"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                    <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                        <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Daftar Kantor Wilayah Yang Hadir (dari <span id="jumlahKanwil2" style="color:black;"></span> kantor)</b></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="flex-container">
+                            <div class="flex-item-mini" style="background-color: deepskyblue;"><i class="fa fa-building" aria-hidden="true" style="color:azure;"></i></div>
+                            <div class="flex-item count"><span id="jumlahKanwilHadir2"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding:10px">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                    <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                        <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Peserta hadir di lokasi</b></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="flex-container">
+                            <div class="flex-item-mini" style="background-color: green;"><i class="fa fa-users" aria-hidden="true" style="color:azure;"></i></div>
+                            <div class="flex-item count"><span id="JumlahOffline"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                    <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                        <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>peserta hadir online</b></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="flex-container">
+                            <div class="flex-item-mini" style="background-color: blue;"><i class="fa fa-users" aria-hidden="true" style="color:azure;"></i></div>
+                            <div class="flex-item count"><span id="JumlahOnline"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                    <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                        <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>peserta tanpa data lokasi</b></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="flex-container">
+                            <div class="flex-item-mini" style="background-color: red;"><i class="fa fa-users" aria-hidden="true" style="color:azure;"></i></div>
+                            <div class="flex-item count"><span id="JumlahUnknown"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" id="tab3" aria-labelledby="step3-tab">
+        <div style="padding:10px">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="filterDaring">Filter :</label>
+                    <select class="form-control" id="filterDaring">
+                        <option value="0">Semua</option>
+                        <option value="daring">Hadir Secara Online</option>
+                        <option value="luring">Hadir di Lokasi</option>
+                        <option value="NaN">Lainnya</option>
+                    </select>
+                </div>
+            </form>
+            <table id="TableList" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                <thead>
+                    <tr>
+                        <th style="text-align:center;">#</th>
+                        <th>NIP</th>
+                        <th>Nama Peserta</th>
+                        <th>Jabatan</th>
+                        <th>Waktu Presensi</th>
+                        <th>Status Peserta</th>
+                        <th>Status Konfirmasi</th>
+                        <th>Status Kehadiran</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function () {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var map = L.map('map', { zoomControl: false }).setView([-1.237927, 116.852852], 5);
+
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+        var dot = L.Icon.extend({
+            options: {
+                iconSize: [13, 13],
+            }
+        });
+
+        $("#filterDaring").val("0")
+        //LoadAseet
+        var markerIcon = new dot({ iconUrl: '@Url.Content("~/resources/leaflet/images/marker-icon.png")' })
+        var greenStar = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/greenStar.png")'})
+        var orangeStar = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/orangeStar.png")'})
+        var greenTriangle = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/greenTriangle.png")'})
+        var orangeTriangle = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/orangeTriangle.png")'})
+        var greenRectangle = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/greenRectangle.png")'})
+        var orangeRectangle = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/orangeRectangle.png")'})
+        var greenDot = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/greenDot.png")'})
+        var orangeDot = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/orangeDot.png")'})
+        var globe = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/globe.png")'})
+        var greenPenta = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/greenPenta.png")'})
+        var redPenta = new dot({ iconUrl: '@Url.Content("~/resources/images/mappin/redPenta.png")'})
+
+        //dateBatas
+        var timeraw = "@Model.Tanggal".split(" ")
+        var tglraw = timeraw[0].split("/")
+        var tgl = new Date(tglraw[1] + "/" + tglraw[0] + "/" + tglraw[2])
+        var jam = timeraw[1].split(":")
+        tgl.setHours(jam[0], jam[1])
+        var batas = new Date(tgl)
+        batas.setMinutes(batas.getMinutes() + 30)
+
+        var overlayMaps = new Object()
+        var cp = false
+        var kt = false
+        var tepat = 0
+        var telat = 0
+
+
+        var lokasirapat = { lat: '@Model.Latitude', long: '@Model.Longitude' }
+        var statkehadiran = "Tidak ada data lokasi rapat"
+        var statpeserta = "Tidak Terdaftar"
+        var statkonfirmasi = "Tidak Terdaftar"
+
+        function toRad(Value) {
+            return Value * Math.PI / 180;
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetAbsenData", "Meeting")?rapatid=@Model.RapatOnlineId',
+            success: function (datas) {
+                $('#ModeloJuduldelodelableList tbody').html('')
+                var count = 0
+                var ppl = new Array()
+                L.marker(['@Model.Latitude', '@Model.Longitude']).addTo(map);
+                var ctOnline = 0;
+                var ctOffline = 0;
+                var ctUnknown = 0;
+
+                for (data of datas) {
+                    count += 1
+                    if (data["Jabatan"] == null) { data["Jabatan"] = "-" }
+                    var eselon = data["Eselon"]
+                    var rawdate = data["Tanggal"].split(" ")
+                    var hadir = new Date(rawdate[0])
+                    hadir.setHours(rawdate[1].substring(0, 2), rawdate[1].substring(3, 5))
+                    var bulanname = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                    var wklbl = hadir.getDate() + " " + bulanname[hadir.getMonth()] + ' ' + hadir.getFullYear() + ', ' + hadir.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (data["Latitude"] != null && data["Latitude"] != "" && data["Longitude"] != null && data["Longitude"] != "") {
+                        var posisiabsen = { lat: data["Latitude"], long: data["Longitude"] }
+
+                        var R = 6371000;
+                        var dLat = toRad(posisiabsen.lat - lokasirapat.lat);
+                        var dLon = toRad(posisiabsen.long - lokasirapat.long);
+                        var lat1 = toRad(lokasirapat.lat);
+                        var lat2 = toRad(posisiabsen.lat);
+
+                        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                            Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+                        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        var d = (R * c) / 10;
+                        var jarak = Math.round(Math.abs(d))
+
+                        var classDaring = ""
+                        if ('@Model.Latitude') {
+                            if (jarak <= 100) {
+                                statkehadiran = "di Lokasi Rapat"
+                                ctOffline++
+                                classDaring = "luring"
+                            } else if (jarak > 100) {
+                                statkehadiran = "Secara Daring"
+                                ctOnline++
+                                classDaring = "daring"
+                            }
+                        }
+
+                        if (hadir <= batas) {
+                            tepat += 1
+                            if (eselon == "I" || eselon == "II") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: greenStar })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else if (eselon == "III") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: greenTriangle })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else if (eselon == "III") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: greenRectangle })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: greenDot })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+
+
+                        } else if (hadir > batas) {
+
+                            telat += 1
+                            if (eselon == "I" || eselon == "II") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: orangeStar })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else if (eselon == "III") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: orangeTriangle })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else if (eselon == "III") {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: orangeRectangle })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+                            else {
+                                ppl.push(L.marker([data["Latitude"], data["Longitude"]], { icon: orangeDot })
+                                    .bindPopup(`Nama : ${data["Nama"]} <br/> Jabatan : ${data["Jabatan"]} <br/> Waktu Presensi : ${wklbl} <br/> Status Kehadiran : ${statkehadiran}`).addTo(map))
+                            }
+
+                        }
+                    } else {
+                        statkehadiran = "Data Lokasi Kosong"
+                        ctUnknown++
+                        classDaring = "NaN"
+                    }
+
+                    if (data['Terdaftar'] == 1) {
+                        statpeserta = "Telah Terdaftar"
+                    } else {
+                        statpeserta = "Tidak Terdaftar"
+                    }
+
+                    if (data['Terkonfirmasi'] == 1) {
+                        statkonfirmasi = "Telah Terkonfirmasi"
+                    } else {
+                        statkonfirmasi = "Tidak Terkonfirmasi"
+                    }                   
+
+                    $('#TableList tbody').append(`
+                        <tr class='${classDaring}'>
+                            <td style="text-align:center;">${count}</td>
+                            <td>${data['PegawaiID']}</td>
+                            <td>${data['Nama']}</td>
+                            <td>${data['Jabatan']}</td>
+                            <td>${wklbl}</td>
+                            <td>${statpeserta}</td>
+                            <td>${statkonfirmasi}</td>
+                            <td>${statkehadiran}</td>
+                        </tr>
+                    `)
+                }
+                $("#JumlahOnline").html(ctOnline)
+                $("#JumlahOffline").html(ctOffline)
+                $("#JumlahUnknown").html(ctUnknown)
+                var peserta = L.layerGroup(ppl)
+                overlayMaps["Peserta"] = peserta
+                cp = true
+                addlayer()
+            }
+        });
+
+        $("#filterDaring").change(function () {
+            let thisval = $(this).val();
+
+            let countthis = 1;
+            if (thisval != "0") {
+                $("#TableList tbody tr").each(function () {
+                    let thisclass = $(this).hasClass(thisval)
+                    if (thisclass) {
+                        $(this).show()
+                        $(this).children().first().html(countthis)
+                        countthis++
+                    } else {
+                        $(this).hide()
+                        $(this).children().first().html('')
+                    }
+                })
+            } else {
+                $("#TableList tbody tr").each(function () {
+                    $(this).show()
+                    $(this).children().first().html(countthis)
+                    countthis++
+                })
+            }
+        })
+
+        $.ajax({
+            url: '@Url.Action("GetLokasiKantor", "Meeting")?rapatid=@Model.RapatOnlineId',
+            success: function (response) {
+                var ktr = new Array()
+                for (data of response["data"]) {
+                    if (data['Ct'] == 0) {
+                        ktr.push(L.marker([data["Latitude"].replace(",", "."), data["Longitude"].replace(",", ".")], { icon: redPenta })
+                            .bindPopup(`Nama Kantor: ${data["Nama"]} <br/> Jumlah Peserta : ${data["Ct"]}`))
+                    } else {
+                        ktr.push(L.marker([data["Latitude"].replace(",", "."), data["Longitude"].replace(",", ".")], { icon: greenPenta })
+                            .bindPopup(`Nama Kantor: ${data["Nama"]} <br/> Jumlah Peserta : ${data["Ct"]}`))
+                    }
+
+                }
+                var jumlahKantah = response["jmlKantah"]
+                var jumlahKanwil = response["jmlKanwil"]
+                var jumlahKantahHadir = response["jmlKantahHadir"]
+                var jumlahKanwilHadir = response["jmlKanwilHadir"]
+                $("#jumlahKantah2").html(jumlahKantah)
+                $("#jumlahKanwil2").html(jumlahKanwil)
+                $("#jumlahKantahHadir2").html(jumlahKantahHadir)
+                $("#jumlahKanwilHadir2").html(jumlahKanwilHadir)
+                var kantor = L.layerGroup(ktr)
+                overlayMaps["Kantor"] = kantor
+                kt = true
+                addlayer()
+            }
+        });
+
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function (map) {
+
+            var div = L.DomUtil.create('div', 'info legend');
+
+            div.innerHTML += `
+            <div id="ket">
+            <p> <b>Keterangan</b> : </p><button id="expand"> - </button>
+            <p><img src=@Url.Content("~/resources/leaflet/images/marker-icon.png") alt="markerIcon"  width='15px'> : Lokasi Rapat</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenStar.png") alt="greenStar"  width='15px'> : Eselon 1 dan 2</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenTriangle.png") alt="greenTriangle"  width='15px'> : Eselon 3</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenRectangle.png") alt="greenRectangle"  width='15px'> : Eselon 4</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenDot.png") alt="greenDot"  width='15px'> : Peserta Lainnya</p>
+            <br/>
+            <p><b>Berdasarkan Warna</b></p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenRectangle.png") alt="greenRectangle"  width='15px'> : Kehadiran Tepat Waktu</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/orangeRectangle.png") alt="greenRectangle"  width='15px'> : Kehadiran Tidak Tepat Waktu</p>
+            <br/>
+            <p><b>Berdasarkan Kantor</b></p>
+            <p><img src=@Url.Content("~/resources/images/mappin/greenPenta.png") alt="greenPenta"  width='15px'> : Kantor yang Mengikuti Rapat</p>
+            <p><img src=@Url.Content("~/resources/images/mappin/redPenta.png") alt="redPenta"  width='15px'> : Kantor yang Tidak Mengikuti Rapat</p>
+            </div>
+            <div id="info" style="display:none">
+                <span> Lihat Keterangan Peta </span><button id="showed"> + </button>
+            </div>
+            `
+
+            return div;
+        }
+        legend.addTo(map);
+
+        $("#expand").click(function () {
+            $(this).parent().hide()
+            $('#info').show()
+        })
+        $("#showed").click(function () {
+            $('#ket').show()
+            $('#info').hide()
+        })
+
+        function addlayer() {
+            if (cp && kt) {
+                L.control.layers("", overlayMaps).addTo(map);
+                $.unblockUI();
+
+
+            //chart
+            var options = {
+            series: [{
+                data: [tepat,telat,(@Model.Jumlah_Peserta - (tepat + telat))]
+            }],
+            chart: {
+                type: 'bar',
+                height: 380,
+            },
+            animation: {
+                enabled: false,
+                duration: 0,
+            },
+            plotOptions: {
+                bar: {
+                    barHeight: '100%',
+                    distributed: true,
+                    horizontal: true,
+                    dataLabels: {
+                        position: 'bottom'
+                    },
+                }
+            },
+            colors: ['#13d8aa', '#f48024', '#d4526e'
+            ],
+            dataLabels: {
+                enabled: true,
+                textAnchor: 'start',
+                style: {
+                    colors: ['#464746'],
+                    fontSize: '22pt',
+                },
+                formatter: function (val, opt) {
+                    return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val +" ("+ ((val / @Model.Jumlah_Peserta)*100).toFixed(1).toString() + '%)'
+                },
+                offsetX: 0,
+                dropShadow: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 1,
+                colors: ['#fff']
+            },
+            xaxis: {
+                categories: ['Hadir tepat waktu', 'Hadir terlambat', 'Tidak Hadir'],
+            },
+            yaxis: {
+                labels: {
+                    show: false
+                }
+            },
+            legend: {
+                fontSize: '14pt',
+            },
+            title: {
+                text: 'Data Kehadiran @Model.Judul',
+                align: 'center',
+                margin: 20,
+                offsetY: 0,
+                floating: true,
+                style: {
+                    fontSize: "40px",
+                    fontFamily: "Helvetica, Arial, sans-serif",
+                    fontWeight: "bold"
+                },
+            },
+            subtitle: {
+                text: '',
+                margin: 20,
+                offsetY: 50,
+                align: 'center',
+            },
+            tooltip: {
+                theme: 'dark',
+                x: {
+                    show: false
+                },
+                y: {
+                    title: {
+                        formatter: function () {
+                            return ''
+                        }
+                    }
+                }
+            }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+            }
+
+        }
+    }
+    function toExcel(tableID, filename) {
+        var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+        tab_text = tab_text + '<head><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>';
+
+        tab_text = tab_text + `<x:Name>${filename}</x:Name>`;
+
+        tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+        tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+
+        tab_text = tab_text + "<table border='1px'>";
+        tab_text = tab_text + $(`#${tableID}`).html();
+        tab_text = tab_text + '</table></body></html>';
+
+        var data_type = 'data:application/vnd.ms-excel';
+
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+            if (window.navigator.msSaveBlob) {
+                var blob = new Blob([tab_text], {
+                    type: "application/csv;charset=utf-8;"
+                });
+                navigator.msSaveBlob(blob, `${filename}.xls`);
+            }
+        } else {
+            $('#test').attr('href', data_type + ', ' + encodeURIComponent(tab_text));
+            $('#test').attr('download', `${filename}.xls`);
+        }
+    }
+
+    
+</script>

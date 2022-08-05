@@ -1,0 +1,603 @@
+﻿@{
+    var log = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+}
+
+<style>
+    .cardholder {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+    }
+
+
+    .bukucard {
+        width: 17%;
+        height: 150px;
+        text-align: center;
+        background-color: #3D3D3D;
+        color: white;
+        padding: 25px 10px 10px;
+        border-radius: 10px;
+        position: relative;
+        word-wrap: break-word;
+        cursor: pointer;
+    }
+
+        .bukucard:hover {
+            background-color: #C69121;
+        }
+
+        .bukucard hr {
+            margin: 4px;
+        }
+
+    .cardholder .recordsum {
+        position: absolute;
+        width: 100%;
+        right: 0;
+        bottom: 0;
+    }
+
+        .cardholder .recordsum span {
+            background-color: #064663;
+            padding: 0 20px 3px;
+            border-radius: 10px;
+        }
+
+    .headertitle {
+        max-height: 150px;
+        overflow: hidden;
+        font-size: 1.2em
+    }
+
+        .headertitle:hover {
+            color: #064663;
+        }
+
+    .cardbody {
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .cardinfo {
+        position: absolute;
+        right: 10px;
+        top: 2px;
+    }
+
+        .cardinfo .fa {
+            margin: 0 2px;
+            cursor: pointer;
+        }
+
+            .cardinfo .fa:hover {
+                color: #064663;
+            }
+
+    .toolbarBottom {
+        font-size: 4em;
+        color: #064663;
+        position: fixed;
+        bottom: 2%;
+        right: 2%;
+        z-index: 9;
+        cursor: pointer;
+    }
+
+        .toolbarBottom:hover {
+            color: #C69121;
+        }
+
+    @@media (max-width: 1000px) {
+        .cardholder {
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .bukucard {
+            width: 80%;
+            height: 250px;
+        }
+    }
+
+    .inputBag {
+        height: 140px;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        padding: 5px;
+        overflow-y: scroll
+    }
+
+        .inputBag span {
+            background-color: lightgray;
+            padding: 0 15px 2px;
+            border-radius: 10px;
+            max-width: 70%;
+            text-overflow: ellipsis;
+        }
+
+            .inputBag span label {
+                display: inline
+            }
+
+            .inputBag span i:hover {
+                color: red;
+            }
+
+    .notValid {
+        border: 1px solid #FF1E13 !important
+    }
+
+    .topBar {
+        min-height: 50px;
+        background-color: #2A3F54;
+        margin: 10px 0;
+        border-radius:10px;
+        padding:10px;
+    }
+
+    .lds-ring {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ring div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border: 8px solid #333333;
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #333333 transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    .lds-ring div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    .lds-ring div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+    @@keyframes lds-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loadingDiv {
+        position: relative;
+        width:100%;
+        height:75vh;
+        top:0;
+        left:0;
+    }
+
+    .cons {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+<div style="padding-top:45px;">
+    <div class="topBar row" style="position:relative">
+        <div class="col-md-3 col-xs-5">
+            <h4 style="color:white;padding-top:2px;">Buku Penomoran</h4>
+        </div>
+        <div class="col-md-9 col-xs-7">
+            <div class="form-inline pull-right"style="padding-top:3px;">
+                <div class="form-group">
+                    @*<div class="input-group">
+                        <div class="input-group-addon">Cari</div>
+                        <input type="text" class="form-control" id="btnsrch" placeholder="Judul Buku...">
+                        <div class="input-group-addon"><i class="fa fa-search"></i></div>
+                    </div>*@
+                    @if (OtorisasiUser.isTU())
+                    {
+                        <button type="button" class="pull-right btn btn-warning" title="Buat Buku Baru" data-toggle="modal" data-target=".regisWindow" style="margin-left:10px;display:block">
+                            <i class="fa fa-plus-square"></i>
+                            Buat Baru
+                        </button>
+                    }                    
+                </div>                
+            </div>
+        </div>       
+    </div>
+    <div id="BookPlace" class="cardholder p-3">
+        @*<div class="bukucard" data-bukunomorid="11111111">
+            <div class="cardinfo">
+                <i class="fa fa-info-circle" data-bukunomorid="111111"></i>
+            </div>
+            <div class="cardbody">
+                <hr />
+                <h4 class="headertitle">asdasdas sadasd as dasdasdas</h4>
+                <div class="recordsum"><hr /><span>2000</span><p>Entri Data</p></div>
+            </div>
+        </div>*@        
+    </div>
+    <div id="loadingDiv" class="loadingDiv" style="display:none;">
+        <div class="cons">
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>        
+    </div>
+</div>
+
+<div class="modal fade regisWindow" tabindex="-1" role="dialog" aria-labelledby="penomoranRegisWindow" aria-hidden="true">
+    <div class="modal-dialog pt-3" style="width:70vw">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Buat Buku Penomoran Baru</h4>
+            </div>
+            <div class="modal-body" style="position: relative;">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8">
+                        <form>
+                            <input type="text" id="thisbukunomorid"  value=""  style="display:none"/>
+                            <div class="form-group">
+                                <label for="namaBukuPenomoran" class="col-form-label">Judul:</label>
+                                <input type="text" class="form-control" id="namaBukuPenomoran">
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex justify-content-between">
+                                    <label for="DaftarPenandatangan" class="col-form-label">Daftar Penandatangan</label>
+                                </div>
+                                <div class="inputBag" id="penandatanganBag">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="d-flex justify-content-between">
+                                    <label for="AksesBuku" class="col-form-label">Daftar Akses:</label>
+                                </div>
+                                <div class="inputBag" id="aksesBag">
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1">Pilih Data: </label>
+                            <select class="form-control" id="selectUnitKerja" onchange="GetPegawaibyUnit(this)">
+                                @foreach (var unit in ViewBag.ListUnitKerja)
+                                {
+                                    <option value="@unit.UnitKerjaId">@unit.NamaUnitKerja</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="selectUnitKerja2">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="">Simpan Sebagai: </label>
+                            <div>
+                                <button type="button" class="btn btn-block btn-primary mb-2" onclick="savePerson('penandatangan')"><i class="fa fa-pencil-square-o"></i> Penandatangan</button>
+                                <br />
+                                <button type="button" class="btn btn-block btn-info" onclick="savePerson('akses')"><i class="fa fa-universal-access"></i> Akses</button>
+                                <br />
+                                <button type="button" class="btn btn-block btn-danger btnHapusBuku" onclick="hapusBuku()" data-bkid=""><i class="fa fa-trash"></i> Hapus Buku</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="simpanBukuNomor()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        const myUnitKerja = `@ViewBag.myUnitKerja`;
+        $("#selectUnitKerja").val((myUnitKerja) ? myUnitKerja : $("#selectUnitKerja option:first-child").attr("value"));
+        $("#selectUnitKerja").trigger("onchange");
+
+        getDaftarBukuPenomoran()
+
+    })
+
+
+    function validateForm() {
+        let returnValue = false;
+        let namaBukuPenomoran = $("#namaBukuPenomoran").val()
+        let penandatanganBag = $("#penandatanganBag").children("span").length;
+        let aksesBag = $("#aksesBag").children("span").length;
+        let timeoutClass;
+
+        if (!namaBukuPenomoran) {
+            $("#namaBukuPenomoran").addClass("notValid")
+            timeoutClass = $("#namaBukuPenomoran")
+        } else if (!penandatanganBag) {
+            $("#penandatanganBag").addClass("notValid")
+            timeoutClass = $("#penandatanganBag")
+        } else if (!aksesBag) {
+            $("#aksesBag").addClass("notValid")
+            timeoutClass = $("#aksesBag")
+        } else {
+            returnValue = true
+        }
+
+        if (!returnValue) {
+            setTimeout(function () {
+                timeoutClass.removeClass("notValid");
+            }, 1600);
+        }
+
+        return returnValue
+    }
+
+    function GetFormData() {
+        let formData = new FormData();
+        let namaBukuPenomoran = encodeURI($("#namaBukuPenomoran").val())
+        formData.append("NamaBukuPenomoran", namaBukuPenomoran)
+
+        let penandatanganBag = ""
+        $("#penandatanganBag").children("span").each(function () {
+            let thisval = encodeURI($(this).children("b").text());
+            penandatanganBag += (penandatanganBag) ? `&${thisval}` : thisval;
+        })
+        formData.append("Penandatangan", penandatanganBag)
+
+        let aksesBag = ""
+        $("#aksesBag").children("span").each(function () {
+            let thisval = encodeURI($(this).children("b").text());
+            aksesBag += (aksesBag) ? `&${thisval}` : thisval;
+        })
+        formData.append("Akses", aksesBag)
+
+        return formData;
+    }
+
+    $('.regisWindow').on('show.bs.modal', function (e) {
+        $(".regisWindow").modal("hide")
+        $(".regisWindow .modal-title").html("Buat Buku Penomoran Baru")
+        $(".btnHapusBuku").hide()
+        $("#namaBukuPenomoran").val("")
+        $("#penandatanganBag").html("")
+        $("#aksesBag").html("")
+        $("#thisbukunomorid").val("")
+        isUpdating = false;
+    })
+
+    function simpanBukuNomor() {
+        if (validateForm()) {
+            let formData = GetFormData();
+            if (isUpdating) {
+                formData.append("BukuNomorId", $("#thisbukunomorid").val())
+                formData.append("update", isUpdating)
+                isUpdating = false;
+            }
+            $.ajax({
+                url: '@Url.Action("SetBukuPenomoran", "Penomoran")',
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (rst) {
+                    if (rst.Status) {
+                        getDaftarBukuPenomoran()
+                        swal("Berhasil", "Buku penomoran baru telah dibuat", "success");
+                        $('.regisWindow').modal('hide')
+                    } else {
+                        swal("Gagal Dibuat", rst.Pesan, "warning");
+                        $('.regisWindow').modal('hide')
+                    }
+                }
+            });
+        }
+    }
+
+    $(".inputBag").delegate("span i", "click", function () {
+        $(this).parent().remove()
+    })
+
+    function saveBagBuilder(which,value) {
+        let elementValue = "";
+        let values = value.split("%");
+        let textShow = "";
+        if (which == "penandatanganBag") {
+            elementValue = values[1] + "|" + values[3] + "|" + values[0];
+            textShow = values[0]
+        } else if (which == "aksesBag") {
+            elementValue = values[2] + "|" + values[3] + "|" + values[4];
+            textShow = values[4]
+        }
+        $(`#${which}`).append(`
+            <span><label>${textShow}</label> <i class="fa fa-close"></i><b class='sr-only'>${elementValue}</b></span>
+        `)
+    }
+
+    function savePerson(as) {
+        let selectVal = $("#selectUnitKerja2").val()
+        if (selectVal) {
+            if (as == "penandatangan") {
+                saveBagBuilder("penandatanganBag", selectVal)
+            } else if (as == "akses") {
+                saveBagBuilder("aksesBag", selectVal)
+            }
+        }
+    }
+
+    $("#selectUnitKerja option").click(function () {
+        $("#selectUnitKerja").trigger("onchange")
+    })
+
+
+    function GetPegawaibyUnit(el) {
+        let valueid = el.value;
+        let formData = new FormData();
+        formData.append("unitkerjaid", valueid)
+        formData.append("namajabatan", "")
+        formData.append("namapegawai", "")
+
+        $.ajax({
+            url: '@Url.Action("GetPegawaiByUnitKerjaJabatanNama", "NaskahDinas")',
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (rst) {
+                $("#selectUnitKerja2").children('option').remove();
+                $("#selectUnitKerja2").append($('<option></option>').val("").html("Pilih Pegawai"));
+                var i;
+                for (i = 0; i < rst.data.length; i++) {
+                    var jbt = rst.data[i].Jabatan
+                    if (jbt.includes("Kepala ") || jbt.includes("Sekretaris ") || jbt.includes("Menteri ") || jbt.includes("Inspektur ") || jbt.includes("Direktur ") || jbt.includes("Staf Ahli ") || jbt.includes("Staf Khusus ") || jbt.includes("Tenaga Ahli ") ){
+                        $("#selectUnitKerja2").append(
+                            $('<option></option>').val(
+                                rst.data[i].Jabatan + "%" + rst.data[i].ProfileId + "%" + rst.data[i].PegawaiId + "%" + valueid + "%" + rst.data[i].NamaLengkap
+                            ).html("<span>" + rst.data[i].Jabatan + "</span>"));
+                    }
+                    else {
+                        $("#selectUnitKerja2").append(
+                            $('<option></option>').val(
+                                rst.data[i].NamaLengkap + "%" + rst.data[i].ProfileId + "%" + rst.data[i].PegawaiId + "%" + valueid + "%" + rst.data[i].NamaLengkap
+                                ).html(`
+                                    <span>${rst.data[i].NamaLengkap}</span> - (${rst.data[i].Jabatan})`
+                                )
+                        );
+                    }
+                }
+            }
+
+        });
+    }
+
+    var dataBuku;
+    @if(OtorisasiUser.isTU()){
+        <text>
+            const userIsTu = true;
+        </text>
+    }
+    else {
+         <text>
+            const userIsTu = false;
+        </text>
+    }
+    function getDaftarBukuPenomoran() {
+        $("#loadingDiv").show()
+        $.ajax({
+            url: '@Url.Action("getListBukuNomor", "Penomoran")',
+            type: "POST",
+            contentType: false,
+            processData: false,
+            success: function (rsp) {
+                if (rsp.Status) {
+                    $("#BookPlace").html("")
+                    let isOwner = false;
+                    dataBuku = rsp.Data
+                    for (let data of rsp.Data) {
+
+                        for (let akses of data.ListAksesBuku) {
+                            if (userIsTu || (akses.PegawaiId == `@log.PegawaiId` && akses.StatusAktif == "2")) {
+                                isOwner = true;
+                            }
+                        }
+
+                        let addElement = "";
+                        if (isOwner) {
+                            addElement = `<div class="bukucard">
+                                    <div class="cardinfo">
+                                        <i class="fa fa-pencil-square-o editbuku" data-bukunomorid="${data.BukuNomorId}"></i>
+                                        <i class="fa fa-info-circle" data-bukunomorid="${data.BukuNomorId}"></i>
+                                    </div>
+                                    <div class="cardbody" data-bukunomorid="${data.BukuNomorId}">
+                                        <hr />
+                                        <h4 class="headertitle">${data.Nama}</h4>
+                                    </div>
+                                </div>`
+                        } else {
+                            addElement = `<div class="bukucard">
+                                    <div class="cardinfo">
+                                        <i class="fa fa-info-circle infobuku" data-bukunomorid="${data.BukuNomorId}"></i>
+                                    </div>
+                                    <div class="cardbody" data-bukunomorid="${data.BukuNomorId}">
+                                        <hr />
+                                        <h4 class="headertitle">${data.Nama}</h4>
+                                    </div>
+                                </div>`
+                        }
+                        $("#BookPlace").append(addElement);
+                    }
+                    $("#loadingDiv").hide()
+                } else {
+                    swal("Perhatian", rsp.Pesan, "warning");
+                }
+            }
+        })
+    }
+
+    $("#BookPlace").delegate(".bukucard .cardbody", "click", function () {
+        let thisbookid = $(this).attr("data-bukunomorid")
+        window.location.href = `@Url.Action("Open", "Penomoran")?i=${thisbookid}`;
+    })
+
+
+    const allowhapus = false
+    function hapusBuku() {
+        if (allowhapus) {
+             let thisid = $("#thisbukunomorid").val()
+            let hapusData = new FormData();
+            if (thisid && isUpdating) {
+                hapusData.append("penomoranid", thisid)
+                $.ajax({
+                    url: '@Url.Action("HapusBuku", "Penomoran")',
+                    type: "POST",
+                    data: hapusData,
+                    contentType: false,
+                    processData: false,
+                    success: function (rst) {
+                        if (rst.status) {
+                            swal("Berhasil", rst.data, "success");
+                            isUpdating = false;
+                            getDaftarBukuPenomoran()
+                            $('.regisWindow').modal('hide')
+                        } else {
+                            swal("Gagal", rst.data, "warning");
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    let isUpdating = false;
+    $("#BookPlace").delegate(".bukucard .editbuku", "click", function () {
+        let thisbukuid = $(this).attr("data-bukunomorid")
+        $("#thisbukunomorid").val(thisbukuid)
+        let find = dataBuku.find(element => element.BukuNomorId == thisbukuid);
+        $(".regisWindow").modal('show')
+        if (allowhapus) {$(".btnHapusBuku").show()}
+        $(".regisWindow .modal-title").html(`Edit Buku Penomoran : ${find.Nama}`)
+        $("#namaBukuPenomoran").val(find.Nama)
+        $("#thisbukunomorid").val(find.BukuNomorId)
+        for (let p of find.ListPenandatanganBuku) {
+            $("#penandatanganBag").append(`
+                <span><label>${p.JabatanNama}</label> <i class="fa fa-close"></i><b class='sr-only'>${p.ProfileId}|${p.UnitKerjaId}|${p.JabatanNama}</b></span>
+            `)
+        }
+        for (let p of find.ListAksesBuku) {
+            $("#aksesBag").append(`
+                <span><label>${p.Nama}</label> <i class="fa fa-close"></i><b class='sr-only'>${p.PegawaiId}|${p.UnitKerjaId}|${p.Nama}</b></span>
+            `)
+        }
+        isUpdating = true;
+    })
+</script>

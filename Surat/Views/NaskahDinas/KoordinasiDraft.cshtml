@@ -1,0 +1,518 @@
+﻿@model Surat.Models.Entities.ListDraft
+
+<style>
+    #tampilanDokumen {
+        height: 80vh;
+        border: solid 1px black;
+    }
+
+    #catatan {
+        min-height: 35vh;
+        max-height: 35vh;
+        width: 100%;
+        margin-bottom: 10px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+        #catatan span {
+            display: inline-block;
+            padding: 5px;
+        }
+
+    #Forinput {
+        width: 100%;
+        bottom: 0;
+        padding-bottom:10px;
+    }
+
+    #isiCatatan {
+        position: relative;
+        max-height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+        #isiCatatan .textholder {
+            font-size: 1em;
+            padding: 2px 10px;
+        }
+
+            #isiCatatan .textholder:hover {
+                background-color: #eee;
+            }
+
+        #isiCatatan .notifRev {
+            margin: 5px 0;
+            text-align: center;
+            color: white;
+            background-color: #c9302c;
+            border-radius: 10px
+        }
+
+        #isiCatatan .notifAcc {
+            margin: 5px 0;
+            text-align: center;
+            color: white;
+            background-color: green;
+            border-radius: 10px
+        }
+
+        #isiCatatan .reSubmit {
+            margin: 5px 0;
+            text-align: center;
+            color: white;
+            background-color: steelblue;
+            border-radius: 10px
+        }
+
+        #isiCatatan .reSubmitVerfikator {
+            margin: 5px 0;
+            text-align: center;
+            color: white;
+            background-color: orange;
+            border-radius: 10px
+        }
+        
+        .buttonGroup{
+            padding-right : 10px;
+            padding-bottom: 10px;
+            float:right;
+        }
+        .titleLeft{
+            float:left;
+        }
+
+        @@media only screen and (max-width:1018px) {
+            .buttonGroup {
+                float: left;
+            }
+        }
+
+        @@media only screen and (max-width:990px) {
+            .buttonGroup {
+                float: right;
+            }
+        }
+
+        @@media only screen and (max-width:766px) {
+            .buttonGroup {
+                float: left;
+            }
+        }
+
+        @@media only screen and (max-width:1500px) {
+            #textsend span {
+                display: none;
+            }
+        }
+
+        @@media only screen and (max-width:767px) {
+            #textsend span {
+                display: initial;
+            }
+        }
+
+        @@media only screen and (max-width:500px) {
+            #textsend span {
+                display: none;
+            }
+        }
+   
+</style>
+
+
+<div class="">
+    <div class="page-title toptitle">
+        <div class="titleLeft">
+            <h2 style="width:100%"><span id="LabelTitle">Koordinasi Draft Naskah Dinas - <b>@ViewBag.Judul</b></span></h2>
+        </div>
+        <div class="buttonGroup">
+            <div class="input-group-btn" style="padding-right:2px;">
+                @if (ViewBag.OpenEditor && !ViewBag.isReOpen)
+                {
+                    <button type="button" onclick="BukaDraft('@Model.DraftCode','@Model.TipeSurat')" class="btn btn-success"> <i class="fa fa-pencil"></i>&nbsp;&nbsp; Buka Naskah Editor</button>
+                }
+                @if (ViewBag.Btn)
+                {
+                    <button type="button" id="btnSetuju" class="btn btn-primary">Setujui</button>
+                    <button type="button" id="btnTolak" class="btn btn-danger" onclick="KirimRevisi()">Pemberitahuan Revisi</button>
+                    <button type="button" onclick="BukaDraftFromVerifikator('@Model.DraftCode','@Model.TipeSurat')" class="btn btn-success">Edit Konsep</button>
+
+                }
+                else
+                {
+                    if (!ViewBag.isReOpen && !ViewBag.OpenEditor)
+                    {
+                        <button type="button" id="btnCancel" class="btn btn-primary">Batalkan Persetujuan</button>
+                    }
+                }
+                <button id="cancel-btn" type="button" class="btn btn-warning" onclick="window.location.href = '@Url.Action("ProsesList", "NaskahDinas")'">Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row x_panel tile" style="padding-top:10px; border:1px solid #E6E9ED;padding-bottom:15px">
+        <div class="x_content">
+            @Html.HiddenFor(m => Model.DraftCode)
+            @Html.HiddenFor(m => Model.TipeSurat)
+
+            <div class="row">
+                <div class="col-md-5 col-sm-5 col-xs-12">
+                    <div class="informasi">
+                        <h2 class="text-center">INFORMASI KONSEP NASKAH DINAS</h2>
+                        <table class="table table-hover " style="width: 100%; margin-top:20px;">
+                            <tr>
+                                <th style="width:30%">Tipe Surat</th>
+                                <td style="width:5%">:</td>
+                                <td>@Model.TipeSurat</td>
+                            </tr>
+                            <tr>
+                                <th>Sifat Surat</th>
+                                <td>:</td>
+                                <td>@Model.SifatSurat</td>
+                            </tr>
+                            <tr>
+                                <th>Pengolah Surat</th>
+                                <td>:</td>
+                                <td>@Model.NamaBuat</td>
+                            </tr>
+                            <tr>
+                                <th>Penandatangan</th>
+                                <td>:</td>
+                                <td>
+                                    @foreach (var item in ViewBag.TTD)
+                                    {
+                                        if (item.Tipe == "1")
+                                        {
+                                            <span>@item.Jabatan</span>
+                                            if (item.Status == "W")
+                                            {
+                                                <span><i class="fa fa-clock-o" style="color: blue" title="Konsep Sedang Diajukan"></i></span>
+                                            }
+                                            else if (item.Status == "Y")
+                                            {
+                                                <span><i class="fa fa-clock-o" style="color: #9292FF" title="Menunggu Koordinasi Pengajuan"></i></span>
+                                            }
+                                            else if (item.Status == "X")
+                                            {
+                                                <span><i class="fa fa-times" style="color: red" title="Mengirim Arahan Untuk Perbaikan Konsep"></i></span>
+                                            }
+                                            else if (item.Status == "A")
+                                            {
+                                                <span><i class="fa fa-check" style="color:green" title="Telah Menyetujui Konsep"></i></span>
+                                            }
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Verifikator</th>
+                                <td>:</td>
+                                <td>
+                                    <ol style="padding:0; padding-left: 15px">
+                                        @foreach (var item in ViewBag.TTD)
+                                        {
+                                            if (item.Tipe != "1" && item.PenandatanganId != Model.UserBuat && item.Status != "D")
+                                            {
+                                                <li>
+                                                    @item.Jabatan
+                                                    @if (item.Status == "W")
+                                                    {
+                                                        <span><i class="fa fa-clock-o" style="color: blue" title="Konsep Sedang Diajukan"></i></span>
+                                                    }
+                                                    else if (item.Status == "Y")
+                                                    {
+                                                        <span><i class="fa fa-clock-o" style="color: #9292FF" title="Menunggu Koordinasi Pengajuan"></i></span>
+                                                    }
+                                                    else if (item.Status == "X")
+                                                    {
+                                                        <span><i class="fa fa-times" style="color: red" title="Mengirim Arahan Untuk Perbaikan Konsep"></i></span>
+                                                    }
+                                                    else if (item.Status == "A")
+                                                    {
+                                                        <span><i class="fa fa-check" style="color:green" title="Telah Menyetujui Konsep"></i></span>
+                                                    }
+                                                </li>
+                                            }
+                                        }
+                                    </ol>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <span>Catatan Kordinasi Konsep Naskah : </span>
+                    <div id="catatan">
+                        <div id="isiCatatan">
+                        </div>
+                    </div>
+                    <div id="Forinput">
+                        <form id="formInput" style="display: flex; ">
+                            <textarea id="inputText" name="inputText" class="form-control" rows="2" style="width:85%;height:100%"></textarea>
+                            <button id="textsend" type="button" class="btn btn-success" style="margin:0;width:15%;" onclick="KirimHistroy()"><i class="fa fa-paper-plane"></i>&nbsp;<span>Kirim</span></button>
+                            @*<div class="input-group" style="margin-bottom:0px">
+                                    @Html.TextBox("inputText", "", new { @class = "form-control", type = "text" })
+                                    <div class="input-group-btn">
+                                        <label id="textsend" class="btn btn-success" style="margin-right:0" onclick="KirimHistroy()">
+                                            <i class="fa fa-paper-plane"></i>&nbsp;Kirim
+                                        </label>
+                                    </div>
+                                </div>*@
+                        </form>
+                    </div>
+
+                </div>
+                <div class="col-md-7 col-sm-7 col-xs-12">
+                    <div id="tampilanDokumen"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script>
+    $(document).ready(function () {
+        if ($('#DraftCode').val() != "") {
+
+            var objurl = '@Url.Action("JoinNdLampiran", "NaskahDinas")?draftcode=' + $('#DraftCode').val()
+
+                objpdf = objurl;
+
+                if ($("#tampilanDokumen").height() < 500) $("#tampilanDokumen").height(500);
+                PDFObject.embed(objpdf, $("#tampilanDokumen"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+        }
+        callHistory()
+    })
+
+    function callHistory() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetKoordinasiHistory", "NaskahDinas")?draftcode=' + $('#DraftCode').val(),
+            success: function (rsp) {
+                $("#isiCatatan").html("")
+                if (rsp["length"] > 0) {
+                    var element = ""
+                    let isperubahan = false;
+                    let userubah = "";
+                    console.log(rsp["data"])
+                    for (item of rsp["data"]) {
+                        if (item["Pesan"] == "!REVISINOTIFICATION!") {
+                            $("#isiCatatan").append(`<div class="notifRev"><span>${item["PsFromNama"]} Mengirimkan Notifikasi Perbaikan</span><div>${item["Tanggal"]}</div></div>`)
+                            isperubahan = false;
+                        }
+                        else if (item["Pesan"] == "!ACCNOTIFICATION!") {
+                            $("#isiCatatan").append(`<div class="notifAcc"><span>${item["PsFromNama"]} Menyetujui Konsep Naskah Dinas</span><div>${item["Tanggal"]}</div></div>`)
+                            isperubahan = false;
+                        }
+                        else if (item["Pesan"] == "!RESUBMIT!") {
+                            if (!isperubahan && userubah != item["PsFrom"]) {
+                                $("#isiCatatan").append(`<div class="reSubmit"><span>${item["PsFromNama"]} Melakukan Perubahan Konsep</span><div>${item["Tanggal"]}</div></div>`)
+                                userubah = item["PsFrom"]
+                                isperubahan = true;
+                            } else { userubah = "" }                            
+                        }
+                        else if (item["Pesan"] == "!RESUBMITVERIFIKATOR!") {
+                            if (!isperubahan && userubah != item["PsFrom"]) {
+                                $("#isiCatatan").append(`<div class="reSubmitVerfikator"><span>${item["PsFromNama"]} Melakukan Perubahan Konsep</span><div>${item["Tanggal"]}</div></div>`)
+                                userubah = item["PsFrom"]
+                                isperubahan = true;
+                            } else { userubah = "" }
+                        }
+
+                        else if (item["Pesan"] == "!Pengajuan Konsep Baru!") {
+                            $("#isiCatatan").append(`<div class="reSubmit"><span>${item["PsFromNama"]} Mengajukan Konsep Baru</span><div>${item["Tanggal"]}</div></div>`)
+                            isperubahan = false;
+                        }
+                        else if (item["Pesan"] == "!FINALDRAFT!") {
+                            $("#isiCatatan").append(`<div class="reSubmit"><span>${item["PsFromNama"]} Telah Menyetujui Konsep</span><div>${item["Tanggal"]}</div></div>`)
+                            isperubahan = false;
+                        }
+                        else {
+                            var posisi = "text-left"
+                            if (item["isUser"] == "1") { posisi = "text-right" }
+                            element = `<div class="textholder ${posisi}">
+                                        <p class="isitext" style="font-size:1.1em">
+                                            ${item["Pesan"]}
+                                            <br><span class="formtext" style="font-size:.7em; padding: 0">dari ${item["PsFromNama"]} - ${item["Tanggal"]}</span>
+                                        </p>
+                                    </div>`
+                            $("#isiCatatan").append(element)
+                            isperubahan = false;
+                        }
+                    }
+                    var objDiv = document.getElementById("catatan");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                } else {
+                    $("#isiCatatan").html("<span>Belum Ada Catatan Konsep</span>")
+                }
+            }
+        })
+    }
+
+
+    /*setInterval(callHistory, 30000)*/
+
+
+    function KirimHistroy(e) {
+        var disable = $("#textsend").attr('disabled')
+        if (!disable) {
+            $("#textsend").attr('disabled', true)
+            var datakirim = $("#Forinput").serializeArray()
+            if ($("#inputText").val()) {
+                datakirim.push({ name: "InputText", value: $("#inputText").val() })
+                datakirim.push({ name: "DraftCode", value: $("#DraftCode").val() })
+                $("#inputText").val("")
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("KirimTextHistory", "NaskahDinas")',
+                    data: datakirim,
+                    success: function (rsp) {
+                        callHistory()
+                        $("#textsend").attr('disabled', false)
+                    }
+                })
+            } else {
+                $("#textsend").attr('disabled', false)
+            }
+        }
+    }
+    function KirimRevisi() {
+        var datakirim = $("#Forinput").serializeArray()
+        datakirim.push({ name: "DraftCode", value: $("#DraftCode").val() } )
+         $.ajax({
+            type: "POST",
+            url: '@Url.Action("RevisiNotification", "NaskahDinas")',
+            data: datakirim,
+             success: function (rsp) {
+                 swal({
+                     title: "Informasi",
+                     text: " Konsep Surat Telah Dikembalikan Untuk Direvisi",
+                     type: "success",
+                     timer: 1000,
+                     showConfirmButton: false
+                 }, function () {
+                    window.location.href = "@Url.Action("ProsesList", "NaskahDinas")"
+                 });
+
+             }
+        })
+    }
+
+    var BukaDraft = function (id, tipe) {
+        let uri = encodeURI(`konsep=${tipe}&id=${id}&f=false`)
+        window.location.href = '@Url.Action("OpenEditor", "NaskahDinas")?'+ uri;
+    }
+
+    var BukaDraftFromVerifikator = function (id, tipe) {
+        let uri = encodeURI(`konsep=${tipe}&id=${id}&f=false&v=true`)
+        window.location.href = '@Url.Action("OpenEditor", "NaskahDinas")?'+ uri;
+    }
+
+    $("#btnSetuju").click(function () {
+        swal({
+            title: "Konfirmasi",
+            text: "Setujui Konsep?",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    var datakirim = $("#Forinput").serializeArray()
+                    datakirim.push({ name: "DraftCode", value: $("#DraftCode").val() })
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SetujuiKonsep", "NaskahDinas")',
+                        data: datakirim,
+                        success: function (rsp) {
+                            if (rsp["Status"]) {
+                                swal({
+                                    title: "Informasi",
+                                    text: " Konsep Surat Telah Disetujui",
+                                    type: "success",
+                                    timer: 1000,
+                                    showConfirmButton: false
+                                }, function () {
+                                    window.location.reload();
+                                });
+                            } else {
+                                swal({
+                                    title: "Peringatan",
+                                    text: rsp["Pesan"],
+                                    type: "warning",
+                                    timer: 1000,
+                                    showConfirmButton: false
+                                }, function () {
+                                    window.location.reload();
+                                });
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal({
+                                title: "Peringatan",
+                                text: "Terjadi Kesalahan dalam Mengirim data",
+                                type: "warning",
+                                timer: 1000,
+                                showConfirmButton: false
+                            }, function () {
+                                window.location.reload();
+                            });
+                        }
+                    })
+                }
+            }
+        )
+
+    })
+
+    $("#btnCancel").click(function () {
+        swal({
+            title: "Konfirmasi",
+            text: "Batalkan Persetujuan?",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    var datakirim = $("#Forinput").serializeArray()
+                    datakirim.push({ name: "DraftCode", value: $("#DraftCode").val() })
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("BatalkanPersetujuan", "NaskahDinas")',
+                        data: datakirim,
+                        success: function (rsp) {
+                            if (rsp["Status"]) {
+                                $.unblockUI();
+                                swal({
+                                    title: "Informasi",
+                                    text: " Persetujuan Berhasil di batalkan",
+                                    type: "success",
+                                    timer: 1000,
+                                    showConfirmButton: false
+                                }, function () {
+                                     window.location.reload();
+                                });
+                            }
+                         }
+                    })
+                }
+            }
+        )
+
+    })
+
+</script>

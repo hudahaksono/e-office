@@ -1,0 +1,1752 @@
+﻿@model Surat.Models.Entities.MasterArsip
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+<script src='@Url.Content("~/resources/inline/dataTables.rowsGroup.js")'></script>
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+@{
+    var lstTahun = new List<SelectListItem>();
+    for (int i = DateTime.Now.Year; i >= 1945; i--)
+    {
+        lstTahun.Add(new SelectListItem { Text = i.ToString(), Value = i.ToString() });
+    }
+
+    var lstgedung = new List<SelectListItem>();
+    lstgedung.Add(new SelectListItem { Text = "Gedung Arsip Jl. Sisingamangaraja", Value = "Gedung Arsip Jl. Sisingamangaraja" });
+    lstgedung.Add(new SelectListItem { Text = "Gedung Arsip Jl. Proklamasi", Value = "Gedung Arsip Jl. Proklamasi" });
+
+    var lstlantai = new List<SelectListItem>();
+    lstlantai.Add(new SelectListItem { Text = "1", Value = "1" });
+    lstlantai.Add(new SelectListItem { Text = "2", Value = "2" });
+    lstlantai.Add(new SelectListItem { Text = "3", Value = "3" });
+    lstlantai.Add(new SelectListItem { Text = "4", Value = "4" });
+
+    var lstperkembangan = new List<SelectListItem>();
+    lstperkembangan.Add(new SelectListItem { Text = "Asli", Value = "Asli" });
+    lstperkembangan.Add(new SelectListItem { Text = "Asli Paraf Koordinasi", Value = "Asli Paraf Koordinasi" });
+    lstperkembangan.Add(new SelectListItem { Text = "Asli Tembusan", Value = "Asli Tembusan" });
+    lstperkembangan.Add(new SelectListItem { Text = "Asli Bermaterai", Value = "Asli Bermaterai" });
+    lstperkembangan.Add(new SelectListItem { Text = "Copy", Value = "Copy" });
+    lstperkembangan.Add(new SelectListItem { Text = "Copy Tembusan", Value = "Copy Tembusan" });
+    lstperkembangan.Add(new SelectListItem { Text = "Asli Cap / Stempel Basah", Value = "Asli Cap / Stempel Basah" });
+    lstperkembangan.Add(new SelectListItem { Text = "Copy Cap / Stempel Basah", Value = "Copy Cap / Stempel Basah" });
+    lstperkembangan.Add(new SelectListItem { Text = "Copy Legalisir", Value = "Copy Legalisir" });
+
+    var lstketerangan = new List<SelectListItem>();
+    lstketerangan.Add(new SelectListItem { Text = "Baik", Value = "Baik" });
+    lstketerangan.Add(new SelectListItem { Text = "Rusak", Value = "Rusak" });
+    lstketerangan.Add(new SelectListItem { Text = "Menguning", Value = "Menguning" });
+    lstketerangan.Add(new SelectListItem { Text = "Berjamur", Value = "Berjamur" });
+    lstketerangan.Add(new SelectListItem { Text = "Robek", Value = "Robek" });
+    lstketerangan.Add(new SelectListItem { Text = "Tulisan Memudar", Value = "Tulisan Memudar" });
+    lstketerangan.Add(new SelectListItem { Text = "Kertas Rapuh", Value = "Kertas Rapuh" });
+    lstketerangan.Add(new SelectListItem { Text = "Berkas Tidak Lengkap", Value = "Berkas Tidak Lengkap" });
+    lstketerangan.Add(new SelectListItem { Text = "Berkas Lengkap", Value = "Berkas Lengkap" });
+    lstketerangan.Add(new SelectListItem { Text = "Lampiran Lengkap", Value = "Lampiran Lengkap" });
+    lstketerangan.Add(new SelectListItem { Text = "Lampiran Tidak Lengkap", Value = "Lampiran Tidak Lengkap" });
+    lstketerangan.Add(new SelectListItem { Text = "Lampiran Tidak Ada", Value = "Lampiran Tidak Ada" });
+
+
+
+
+
+    var lstNull = new List<SelectListItem>();
+}
+
+<style>
+    .editable {
+        display: none;
+    }
+
+    [contenteditable="true"], .selecteditable {
+        background-color: #f9f9f9;
+        font-weight: bold;
+        color: black;
+    }
+
+        /*[contenteditable="true"]:focus {
+        background-color: darkkhaki;
+        font-weight: bold;
+        color: white;
+    }*/
+        [contenteditable="true"]:focus, .selecteditable:focus {
+            outline: none;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+    .validasi {
+        outline: none;
+        border-color: #ff0000;
+        box-shadow: 0 0 10px #ff0000;
+    }
+
+    .input-autofit {
+        width: fit-content;
+    }
+
+    .change-success {
+        background-color: #91ff76;
+    }
+
+    .btntransparent {
+        background-color: transparent;
+        background-repeat: no-repeat;
+        border: none;
+        cursor: pointer;
+        overflow: hidden;
+        outline: none;
+    }
+
+    .form-control-addition {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        transition: none;
+        box-shadow: none;
+        width: 100%;
+        height: 100%;
+        background-color: #f9f9f9;
+        font-weight: bold;
+        color: black;
+        padding: 20px 0;
+    }
+
+        .form-control-addition:focus {
+            box-shadow: none;
+            outline: none;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+    .table th {
+        text-align: center;
+    }
+
+    @@media (min-width: 768px) {
+        .modal-xl {
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="clearfix"></div>
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Tambah Data Arsip</h3>
+
+        </div>
+        <div class="title_right">
+            <button type="button" class="btn btn-warning pull-right" id="kembali">Kembali</button>
+        </div>
+    </div>
+    <form class="form-horizontal" id="frmCariArsip" method="post">
+
+        <div class="clearfix"></div>
+        <div style="padding-bottom:0px; margin-bottom: -10px" id="DivFilterData">
+            <div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12 form-group">
+                        @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @id = "MetaData", @placeholder = "No. Naskah Dinas ...", @onkeyup = "MetaDataChanged()" })
+                    </div>
+                    @*<div class="col-md-2 col-sm-2 col-xs-2 form-group">
+                            <button id="srchbutton" type="submit" class="btn btn-info btn-block"><i class="fa fa-search"></i> Cari</button>
+                        </div>*@
+                </div>
+                <div class="row ">
+
+                    <div class="col-md-8 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                        @Html.DropDownListFor(model => model.GolonganArsip, new SelectList(@Model.ListGolonganMasterArsip2, "NamaJenis", "ValueJenisArsip"), "Jenis Naskah Dinas", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbGolonganMasterArsip", @onchange = "GolonganChanged()" })
+                    </div>
+                    <div class="col-md-4 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                        @Html.DropDownListFor(model => model.Tahun, lstTahun, "Tahun", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTahunMasterArsip", @onchange = "TahunChanged()" })
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <form action="" id="form-data">
+
+        <div class="form-group">
+            <button class="btn btn-primary btn-md" id="add_member" type="button"><i class="fa fa-plus"></i> Tambah</button>
+            <button class="btn btn-success btn-md" id="SubmitMasterArsip" type="submit" disabled><i class="fa fa-save"></i> Simpan</button>
+        </div>
+
+        <div class="table-responsive">
+            <input type="hidden" name="Id" value="">
+            <table id="myTableMasterArsip" class="table table-bordered table-hover" style="width:100%; background-color:white;">
+                <thead>
+                    <tr style="background-color: #696969;">
+                        <th class="text-center p-1" style="color:white">No.</th>
+                        <th class="text-center p-1" style="color:white">No. Naskah Dinas</th>
+                        <th class="text-center p-1" style="color:white">Kode Klasifikasi</th>
+                        <th class="text-center p-1" style="color:white">Tahun</th>
+                        <th class="text-center p-1" style="color:white">Gedung</th>
+                        <th class="text-center p-1" style="color:white">Lantai</th>
+                        <th class="text-center p-1" style="color:white">Rak</th>
+                        <th class="text-center p-1" style="color:white">Nomor Boks</th>
+                        <th class="text-center p-1" style="color:white">Jenis Naskah Dinas</th>
+                        <th class="text-center p-1" style="color:white">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                @*<tfoot>
+                        <tr>
+                            <td colspan="9" style="text-align: left;">
+                                <div class="form-group hide" id="SubmitMasterArsip">
+                                    <button class="btn btn-success btn-md" type="submit"><i class="fa fa-save"></i> Simpan</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>*@
+
+            </table>
+
+        </div>
+    </form>
+
+</div>
+
+
+<!-- Modal Arsip Detail -->
+<div id='masterarsipdetailmodal' class='modal' data-target="#masterarsipdetailmodal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog  modal-xl">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" id="destroymasterarsipdetail" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id="MasterArsipDetailLabel">Detail Master Arsip</h2>
+                    <hr />
+                    <form action="" id="form-masterarsipdetail">
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-md" id="add_masterarsipdetail" type="button"><i class="fa fa-plus"></i> Tambah</button>
+                            <button class="btn btn-success btn-md" id="SubmitDetail" type="submit" disabled><i class="fa fa-save"></i> Simpan</button>
+                        </div>
+                        <hr />
+                        <div class="table-responsive col-md-12 col-sm-12 col-xs-12 form-group pull-left" id="divDoc">
+
+                            <input type="hidden" name="Id" id="text-kode" value="">
+                            <table id="myTableMasterArsipDetail" class="table table-bordered table-hover" style="width:100%; background-color:white;">
+                                <thead>
+                                    <tr style="background-color: #696969;">
+                                        <th style="text-align: center; color: white; width: 20px;">No.</th>
+                                        <th style="text-align: center; color: white;width: 950px;">Uraian Informasi Arsip</th>
+                                        <th style="text-align: center; color: white;">Tahun</th>
+                                        <th style="text-align: center; color: white;">Jumlah Berkas</th>
+                                        <th style="text-align: center; color: white;">Tingkat Perkembangan</th>
+                                        <th style="text-align: center; color: white;">Keterangan</th>
+                                        <th style="text-align: center; color: white; width: 6%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                @*<tfoot>
+                                        <tr>
+                                            <td colspan="7" style="text-align: left;">
+                                                <div class="form-group hide" id="SubmitDetail">
+                                                    <button class="btn btn-success btn-md" type="submit"><i class="fa fa-save"></i> Simpan</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tfoot>*@
+                            </table>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id='masterarsipuploadmodal' class='modal' data-target="#masterarsipuploadmodal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="height:800px; width:100%;">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" id="destroymasterarsipupload" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id="MasterArsipUploadLabel">Upload Daftar Arsip</h2>
+                    <hr />
+                    <form class="form-horizontal form-label-left" id="frmUploadArsip" method="post" enctype="multipart/form-data">
+                        <button id="save-btn" type="submit" class="btn btn-success">Simpan</button>
+                        <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                        <div class="panel panel-default">
+                            <a class="acctitle" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <div class="panel-heading bg-primary" role="tab" id="headingTwo">
+                                    @*<h4 class="panel-title">
+                                            File Arsip PDF
+                                        </h4><hr />*@
+                                    <p>
+                                        *Ukuran file maksimal 20MB<br />
+                                        *Nama file maksimal 100 karakter
+                                    </p>
+                                </div>
+                            </a>
+                            <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                                <div class="panel-body">
+                                    <div class="uploadsection">
+                                        <div id="fileUploaded">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active" role="presentation" onclick="btnTambahFileUp()"><a style="cursor:pointer" id="tambahFile"><i class="fa fa-plus-square" style="font-size:1.2em"></i>&nbsp;Tambah File</a></li>
+                                            </ul>
+                                            <div class="tab-content" id="tabPdf">
+                                            </div>
+                                        </div>
+                                        <div id="fileHide">
+                                            <input type="file" id="file1" name="fileUploadStream" style="display:none">
+                                        </div>
+                                        <input type="hidden" id="idDetail" name="idmasterarsipdetail" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW ARSIP MODAL START -->
+<div id='ViewArsipModal' class='modal' data-target="#ViewArsipModal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="width: 98%; max-height: 98%;">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" onclick="ResetFile()" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id="MasterArsipUploadLabel">Berkas Arsip</h2>
+                    <hr />
+                    <div class="panel panel-default">
+                        <a class="acctitle" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                            <div class="panel-heading bg-primary" role="tab" id="headingTwo">
+                                <h4 class="panel-title">
+                                    File PDF
+                                </h4>
+                            </div>
+                        </a>
+                        <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <div class="uploadsection">
+                                    <div id="fileView">
+                                        <ul class="nav nav-tabs">
+                                        </ul>
+                                        <div class="tab-content" id="tabViewPdf">
+                                            <div id="tampilanDokumen"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- VIEW ARSIP MODAL END -->
+
+
+<script type="text/javascript">
+
+    $('#kembali').on('click', function (event) {
+        event.preventDefault();
+        window.location = document.referrer;
+     });
+
+    $(document).on("keydown", "form", function (event) {
+        return event.key != "Enter";
+    });
+
+    //ARSIP MANUAL
+    var dtableMasterArsip;
+    var createPagingMasterArsip = function () {
+        dtableMasterArsip = $('#myTableMasterArsip').DataTable({
+            drawCallback: function () {
+                $('.select2_normal').select2();
+            },
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 10,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "oLanguage": {
+                "sInfo": "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                "sInfoEmpty": "Menampilkan 0 to 0 of 0 entri",
+                "emptyTable": "Tak ada data yang tersedia pada tabel ini",
+                "sSearch": "Pencarian :"
+            },
+
+            "ajax": {
+                url: '@Url.Action("ListMasterArsip", "Kearsipan")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmCariArsip').serializeArray(); data.form = ftp; ftp.push({ name: "start", value: data.start }, { name: "length", value: data.length }); return ftp; }
+            },
+            "columns": [
+                {
+                    "className": "text-center",
+                    "data": null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                {
+                    "name": "NomorSK",
+                    "data": "NomorSK", "className": "edit_data"
+                },
+
+                {
+                    "data": "KodeKlasifikasi",
+                    "className": "edit_data",
+                    "render": function (data, type, row, meta) {
+
+                        return `<input type="hidden" id="valuekodeklasifikasi" value="` + data + `"><p class="showkodeklasifikasi">` + data + `</p><p class="appendkodeklasifikasi" id="appendkodeklasifikasi" title="` + data + `"></p>`;
+                    }
+
+                },
+                {
+                    "data": "Tahun",
+                    "className": "edit_data",
+                    "render": function (data, type, row, meta) {
+
+                        return `<input type="hidden" id="valuetahun" value="` + data + `"><p class="showtahun">` + data + `</p><p class="appendtahun" id="appendtahun" title="` + data + `"></p>`;
+                    }
+                },
+                {
+                    "data": "Gedung",
+                    "className": "edit_data",
+                    "render": function (data, type, row, meta) {
+
+                        return `<input type="hidden" id="valuegedung" value="` + data + `"><p class="showgedung">` + data + `</p><p class="appendgedung" id="appendgedung" title="` + data + `"></p>`;
+                    }
+                },
+                {
+                    "data": "Lantai",
+                    "className": "edit_data",
+                    "render": function (data, type, row, meta) {
+
+                        return `<input type="hidden" id="valuelantai" value="` + data + `"><p class="showlantai">` + data + `</p><p class="appendlantai" id="appendlantai" title="` + data + `"></p>`;
+                    }
+                },
+
+                //{ "data": "Gedung", "className": "edit_data" },
+                //{ "data": "Lantai", "className": "edit_data" },
+                { "data": "Rak", "className": "edit_data" },
+                { "data": "NomorBoks", "className": "edit_data" },
+                {
+                    "data": "GolonganArsip",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuegolonganarsip" value="` + data + `"><p class="showgolonganarsip">` + data + `</p><p class="appendgolonganarsip" title="` + data + `"></p>`;
+                    }
+
+                },
+                {
+                    "data": {
+                        NomorSK: "NomorSK", Id: "Id"
+                    },
+                    sortable: false,
+                    "className": "text-center",
+                    "render": function (data, type, row, meta) {
+                        var kutip = "'";
+                        var btnHapus = "<i class='fa fa-trash delete_data noneditable' style='cursor: pointer; color:red;' title=' Hapus Data'></i>&nbsp;&nbsp;&nbsp;";
+                        var btnSimpan = "<button type='submit' id='save' class='btntransparent editable'><i class='fa fa-save simpan_data' style='cursor: pointer; color:green;' title=' Simpan Data'></i></button>";
+                        var btnBatal = "<i class='fa fa-close editable' onclick='cancel_button($(this))' style='cursor: pointer; color:red;' title=' Batal'></i>";
+                        var btnModal = '<button class="btntransparent noneditable" id="btnmasterarsipdetail" type="button" onclick="MasterArsipDetail(' + kutip + data.NomorSK + kutip + ',' + kutip + data.Id + kutip + ')" ><i class="fa fa fa-arrow-right" style="cursor: pointer; color:lightskyblue;" title="Lihat Detail"></i></button>';
+                        var valKodeUnik = '<input type="hidden" id="valKodeUnik" value="' + data.KodeUnik + '">';
+
+                        return btnModal + btnHapus + btnSimpan + btnBatal + valKodeUnik;
+                    }}
+            ],
+            //order: [0, 'desc'],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+
+
+            createdRow: function (row, data, dataIndex) {
+                $(row).attr('data-id', data.Id);
+                $(row).find('td:eq(1)').attr({ name: 'NomorSK', contenteditable: 'false' });
+                //$(row).find('td:eq(4)').attr({ name: 'Gedung', contenteditable: 'false'});
+                //$(row).find('td:eq(5)').attr({ name: 'Lantai', contenteditable: 'false'});
+                $(row).find('td:eq(6)').attr({ name: 'Rak', contenteditable: 'false'});
+                $(row).find('td:eq(7)').attr({ name: 'NomorBoks', contenteditable: 'false'});
+            }
+        });
+        };
+
+    function GolonganChanged() {
+        dtableMasterArsip.ajax.reload(null, true);
+    };
+    function TahunChanged() {
+        dtableMasterArsip.ajax.reload(null, true);
+    };
+    function MetaDataChanged() {
+        dtableMasterArsip.ajax.reload(null, true);
+    };
+
+    $(document).ready(function () {
+       $('.select2_single').select2({ width: 'resolve' });
+        createPagingMasterArsip();
+    });
+
+    function selectRefresh() {
+        $('.select2_normal').select2({
+            tags: true,
+            width: '100%',
+            templateResult: function (option) {
+                if (option.element && (option.element).hasAttribute('hidden')) {
+                    return null;
+                }
+                return option.text;
+            }
+        });
+    }
+
+    $(function () {
+
+            // ADD NEW ROW MASTER ARSIP MANUAL
+            $('#add_member').click(function () {
+                $("#SubmitMasterArsip").removeAttr('disabled');
+
+                if ($('tr[data-id=""]').length > 10) {
+                    alert('Maksimal 10 baris');
+                    return false;
+                }
+                myTableMasterArsip
+
+                var tr = $('<tr>')
+
+                $('input[name="Id"]').val('')
+                tr.addClass('py-1 px-2');
+                tr.attr('data-id', '');
+                tr.addClass('newrow');
+                tr.addClass('selecteditable');
+
+
+                tr.prepend(`<td class="text-center"><button type = 'button' class='btntransparent' ><i class='fa fa-close' onclick='cancel_button($(this))' style = 'cursor: pointer; color:black;' title = ' Batal' ></i ></td>`);
+                tr.prepend(`<td>@Html.DropDownListFor(model => model.GolonganArsip, new SelectList(@Model.ListGolonganMasterArsip, "NamaGolongan", "NamaGolongan"), "Pilih Jenis Naskah Dinas", new { @class = "select2_normal form-control input-autofit", @id = "golonganaktif" })</td>`)
+                tr.prepend('<td contenteditable="true" name="NomorBoks"></td>')
+                tr.prepend('<td contenteditable="true" name="Rak"></td>')
+                tr.prepend(`<td>@Html.DropDownListFor(model => model.Lantai, lstlantai, "Pilih Lantai", new { @class = "select2_normal form-control input-autofit", @id = "lantaiaktif" })</td>`)
+                tr.prepend(`<td>@Html.DropDownListFor(model => model.Gedung, lstgedung, "Pilih Gedung", new { @class = "select2_normal form-control input-autofit", @id = "gedungaktif" })</td>`)
+                tr.prepend(`<td>@Html.DropDownListFor(model => model.Tahun, lstTahun, "Pilih Tahun", new { @class = "select2_normal form-control input-autofit", @id = "tahunaktif" })</td>`)
+                tr.prepend(`<td>@Html.DropDownListFor(model => model.KodeKlasifikasi, new SelectList(@Model.ListKlasifikasiMasterArsip, "KodeKlasifikasi", "KodeKlasifikasi"), "Pilih Kode Klasifikasi", new { @class = "select2_normal form-control input-autofit", @id = "kodeklasifikasiaktif" })`)
+                tr.prepend('<td contenteditable="true" name="NomorSK"></td>')
+                tr.prepend('<td></td>')
+                $('#myTableMasterArsip').prepend(tr)
+                tr.find('[name="NomorSK"]').focus()
+                selectRefresh();
+            })
+
+            //////////////////////////////////////////////////////////////////
+
+            $('#form-data').submit(function (e) {
+
+                  e.preventDefault();
+
+                let id = $('input[name="Id"]').val();
+                let datamasterarsip = new Array();
+                let dt = {};
+
+                console.log(id)
+                // data new
+                if (id == "") {
+                    $('#myTableMasterArsip tbody tr[data-id=""]').each(function () {
+
+                        let row = $(this)
+                        dt = {}
+                        dt['Id'] = id;
+                        dt['NomorSK'] = row.find('td:eq(1)').text();
+                        dt['KodeKlasifikasi'] = row.find("#kodeklasifikasiaktif").val();
+                        dt['Tahun'] = row.find("#tahunaktif").val();
+                        dt['Gedung'] = row.find("#gedungaktif").val();
+                        dt['Lantai'] = row.find("#lantaiaktif").val();
+                        dt['Rak'] = row.find('td:eq(6)').text();
+                        dt['NomorBoks'] = row.find('td:eq(7)').text();
+                        dt['GolonganArsip'] = row.find("#golonganaktif").val();
+
+                        datamasterarsip.push(dt);
+                        console.log('new')
+                        console.log(datamasterarsip)
+                    })
+                    // data edit
+                } else {
+
+                    let editrow = $('#myTableMasterArsip tbody tr.selecteditable');
+                    dt = {}
+                    dt['Id'] = id;
+                    dt['NomorSK'] = editrow.find('td:eq(1)').text();
+                    dt['KodeKlasifikasi'] = editrow.find("#kodeklasifikasiaktif").val();
+                    dt['Tahun'] = editrow.find("#tahunaktif").val();
+                    dt['Gedung'] = editrow.find("#gedungaktif").val();
+                    dt['Lantai'] = editrow.find("#lantaiaktif").val();
+                    dt['Rak'] = editrow.find('td:eq(6)').text();
+                    dt['NomorBoks'] = editrow.find('td:eq(7)').text();
+                    dt['GolonganArsip'] = editrow.find("#golonganaktif").val();
+                    //dt['KodeUnik'] = editrow.find("#valKodeUnik").val();
+
+                    datamasterarsip.push(dt);
+                    console.log('edit')
+                    console.log(datamasterarsip)
+                }
+                var check_fields = new Promise(function (resolve, reject) {
+                    if (dt['NomorSK'] == '') {
+                        $('td[name=NomorSK]').focus()
+                        //$('td[contenteditable=true]').each(function () {
+                        //    $(this).find('[name="NomorSK"]').addClass('validasi')
+                        //})
+                        //setTimeout(function () {
+                        //    $('td[contenteditable=true]').removeClass('validasi')
+                        //}, 3000);
+
+                        swal({
+                            title: "Error",
+                            text: "No. Naskah Dinas tidak boleh kosong",
+                            type: "error"
+                        })
+                            resolve(false);
+                            return false;
+                    }
+                    resolve(true);
+                })
+                check_fields.then(function (resp) {
+                    if (!resp)
+                        return false;
+
+                    $.ajax({
+                        url: '@Url.Action("TambahMasterArsip", "Kearsipan")',
+                        method: 'POST',
+                        data: JSON.stringify(datamasterarsip),
+                        contentType: "application/json; charset=utf-8",
+
+                        dataType: 'json',
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                showinfo(data.Pesan);
+                                $.unblockUI();
+                                dtableMasterArsip.destroy();
+                                createPagingMasterArsip()
+                                EditFunction()
+                                $('#SubmitMasterArsip').attr("disabled", "disabled");
+                            }
+                            else {
+                                showinfo(data.Pesan);
+                                $.unblockUI();
+                                dtableMasterArsip.destroy();
+                                createPagingMasterArsip()
+                                EditFunction()
+                                $('#SubmitMasterArsip').attr("disabled", "disabled");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                    })
+                })
+             })
+
+        EditFunction()
+         ///////////////////////////////////////////////////////////////////
+
+        // Delete Row Master Arsip Manual
+        $('#myTableMasterArsip').on("click", ".delete_data", function () {
+
+            var id = $(this).closest('tr').attr('data-id')
+            var name = $(this).closest('tr').find("[name='NomorSK']").text()
+
+             swal({
+                 title: "Konfirmasi Hapus",
+                 text: "Apakah anda yakin akan menghapus data?\nNo. SK : " + name,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: "Batal"
+                 },
+                    function (isConfirm) {
+
+                        if (isConfirm) {
+                            $.ajax({
+                                url: '@Url.Action("HapusMasterArsip", "Kearsipan")',
+                                method: 'POST',
+                                data: { Id: id },
+                                dataType: 'json',
+                                error: err => {
+                                    alert("An error occured while saving the data")
+                                    console.log(err)
+                                },
+                                success: function (resp) {
+                                    if (resp.status == 'success') {
+                                        $.unblockUI();
+                                        dtableMasterArsip.destroy();
+                                        createPagingMasterArsip()
+                                        EditFunction()
+                                    } else {
+                                        $.unblockUI();
+                                        dtableMasterArsip.destroy();
+                                        createPagingMasterArsip()
+                                        EditFunction()
+                                    }
+                                }
+                            })
+                        }
+                     })
+                 });
+
+          })
+     function EditFunction() {
+            // Edit Row Master Arsip Manual
+            $('#myTableMasterArsip').one('dblclick', 'tbody tr:not(.newrow)', function () {
+                var id = $(this).closest('tr').attr('data-id')
+                $('input[name="Id"]').val(id)
+
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('selecteditable');
+                })
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('editrow');
+                })
+
+                // hide text value
+                $(this).closest('tr').find('.showkodeklasifikasi').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showtahun').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showgedung').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showlantai').each(function () {
+                    $(this).addClass('hide');
+                })
+                $(this).closest('tr').find('.showgolonganarsip').each(function () {
+                    $(this).addClass('hide');
+                })
+
+
+                // change id to aktif
+                $(this).closest('tr').find('#valuekodeklasifikasi').each(function () {
+                    $(this).attr('id', 'valuekodeklasifikasiaktif');
+                })
+                $(this).closest('tr').find('#valuetahun').each(function () {
+                    $(this).attr('id', 'valuetahunaktif');
+                })
+                $(this).closest('tr').find('#valuegedung').each(function () {
+                    $(this).attr('id', 'valuegedungaktif');
+                })
+                $(this).closest('tr').find('#valuelantai').each(function () {
+                    $(this).attr('id', 'valuelantaiaktif');
+                })
+                $(this).closest('tr').find('#valuegolonganarsip').each(function () {
+                    $(this).attr('id', 'valuegolonganarsipaktif');
+                })
+
+                var valuekodeklasifikasi = document.getElementById("valuekodeklasifikasiaktif").value;
+                var selectkodeklasifikasi = `<select name="KodeKlasifikasi" id="kodeklasifikasiaktif" class="select2_normal form-control KodeKlasifikasi">
+                                        <option value="`+ valuekodeklasifikasi + `" selected hidden>` + valuekodeklasifikasi + `</option>
+                                @foreach (var all in Model.ListKlasifikasiMasterArsip)
+                                    {
+                                        <option value="@all.KodeKlasifikasi">@all.KodeKlasifikasi</option>
+                                    }
+                                    </select>`;
+
+                if ($('.appendkodeklasifikasi').text().length < 1) {
+                    $(this).closest('tr').find('.appendkodeklasifikasi').each(function () {
+                        $(this).append(selectkodeklasifikasi);
+                    })
+                }
+                var valuetahun = document.getElementById("valuetahunaktif").value;
+                var selecttahun = `<select name="Tahun" id="tahunaktif" class="select2_normal form-control Tahun">
+                                        <option value="`+ valuetahun + `" selected hidden>` + valuetahun + `</option>
+                                    @for (int i = DateTime.Now.Year; i >= 1945; i--)
+                                    {
+                                        <option value="@i.ToString()">@i.ToString()</option>
+                                    }
+                            </select>`;
+
+                if ($('.appendtahun').text().length < 1) {
+                    $(this).closest('tr').find('.appendtahun').each(function () {
+                        $(this).append(selecttahun);
+                    })
+                }
+
+                var valuegedung = document.getElementById("valuegedungaktif").value;
+                var selectgedung = `<select name="Gedung" id="gedungaktif" class="select2_normal form-control Gedung">
+                                        <option value="`+ valuegedung + `" selected hidden>` + valuegedung + `</option>
+                                    @foreach (var list in lstgedung)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                            </select>`;
+
+                if ($('.appendgedung').text().length < 1) {
+                    $(this).closest('tr').find('.appendgedung').each(function () {
+                        $(this).append(selectgedung);
+                    })
+                }
+
+                 var valuelantai = document.getElementById("valuelantaiaktif").value;
+                var selectlantai = `<select name="Lantai" id="lantaiaktif" class="select2_normal form-control Lantai">
+                                        <option value="`+ valuelantai + `" selected hidden>` + valuelantai + `</option>
+                                    @foreach (var list in lstlantai)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                            </select>`;
+
+                if ($('.appendlantai').text().length < 1) {
+                    $(this).closest('tr').find('.appendlantai').each(function () {
+                        $(this).append(selectlantai);
+                    })
+                }
+
+
+                var valuegolonganarsip = document.getElementById("valuegolonganarsipaktif").value;
+                var selectgolonganarsip = `<select name="GolonganArsip" id="golonganaktif" class="select2_normal form-control input-autofit GolonganArsip">
+                                        <option value="`+ valuegolonganarsip + `" selected hidden>` + valuegolonganarsip + `</option>
+                                    @foreach (var all in Model.ListGolonganMasterArsip)
+                                    {
+                                        <option value="@all.NamaGolongan">@all.NamaGolongan</option>
+                                    }
+                                    </select>`;
+
+                if ($('.appendgolonganarsip').text().length < 1) {
+                    $(this).closest('tr').find('.appendgolonganarsip').each(function () {
+                        $(this).append(selectgolonganarsip);
+                        selectRefresh();
+                    })
+                }
+
+                var count_column = $(this).closest('tr').find('td').length
+                $(this).closest('tr').find('td[contenteditable]').each(function () {
+                    if ($(this).index() != (count_column - 1))
+                        $(this).attr('contenteditable', true)
+                })
+                $(this).closest('tr').find('[name="NomorSK"]').focus()
+                $(this).closest('tr').find('.editable').show('fast')
+                $(this).closest('tr').find('.noneditable').hide('fast')
+            })
+
+        }
+    // Cancel Edit Master Arsip Manual
+    window.cancel_button = function (_this) {
+        EditFunction()
+        let rowCount = $('#myTableMasterArsip tbody tr.newrow').length;
+        console.log(rowCount)
+        if (rowCount <= 1) {
+            $('#SubmitMasterArsip').attr("disabled", "disabled");
+        }
+
+        if (_this.closest('tr').attr('data-id') == '') {
+            _this.closest('tr').remove()
+        } else {
+            $('input[name="Id"]').val('')
+            _this.closest('tr').find('td[contenteditable=true]').each(function () {
+                $(this).attr('contenteditable', false)
+            })
+
+            // change id name
+            _this.closest('tr').find('#valuekodeklasifikasiaktif').each(function () {
+                $(this).attr('id', 'valuekodeklasifikasi');
+            })
+            _this.closest('tr').find('#valuegolonganarsipaktif').each(function () {
+                $(this).attr('id', 'valuegolonganarsip');
+            })
+            _this.closest('tr').find('#valuetahunaktif').each(function () {
+                $(this).attr('id', 'valuetahun');
+            })
+            _this.closest('tr').find('#valuegedungaktif').each(function () {
+                $(this).attr('id', 'valuegedung');
+            })
+            _this.closest('tr').find('#valuelantaiaktif').each(function () {
+                $(this).attr('id', 'valuelantai');
+            })
+
+
+            // remove select2
+            _this.closest('tr').find('.GolonganArsip').each(function () {
+                $(this).remove();
+            })
+            _this.closest('tr').find('.KodeKlasifikasi').each(function () {
+                $(this).remove();
+            })
+            _this.closest('tr').find('.Tahun').each(function () {
+                $(this).remove();
+            })
+            _this.closest('tr').find('.Gedung').each(function () {
+                $(this).remove();
+            })
+            _this.closest('tr').find('.Lantai').each(function () {
+                $(this).remove();
+            })
+
+
+            // empty select2
+            _this.closest('tr').find('.appendkodeklasifikasi').each(function () {
+                $(this).empty();
+            })
+            _this.closest('tr').find('.appendgolonganarsip').each(function () {
+                $(this).empty();
+            })
+             _this.closest('tr').find('.appendtahun').each(function () {
+                $(this).empty();
+            })
+            _this.closest('tr').find('.appendgedung').each(function () {
+                $(this).empty();
+            })
+            _this.closest('tr').find('.appendlantai').each(function () {
+                $(this).empty();
+            })
+
+
+            //show text value
+            _this.closest('tr').find('.showgolonganarsip').each(function () {
+                $(this).removeClass('hide');
+            })
+            _this.closest('tr').find('.showkodeklasifikasi').each(function () {
+                $(this).removeClass('hide');
+            })
+            _this.closest('tr').find('.showtahun').each(function () {
+                $(this).removeClass('hide');
+            })
+           _this.closest('tr').find('.showgedung').each(function () {
+                $(this).removeClass('hide');
+            })
+           _this.closest('tr').find('.showlantai').each(function () {
+                $(this).removeClass('hide');
+            })
+
+
+            _this.closest('tr').each(function () {
+                $(this).removeClass('selecteditable');
+            })
+            _this.closest('tr').each(function () {
+                $(this).removeClass('editrow');
+            })
+
+            _this.closest('tr').find('.editable').hide('fast')
+            _this.closest('tr').find('.noneditable').show('fast')
+        }
+    }
+
+    ///////////////////////////// DETAIL MASTER ARSIP ////////////////////////////////
+    function MasterArsipDetail(nomorsk, kdunik) {
+
+        document.getElementById('MasterArsipDetailLabel').innerHTML = "No. Naskah Dinas: " + nomorsk;
+
+        $(document).off("click", '#add_masterarsipdetail').on("click", '#add_masterarsipdetail', function (e) {
+            $("#SubmitDetail").removeAttr('disabled');
+            let countRow = $('#myTableMasterArsipDetail tbody tr').length + 1
+            //let countRow = getElementById('totalarsipdetail').val()+1
+
+
+            console.log(countRow)
+
+            if ($('tr[data-id=""]').length > 10) {
+                alert('Maksimal 10 baris');
+                return false;
+            }
+            var tr = $('<tr>')
+
+            $('input[name="Id"]').val('')
+            tr.addClass('py-1 px-2');
+            tr.attr('data-id', '');
+            tr.addClass('newrow');
+            tr.addClass('selecteditable');
+
+            tr.prepend(`<td class="text-center"><button type = 'button' class='btntransparent'><i class='fa fa-close' onclick='cancel_button2($(this))' style = 'cursor: pointer; color:black;' title = ' Batal' ></i ></td>`);
+            tr.prepend(`<td>@Html.DropDownListFor(model => model.Keterangan, lstketerangan, "Pilih Keterangan", new { @class = "select2_normal form-control input-autofit", @id = "inputketeranganaktif" })</td>`)
+            tr.prepend(`<td>@Html.DropDownListFor(model => model.Perkembangan, lstperkembangan, "Pilih Tingkat Perkembangan", new { @class = "select2_normal form-control input-autofit", @id = "inputperkembanganaktif" })</td>`)
+            tr.prepend(`<td contenteditable="true" name="JumlahBerkas"></td>`)
+            tr.prepend(`<td>@Html.DropDownListFor(model => model.Tahun, lstTahun, "Pilih Tahun", new { @class = "select2_normal form-control input-autofit", @id = "inputtahunaktif" })</td>`)
+            tr.prepend(`<td contenteditable="true" name="JenisArsip">${countRow}.&nbsp;</td>`)
+            tr.prepend(`<td><input type="hidden" value="${countRow}" id="NomorUrut"></td>`)
+            $('#myTableMasterArsipDetail').prepend(tr)
+            tr.find(`[name="JenisArsip"]`).focus()
+            selectRefresh();
+
+
+        })
+
+        // submit master arsip detail
+        $("#form-masterarsipdetail").off("submit").on("submit", function (e) {
+            e.preventDefault();
+            $("#SubmitDetail").removeAttr('disabled');
+
+            let id = $('input[name="Id"]').val();
+            let datadetail = new Array();
+            let dt = {};
+
+            console.log(id)
+            // data new
+            if (id == "") {
+                $('#myTableMasterArsipDetail tbody tr[data-id=""]').each(function () {
+
+                    var row = $(this)
+                    dt = {}
+                    dt['Id'] = id;
+                    dt['NomorUrut'] = row.find("#NomorUrut").val();
+                    dt['Tahun'] = row.find("#inputtahunaktif").val();
+                    dt['JenisArsip'] = row.find('td:eq(1)').text();
+                    dt['JumlahBerkas'] = row.find('td:eq(3)').text();
+                    dt['Perkembangan'] = row.find("#inputperkembanganaktif").val();
+                    dt['Keterangan'] = row.find("#inputketeranganaktif").val();
+                    dt['nomorSK'] = nomorsk;
+                    dt['KodeUnik'] = kdunik;
+
+                    datadetail.push(dt);
+                    console.log('new')
+                    console.log(datadetail)
+                })
+                // data edit
+            } else {
+
+                var editrow = $('#myTableMasterArsipDetail tbody tr.editrow');
+                dt = {}
+                dt['Id'] = id;
+                dt['NomorUrut'] = editrow.find("#NomorUrut").val();
+                dt['Tahun'] = editrow.find("#inputtahunaktif").val();
+                dt['JenisArsip'] = editrow.find('td:eq(1)').text();
+                dt['JumlahBerkas'] = editrow.find('td:eq(3)').text();
+                dt['Perkembangan'] = editrow.find("#inputperkembanganaktif").val();
+                dt['Keterangan'] = editrow.find("#inputketeranganaktif").val();
+                dt['nomorSK'] = nomorsk;
+
+
+                datadetail.push(dt);
+                console.log('edit')
+                console.log(datadetail)
+            }
+
+
+            $.ajax({
+                url: '@Url.Action("TambahMasterArsipDetail", "Kearsipan")',
+                method: 'POST',
+                data: JSON.stringify(datadetail),
+                contentType: "application/json; charset=utf-8",
+
+                dataType: 'json',
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        dtableMasterArsipDetail.destroy();
+                        createPagingMasterArsipDetail()
+                        EditDetailFunction()
+                        $('#SubmitDetail').attr("disabled", "disabled");
+                    }
+                    else {
+                        showinfo(data.Pesan);
+                        $.unblockUI();
+                        dtableMasterArsipDetail.destroy();
+                        createPagingMasterArsipDetail()
+                        EditDetailFunction()
+                        $('#SubmitDetail').attr("disabled", "disabled");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            })
+        })
+
+
+        EditDetailFunction()
+         // Edit Row Detail
+        function EditDetailFunction() {
+            $('#myTableMasterArsipDetail').one('dblclick', 'tbody tr:not(.newrow)', function () {
+
+                var id = $(this).closest('tr').attr('data-id')
+                $('input[name="Id"]').val(id)
+
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('selecteditable');
+                })
+                $(this).closest('tr').each(function () {
+                    $(this).addClass('editrow');
+                })
+
+                // change id to aktif
+                $(this).closest('tr').find('#valuetahun').each(function () {
+                    $(this).attr('id', 'valuetahunaktif');
+                })
+                 $(this).closest('tr').find('#valueperkembangan').each(function () {
+                    $(this).attr('id', 'valueperkembanganaktif');
+                })
+                 $(this).closest('tr').find('#valueketerangan').each(function () {
+                    $(this).attr('id', 'valueketeranganaktif');
+                })
+
+                // hide text value
+                $(this).closest('tr').find('.showtahun').each(function () {
+                    $(this).addClass('hide');
+                })
+                 $(this).closest('tr').find('.showperkembangan').each(function () {
+                    $(this).addClass('hide');
+                })
+                 $(this).closest('tr').find('.showketerangan').each(function () {
+                    $(this).addClass('hide');
+                })
+
+
+                var valuetahun = document.getElementById("valuetahunaktif").value;
+                var selecttahun = `<select name = "Tahun" id = "inputtahunaktif" class="select2_normal form-control Tahun" >
+                                  <option value="`+ valuetahun + `" selected hidden>` + valuetahun + `</option>
+                                  @for (int i = DateTime.Now.Year; i >= 1945; i--)
+                                        {
+                                            <option value="@i.ToString()">@i.ToString()</option>
+                                        }
+                               </select>`;
+                if ($('.appendtahun').text().length < 1) {
+                    $(this).closest('tr').find('.appendtahun').each(function () {
+                        $(this).append(selecttahun);
+                        selectRefresh();
+
+                    })
+                }
+                var valueperkembanganan = document.getElementById("valueperkembanganaktif").value;
+                var selectperkembangan = `<select name = "Perkembangan" id = "inputperkembanganaktif" class="select2_normal form-control Perkembangan" >
+                                  <option value="`+ valueperkembanganan + `" selected hidden>` + valueperkembanganan + `</option>
+                                    @foreach (var list in lstperkembangan)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                               </select>`;
+                if ($('.appendperkembangan').text().length < 1) {
+                    $(this).closest('tr').find('.appendperkembangan').each(function () {
+                        $(this).append(selectperkembangan);
+                        selectRefresh();
+
+                    })
+                }
+                var valueketerangan = document.getElementById("valueketeranganaktif").value;
+                var selectketerangan = `<select name = "Keterangan" id = "inputketeranganaktif" class="select2_normal form-control Keterangan" >
+                                  <option value="`+ valueketerangan + `" selected hidden>` + valueketerangan + `</option>
+                                    @foreach (var list in lstketerangan)
+                                                    {
+                                                        <option value="@list.Value">@list.Text</option>
+                                                    }
+                               </select>`;
+                if ($('.appendketerangan').text().length < 1) {
+                    $(this).closest('tr').find('.appendketerangan').each(function () {
+                        $(this).append(selectketerangan);
+                        selectRefresh();
+
+                    })
+                }
+
+                var count_column = $(this).closest('tr').find('td').length
+                $(this).closest('tr').find('td[contenteditable]').each(function () {
+                    if ($(this).index() != (count_column - 1))
+                        $(this).attr('contenteditable', true)
+                })
+                $(this).closest('tr').find('[name="JenisArsip"]').focus()
+                $(this).closest('tr').find('.editable').show('fast')
+                $(this).closest('tr').find('.noneditable').hide('fast')
+            })
+        }
+         // Delete Row Master Arsip Detail
+        window.delete_detail = function (clicked_id) {
+            EditDetailFunction()
+            var id = clicked_id;
+            swal({
+                    title: "Konfirmasi Hapus",
+                    text: "Apakah anda yakin akan menghapus data?\nData ID : " + id,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: "Batal"
+                 },
+                    function (isConfirm) {
+
+                        if (isConfirm) {
+                           $.ajax({
+                                url: '@Url.Action("HapusMasterArsipDetail", "Kearsipan")',
+                                method: 'POST',
+                                data: { Id: id },
+                                dataType: 'json',
+                                error: err => {
+                                    alert("An error occured while saving the data")
+                                    console.log(err)
+                           },
+                            success: function (resp) {
+                                if (resp.status == 'success') {
+
+                                    dtableMasterArsipDetail.destroy();
+                                    createPagingMasterArsipDetail()
+                                } else {
+
+                                    dtableMasterArsipDetail.destroy();
+                                    createPagingMasterArsipDetail()
+                                }
+                            }
+                    })
+
+                    }
+                });
+
+        }
+        window.cancel_button2 = function (_this) {
+            EditDetailFunction()
+            let rowCount = $('#myTableMasterArsipDetail tbody tr.newrow').length;
+            console.log(rowCount)
+            if (rowCount <= 1) {
+                $('#SubmitDetail').attr("disabled", "disabled");
+            }
+
+            if (_this.closest('tr').attr('data-id') == '') {
+                _this.closest('tr').remove()
+            } else {
+                $('input[name="Id"]').val('')
+                _this.closest('tr').find('td[contenteditable=true]').each(function () {
+                    $(this).attr('contenteditable', false)
+                })
+
+
+                // change id
+                _this.closest('tr').find('#valuetahunaktif').each(function () {
+                    $(this).attr('id', 'valuetahun');
+                })
+                _this.closest('tr').find('#valueperkembanganaktif').each(function () {
+                    $(this).attr('id', 'valueperkembangan');
+                })
+                _this.closest('tr').find('#valueketeranganaktif').each(function () {
+                    $(this).attr('id', 'valueketerangan');
+                })
+
+                // empty select2
+                _this.closest('tr').find('.appendtahun').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendperkembangan').each(function () {
+                    $(this).empty();
+                })
+                _this.closest('tr').find('.appendketerangan').each(function () {
+                    $(this).empty();
+                })
+                // show text value
+                _this.closest('tr').find('.showtahun').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showperkembangan').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').find('.showketerangan').each(function () {
+                    $(this).removeClass('hide');
+                })
+                _this.closest('tr').each(function () {
+                    $(this).removeClass('selecteditable');
+                })
+                _this.closest('tr').each(function () {
+                    $(this).removeClass('editrow');
+                })
+
+                _this.closest('tr').find('.editable').hide('fast')
+                _this.closest('tr').find('.noneditable').show('fast')
+
+
+            }
+        }
+
+
+    // Table Master Arsip Detail
+    var dtableMasterArsipDetail;
+    var createPagingMasterArsipDetail = function () {
+        dtableMasterArsipDetail = $('#myTableMasterArsipDetail').DataTable({
+            fnDrawCallback: function () {
+                if ($(this).find('.dataTables_empty').length == 1) {
+                    $(this).find('tr.odd').remove();
+                }
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    },
+                    title: "Master Arsip Detail: " + nomorsk,
+                },
+                {
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5]
+                    },
+                    orientation: "landscape",
+                    title: "Master Arsip Detail: " + nomorsk,
+                },
+            ],
+            "bLengthChange": false,
+            "ordering": false,
+            "scrollX": false,
+            "oLanguage": {
+                "sInfo": "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                "sInfoEmpty": "Menampilkan 0 to 0 of 0 entri",
+                "emptyTable": "Tak ada data yang tersedia pada tabel ini",
+                "sSearch": "Pencarian :"
+            },
+
+            "ajax": {
+                url: '@Url.Action("ListMasterArsipDetail", "Kearsipan")',
+                type: "POST",
+                data: function (data, obj) {
+
+                    var ftp = $('#frmMasa').serializeArray();
+                    data.form = ftp;
+                    ftp.push({ name: "start", value: data.start },
+                        { name: "nomorsk", value: nomorsk },
+                        { name: "length", value: data.length });
+                    return ftp;
+                }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "JenisArsip", "className": "edit_data" },
+                {
+                    "data": "Tahun",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valuetahun" value="` + data + `"><p class="showtahun">` + data + `</p><p class="appendtahun" title="` + data + `"></p>`;
+                    }
+
+                },
+                { "data": "JumlahBerkas", "className": "edit_data"},
+                {
+                    "data": "Perkembangan",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valueperkembangan" value="` + data + `"><p class="showperkembangan">` + data + `</p><p class="appendperkembangan" title="` + data + `"></p>`;
+                    }
+
+                },
+                {
+                    "data": "Keterangan",
+                    "className": "edit_data",
+                    "render": function (data) {
+
+                        return `<input type="hidden" id="valueketerangan" value="` + data + `"><p class="showketerangan">` + data + `</p><p class="appendketerangan" title="` + data + `"></p>`;
+                    }
+
+                },
+                //{ "data": "Keterangan", "className": "edit_data" },
+                {
+                    "data": "Id",
+                    "className": "text-center",
+                    sortable: false,
+                    "render": function (data) {
+
+                        var btnUpload = "<i class='fa fa-upload noneditable uploadFile' onclick='MasterArsipUpload(" + data +")' id='uploadFile' style='cursor: pointer; color:blue;' title=' Upload Berkas'></i>&nbsp;&nbsp;&nbsp;";
+                        var btnView = "<i class='fa fa-eye noneditable ViewArsip' style='cursor: pointer; color:green;' title=' Lihat File Arsip' onclick='ViewArsip(" + data +")'></i>&nbsp;&nbsp;&nbsp;";
+                        var btnHapus = "<i class='fa fa-trash delete_data noneditable ' id='" + data +"' onclick='delete_detail(this.id)' style='cursor: pointer; color:red;' title=' Hapus Data'></i>";
+                        var btnSimpan = "<button type='submit' id='save' class='btntransparent'><i class='fa fa-save simpan_data editable' style='cursor: pointer; color:green;' title=' Simpan Data' type='submit'></i></button>";
+                        var btnBatal = "<i class='fa fa-close editable' onclick='cancel_button2($(this))'' style='cursor: pointer; color:black;' title=' Batal'></i>";
+
+                        return btnView + btnUpload + btnHapus + btnSimpan + btnBatal;
+                    }}
+            ],
+            order: [1, 'asc'],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+
+            createdRow: function (row, data, dataIndex) {
+                $(row).attr('data-id', data.Id);
+                $(row).find('td:eq(1)').attr({ name: 'JenisArsip', contenteditable: 'false'});
+                $(row).find('td:eq(3)').attr({ name: 'JumlahBerkas', contenteditable: 'false'});
+                //$(row).find('td:eq(4)').attr({ name: 'Perkembangan', contenteditable: 'false'});
+                //$(row).find('td:eq(5)').attr({ name: 'Keterangan', contenteditable: 'false'});
+            }
+
+        });
+        };
+
+        $(document).ready(function () {
+            createPagingMasterArsipDetail();
+        });
+        $('#masterarsipdetailmodal').modal('show');
+
+        $('#destroymasterarsipdetail').click(function () {
+            dtableMasterArsipDetail.destroy();
+
+            console.log('reset table');
+        })
+
+        $("#text-kode").val(nomorsk)
+
+    } // end function master arsip detail
+
+
+
+    ///////////////////////////// UPLOAD MASTER ARSIP ////////////////////////////////
+    var fileCount = 0;
+    var fileidx = 1;
+    function btnTambahFileUp() {
+        $(`#file${fileidx}`).trigger("click")
+    }
+    function MasterArsipUpload(idDetail) {
+        console.log(idDetail)
+
+        var dfFileDokumen = null;
+        let dataDetail = {}
+        dataDetail = {
+            idMasterArsipDetail: idDetail
+        }
+
+// submit
+        $("#frmUploadArsip").submit(function (e) {
+            if ($("#frmUploadArsip").valid()) {
+
+            if (fileCount == 0) {
+                swal("Peringatan", "File Arsip Belum Dipilih", "warning")
+                e.preventDefault();
+                return false;
+            }
+                var frmdata = new FormData(this);
+                frmdata.append("DetailID", idDetail)
+            swal({
+                title: "Konfirmasi Menyimpan File Arsip",
+                text: "Simpan File Arsip",
+                type: "info",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                showLoaderOnConfirm: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        //frmdata.append("nomorUmum", NomorUmum)
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("UploadLampiranArsip", "Kearsipan")',
+                            data: frmdata,
+                            contentType: false,
+                            processData: false,
+                            success: function (data, textStatus, XMLHttpRequest) {
+                                if (data.Status) {
+                                    ResetForms();
+                                    objpdf = null;
+                                    var textsuccess = "File Arsip telah disimpan";
+                                    if (data.ReturnValue2 != null) {
+                                        textsuccess += "\nID Arsip : " + data.ReturnValue2;
+                                    }
+                                    //if (data.ReturnValue != null) {
+                                    //    textsuccess += "\nNomor Agenda : " + data.ReturnValue;
+                                    //}
+                                    swal("Informasi", textsuccess, "success")
+                                    ResetFile()
+                                    $('#masterarssipuploadmodal').modal('hide');
+                                }
+                                else {
+                                    ResetFile()
+                                    $('#masterarssipuploadmodal').modal('hide');
+                                    swal("Peringatan", data.Pesan, "warning")
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                            }
+                        });
+                    }
+                });
+        } else {
+            swal("Peringatan", "Data Arsip Masih Kosong", "warning")
+            e.preventDefault();
+            return false;
+        }
+        e.preventDefault();
+        return false;
+    });
+//// end submit
+
+        console.log(fileCount)
+        $('#masterarsipuploadmodal').modal('show');
+
+
+        $('#destroymasterarsipupload').on('click', function () {
+            ResetForms()
+        });
+
+
+
+        $("#fileHide").delegate("input[type='file']", "change", function () {
+
+            var filename = $(`#file${fileidx}`).attr("id")
+            var input = $(`#file${fileidx}`),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1;
+            if (numFiles > 0) {
+                var file = dfFileDokumen = input.get(0).files[0];
+                if (file.size > 20000 * 1024) {
+                    dfFileDokumen = null;
+                    showmsg('Peringatan', 'File maksimum 20Mb');
+                    return false;
+                }
+                else {
+                    if (dfFileDokumen == null) {
+                        return false;
+                    }
+                    var namafile = dfFileDokumen.name;
+                    if (namafile.length > 100) {
+                        dfFileDokumen = null;
+                        showmsg('Peringatan', 'Nama File Maksimal 100 Karakter');
+                        return false;
+                    }
+                    var filedokumen = dfFileDokumen;
+                    var tipefile = filedokumen.type;
+
+                    afterUploadedFile(filename, namafile, tipefile);
+                    fileCount++;
+                    fileidx++;
+                    $("#fileHide").append(`<input type="file" id="file${fileidx}" name="fileUploadStream" style="display:none">`);
+                }
+            }
+        })
+
+        function afterUploadedFile(filename, namafile, tipefile) {
+
+        $("#fileUploaded ul").prepend(`
+            <li role="presentation"><a href="#upload${filename}" aria-controls="upload${filename}" role="tab" data-toggle="tab" style="cursor:pointer"><i class="fa fa-file-pdf-o" style="font-size:1.2em"></i></a></li>
+        `)
+        $("#tabPdf").prepend(`
+            <div role="tabpanel" class="tab-pane fade in" id="upload${filename}">
+                <div class="PdfDetail" style="padding:5px 10px; background-color:rgba(222, 222, 222, 1)">
+                    <h5> <span  class="filename">${namafile}</span> <span class="hapus pull-right" style="color: red;cursor:pointer;" onclick="HapusPdf(this)">Hapus</span></h5>
+                </div>
+                <div class="PdfHolder">
+                </div>
+            </div>
+        `)
+
+            if (tipefile == 'application/pdf') {
+                var blob = new Blob([dfFileDokumen], { type: "application/pdf;base64" }),
+                    objurl = window.URL.createObjectURL(blob);
+                objpdf = objurl;
+
+                if ($(`#upload${filename} .PdfHolder`).height() < 600) $(`#upload${filename} .PdfHolder`).height(600);
+                PDFObject.embed(objpdf, $(`#upload${filename} .PdfHolder`), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+            }
+            else if (tipefile == 'image/jpeg' || tipefile == 'image/png') {
+                var blob = new Blob([dfFileDokumen], { type: tipefile + ";base64" }),
+                    objurl = window.URL.createObjectURL(blob);
+                objfile = objurl;
+
+                showloading("Menampilkan File Terpilih");
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewerWithoutHeader", "Konten")',
+                    success: function (data) {
+                        $(`#upload${filename} .PdfHolder`).html(data);
+                        closeloading();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                    }
+                });
+            }
+            $(`#fileUploaded ul li a[aria-controls="upload${filename}"]`).tab('show');
+        }
+
+
+
+        $(document).ready(function () {
+            $.unblockUI();
+
+            $('#idmasterarsipdetail').val(idDetail);
+            $('#myModalDocViewer').on('shown.bs.modal', function () {
+                $(this).find('.modal-dialog').css({
+                    width: '98%',
+                    height: '98 %',
+                    'max-height': '98%'
+                });
+            });
+        });
+
+        $("#reset-btn").on("click", function (e) {
+            ResetForms();
+            return false;
+        });
+
+        function ResetForms() {
+            $("#fileHide").html("");
+            $("#tabPdf").html("");
+            $("#fileUploaded ul").html(` <li class="active" role="presentation" onclick="btnTambahFileUp()"><a style="cursor:pointer" id="tambahFile"><i class="fa fa-plus-square" style="font-size:1.2em"></i>&nbsp;Tambah File</a></li>`);
+            $("#fileHide").html(`<input type="file" id="file1" name="fileUploadStream" style="display:none">`);
+            fileCount = 0;
+            fileidx = 1;
+            console.log(fileCount)
+        };
+
+    }
+
+
+    function HapusPdf(element) {
+        var tabelmnt = $(element).closest('.tab-pane')
+        var idelmnt = tabelmnt.attr('id')
+        var fileid = idelmnt.replace("upload", "");
+        $(`#fileUploaded ul li a[aria-controls="${idelmnt}"]`).remove()
+        tabelmnt.remove()
+        $(`#${fileid}`).remove()
+        $('.nav-tabs li:eq(' + 0 + ') a').tab('show');
+        fileCount--;
+        console.log(fileCount)
+    }
+
+
+    function ResetFile() {
+        $('#tampilanDokumen').html("");
+        $('#tabViewPdf').html(`<div id="tampilanDokumen"></div>`);
+    };
+
+
+
+    //// VIEW BERKAS ARSIP ////
+    function ViewArsip(idDetail) {
+            console.log(idDetail)
+        $('#ViewArsipModal').modal('show');
+
+        //$("#fileUploaded ul").prepend(`
+        //    <li role="presentation"><a href="#upload${idDetail}" aria-controls="upload${idDetail}" role="tab" data-toggle="tab" style="cursor:pointer"><i class="fa fa-file-pdf-o" style="font-size:1.2em"></i></a></li>
+        //`)
+
+         $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DaftarLampiranArsip", "Kearsipan")',
+                data: { IdMasterArsipDetail: idDetail },
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data == 'noresults') {
+                        $('#fileView ul').html('<h2 class="text-center">Berkas telah dihapus</h2>');
+                    }
+                    else {
+                        $('#fileView ul').html(data);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+          $.ajax({
+                type: 'POST',
+                url: '@Url.Action("HapusLampiranArsip", "Kearsipan")',
+                data: { IdMasterArsipDetail: idDetail },
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data == 'noresults') {
+                    }
+                    else {
+                        $('#tabViewPdf').prepend(data);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+    }
+    let isexpand = false
+    var BukaFileLampiran = function (id, namafile, kantorid) {
+
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetWatermarkPdf", "Kearsipan")?id=' + id + '&kantorid=' + kantorid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                    success: function (data) {
+
+                       /* if (!isexpand) {*/
+
+                            //$("#tabViewPdf").html(`<div class="PdfDetail" style="padding:5px 10px; background-color:rgba(222, 222, 222, 1)">
+                            //    <h5> <span class="filename">${namafile}</span> <span class="hapus pull-right" style="color: red;cursor:pointer;" onclick="HapusFileArsip(${id})">Hapus</span></h5>
+                            //</div> <div id="tampilanDokumen"></div>`);
+
+                            $('#tampilanDokumen').html(data);
+                            //isexpand = true
+                        //}
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+
+        }
+    }
+
+    var HapusFileLampiran = function (id, namafile, idDetail) {
+    if (id !== null && id !== '') {
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data lampiran arsip " + namafile + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("namafile", namafile);
+                frm.append("id", id);
+                $.ajax({
+                    url: '@Url.Action("HapusFileLampiran", "Kearsipan")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Status) {
+                            ResetFile();
+                            showinfo(data.Pesan);
+                            $('#ViewArsipModal').modal('hide');
+                        }
+                        else {
+                            showalert("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    }
+    }
+
+</script>

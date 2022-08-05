@@ -1,0 +1,96 @@
+﻿@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOS.TTF);
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSI.TTF);
+    font-style: italic;
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSB.TTF);
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: utama;
+    src: url(fonts/BOOKOSBI.TTF);
+    font-weight: bold;
+    font-style: italic;
+}
+
+* {
+    font-family: utama !important;
+}
+
+p {
+    font-family: utama !important;
+    text-align: justify;
+    text-indent: 80pt;
+    font-size: 11pt;
+    padding: 0;
+    margin-top: -5px;
+    margin-bottom: 0;
+}
+
+.noIndent {
+    text-indent: 0 !important;
+    margin-top: -15px;
+}
+
+span {
+    font-family: utama
+}
+
+ol, ul {
+    font-family: utama !important;
+    text-align: justify;
+    font-size: 11pt;
+    margin-top: 0;
+    padding: 0 0 0 17px;
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-family: utama !important;
+    font-size: 11pt;
+    border-spacing: 0;
+}
+
+table p {
+    text-indent: 0 !important;
+    margin-top: 0;
+}
+
+table td {
+    font-family: utama !important;
+    font-size: 11pt;
+    vertical-align: top !important;
+    padding: 0 3px;
+    margin:0;
+}
+
+#katasambung {
+    font-family: utama !important;
+    font-size: 11pt;
+    text-align: right;
+}
+
+#disclaimer {
+    font-family: utama !important;
+    font-size: 8pt;
+}
+
+#undangansurat{
+    margin-bottom: 10px;
+    border:none !important;
+}
+
+#UntukPernyataan p {
+    margin-top: -5px !important;
+}
+

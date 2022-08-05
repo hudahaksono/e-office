@@ -1,0 +1,408 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using Surat.Codes;
+using Surat.Models;
+using Surat.Models.Entities;
+using System.Data;
+using OfficeOpenXml;
+
+namespace Surat.Controllers
+{
+    [AccessDeniedAuthorize]
+    public class LaporanController : Controller
+    {
+        LaporanModel lm = new LaporanModel();
+        public ActionResult PenggunaEoffice()
+        {
+            if(OtorisasiUser.isTU() || OtorisasiUser.IsProfile("AdminSatker") || OtorisasiUser.IsProfile("Administrator"))
+            {
+                var usr = HttpContext.User.Identity as InternalUserIdentity;
+                ViewBag.TipeKantor = new DataMasterModel().GetTipeKantor(usr.KantorId);
+                var unitkerjalist = new PenomoranModel().GetListUnitKerjaStruktural(pusat:true);
+                return View(unitkerjalist);
+            } else
+            {
+                return RedirectToAction("Index", "Home");
+            }            
+        }
+
+        public JsonResult GetPenggunaKantor(string kantorid, decimal tipe)
+        {
+            List<LaporanKantor> laporan = new List<LaporanKantor>();
+            laporan = lm.GetPenggunaEofficeKantor(kantorid, tipe);
+            return Json(new { Status = true, data = laporan }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetDetailPengguna(string kantorid, string menu)
+        {
+            List<DetailLaporan> details = new List<DetailLaporan>();
+            details = lm.GetDetailLaporanDaerah(kantorid, menu);
+            return Json(new { Status = true, data = details }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetDetailPenggunaPusat(string unitkerja, string menu)
+        {
+            List<DetailLaporan> details = new List<DetailLaporan>();
+            details = lm.GetDetailLaporanPusat(unitkerja, menu);
+            return Json(new { Status = true, data = details }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetTTEKantor(string kantorid, decimal tipe)
+        {
+            List<LaporanKantor> laporan = new List<LaporanKantor>();
+            laporan = lm.GetPenggunaTTEKantor(kantorid, tipe);
+            return Json(new { Status = true, data = laporan }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetPendaftarTTE(string kantorid, decimal tipe)
+        {
+            List<LaporanKantor> laporan = new List<LaporanKantor>();
+            laporan = lm.GetPendaftarTTE(kantorid, tipe);
+            return Json(new { Status = true, data = laporan }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetPenggunaPusat(string type, string unitkerjaid = null)
+        {
+            List<LaporanKantor> laporan = new List<LaporanKantor>();
+            laporan = lm.GetPenggunaEofficePusat(ukid:unitkerjaid, type:type);
+            return Json(new { Status = true, data = laporan }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public JsonResult GetProvinsiKantorid()
+        {
+            List<string> result = new List<string>();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            int tipekantor = new DataMasterModel().GetTipeKantor(usr.KantorId);
+
+            if (tipekantor == 1)
+            {
+                result = lm.GetProvinsiKantorid();
+            }
+            else if (tipekantor == 2)
+            {
+                result.Add($"{usr.KantorId}|{usr.NamaKantor.Replace("Kantor Wilayah ", "")}");
+            }
+            return Json(new { Status = true, data = result }, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult GetListKantorid()
+        {
+            List<string> result = new List<string>();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            int tipekantor = new DataMasterModel().GetTipeKantor(usr.KantorId);
+            if (tipekantor == 1)
+            {
+                result = lm.GetListKantorid();
+            }
+            else if (tipekantor == 2)
+            {
+                result = lm.GetListKantorid(usr.KantorId);
+            }
+            else
+            {
+                result.Add($"{usr.KantorId}|{usr.NamaKantor}");
+            }
+            return Json(new { Status = true, data = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult RekapPresensi()
+        {
+            Response.AppendHeader("X-Frame-Options", "DENY");
+            Response.AppendHeader("Content-Security-Policy", "frame-ancestors 'none'");
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var data = new CariRekapPresensi();
+            data.listUnitKerja = new List<SelectListItem>();
+            data.listPegawai = new List<SelectListItem>();
+            data.listTipePegawai = new List<SelectListItem>();
+            data.UnitKerjaId = usr.UnitKerjaId;
+            data.listUnitKerja.Add(new SelectListItem() { Text = new DataMasterModel().GetNamaUnitKerjaById(usr.UnitKerjaId), Value = usr.UnitKerjaId, Selected = true });
+            if (OtorisasiUser.IsRoleAdministrator())
+            {
+                foreach(var _unitkerja in new DataMasterModel().GetListUnitKerja("", "", "", true))
+                {
+                    if (!_unitkerja.UnitKerjaId.Equals(usr.UnitKerjaId))
+                    {
+                        data.listUnitKerja.Add(new SelectListItem() { Text = _unitkerja.NamaUnitKerja, Value = _unitkerja.UnitKerjaId });
+                    }
+                }
+                data.listPegawai.Add(new SelectListItem() { Text = "-- Semua Pegawai --", Value = "", Selected = true });
+                foreach (var _pegawai in new DataMasterModel().GetPegawaiByUnitKerjaJabatanNama(usr.UnitKerjaId, "", ""))
+                {
+                    data.listPegawai.Add(new SelectListItem() { Text = _pegawai.NamaLengkap, Value = _pegawai.PegawaiId });
+                }
+                data.listTipePegawai.Add(new SelectListItem() { Text = "-- Semua Pegawai --", Value = "", Selected = true });
+                data.listTipePegawai.Add(new SelectListItem() { Text = "PNS", Value = "ASN" });
+                data.listTipePegawai.Add(new SelectListItem() { Text = "PPNPN", Value = "PPNPN" });
+            }
+            else
+            {
+                if (OtorisasiUser.isTU())
+                {
+                    data.listPegawai.Add(new SelectListItem() { Text = "-- Semua Pegawai --", Value = "", Selected = true });
+                    foreach (var _pegawai in new DataMasterModel().GetPegawaiByUnitKerjaJabatanNama(usr.UnitKerjaId, "", ""))
+                    {
+                        data.listPegawai.Add(new SelectListItem() { Text = _pegawai.NamaLengkap, Value = _pegawai.PegawaiId });
+                    }
+                    data.listTipePegawai.Add(new SelectListItem() { Text = "-- Semua Pegawai --", Value = "", Selected = true });
+                    data.listTipePegawai.Add(new SelectListItem() { Text = "PNS", Value = "ASN" });
+                    data.listTipePegawai.Add(new SelectListItem() { Text = "PPNPN", Value = "PPNPN" });
+                }
+                else
+                {
+                    data.listPegawai.Add(new SelectListItem() { Text = usr.NamaPegawai, Value = usr.PegawaiId, Selected = true });
+                    data.PegawaiId = usr.PegawaiId;
+                    var tipe = new DataMasterModel().GetTipeUser(usr.PegawaiId, usr.KantorId);
+                    if (tipe.Status)
+                    {
+                        if (tipe.ReturnValue.Equals("ASN"))
+                        {
+                            data.listTipePegawai.Add(new SelectListItem() { Text = "PNS", Value = "ASN" });
+                        }
+                        if (tipe.ReturnValue.Equals("PPNPN"))
+                        {
+                            data.listTipePegawai.Add(new SelectListItem() { Text = "PPNPN", Value = "PPNPN" });
+                        }
+                    }
+                }
+            }
+
+            return View(data);
+        }
+
+        public ActionResult DaftarPresensi(int? draw, int? start, int? length, CariRekapPresensi f)
+        {
+            Response.AppendHeader("X-Frame-Options", "DENY");
+            Response.AppendHeader("Content-Security-Policy", "frame-ancestors 'none'");
+            var result = new List<RekapPresensi>();
+            decimal? total = 0;
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string userid = usr.UserId;
+
+
+            if (!string.IsNullOrEmpty(userid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 20;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+                f.UnitKerjaId = OtorisasiUser.IsRoleAdministrator()?f.UnitKerjaId:usr.UnitKerjaId;
+                f.PegawaiId = OtorisasiUser.isTU() || OtorisasiUser.IsRoleAdministrator() ? f.PegawaiId : usr.PegawaiId;
+                f.TanggalMulai = DateTime.Today;
+                f.TanggalSampai = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
+                if (!string.IsNullOrEmpty(Request.Form["cariMulai"]))
+                {
+                    f.TanggalMulai = Convert.ToDateTime(Request.Form["cariMulai"]);
+                }
+                if (!string.IsNullOrEmpty(Request.Form["cariSampai"]))
+                {
+                    f.TanggalSampai = Convert.ToDateTime(Request.Form["cariSampai"]);
+                }
+                result = lm.GetRekapPresensi(f, from, to);
+
+                if (result.Count > 0)
+                {
+                    total = result[0].Total;
+                }
+
+                foreach(var _dt in result)
+                {
+                    var _locKantor = lm.GetListLocationKantor(_dt.KantorId);
+                    var _loc = new GeoLocation();
+                    _dt.Masuk_Status = "-";
+                    _dt.Masuk_Lokasi = "-";
+                    _dt.Keluar_Status = "-";
+                    _dt.Keluar_Lokasi = "-";
+                    if (!string.IsNullOrEmpty(_dt.Masuk) && !_dt.Masuk.Equals("-"))
+                    {
+                        _dt.Masuk_Status = "WFH";
+                        _loc = lm.getLocationPresensi(_dt.PegawaiId, _dt.KantorId, string.Concat(_dt.Period.ToString("dd/MM/yyyy")," ", _dt.Masuk));
+                        foreach(var _lk in _locKantor)
+                        {
+                            if (_dt.Masuk_Status.Equals("WFH"))
+                            {
+                                var jarak = new Functions().getDistance(_loc.Latitude, _loc.Longitude, _lk.Latitude, _lk.Longitude);
+                                _dt.Masuk_Status = jarak <= 1000 ? "WFO" : "WFH";
+                                if (_dt.Masuk_Status.Equals("WFO"))
+                                {
+                                    _dt.Masuk_Lokasi = _lk.Nama;
+                                }
+                            }
+                        }
+                        if (_dt.Masuk_Status.Equals("WFH"))
+                        {
+                            _dt.Masuk_Lokasi = "Diluar Kantor";
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(_dt.Keluar) && !_dt.Keluar.Equals("-"))
+                    {
+                        _dt.Keluar_Status = "WFH";
+                        _loc = lm.getLocationPresensi(_dt.PegawaiId, _dt.KantorId, string.Concat(_dt.Period.ToString("dd/MM/yyyy"), " ", _dt.Keluar));
+                        foreach (var _lk in _locKantor)
+                        {
+                            if (_dt.Keluar_Status.Equals("WFH"))
+                            {
+                                var jarak = new Functions().getDistance(_loc.Latitude, _loc.Longitude, _lk.Latitude, _lk.Longitude);
+                                _dt.Keluar_Status = jarak <= 1000 ? "WFO" : "WFH";
+                                if (_dt.Keluar_Status.Equals("WFO"))
+                                {
+                                    _dt.Keluar_Lokasi = _lk.Nama;
+                                }
+                            }
+                        }
+                        if (_dt.Keluar_Status.Equals("WFH"))
+                        {
+                            _dt.Keluar_Lokasi = "Diluar Kantor";
+                        }
+                    }
+                }
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetListPegawai(string unitkerjaid, string tipe)
+        {
+            var lstPegawai = new List<Pegawai>();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            foreach (var _pegawai in new DataMasterModel().GetPegawaiByUnitKerjaAndTipe(unitkerjaid, tipe))
+            {
+                if(OtorisasiUser.isTU() || OtorisasiUser.IsRoleAdministrator())
+                {
+                    lstPegawai.Add(_pegawai);
+                }
+                else
+                {
+                    if (_pegawai.PegawaiId.Equals(usr.PegawaiId))
+                    {
+                        lstPegawai.Add(_pegawai);
+                    }
+                }
+            }
+            return Json(lstPegawai, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetExportRekap(string ukid, string tp, string pg, string dtm, string dts)
+        {
+            int from = 0;
+            int to = 0; ;
+            var f = new CariRekapPresensi();
+            f.UnitKerjaId = ukid;
+            f.TipePegawai = tp;
+            f.PegawaiId = pg;
+            f.TanggalMulai = DateTime.Today;
+            f.TanggalSampai = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
+            if (!string.IsNullOrEmpty(dtm))
+            {
+                f.TanggalMulai = Convert.ToDateTime(dtm);
+            }
+            if (!string.IsNullOrEmpty(dts))
+            {
+                f.TanggalSampai = Convert.ToDateTime(dts);
+            }
+            var rekap = lm.GetRekapPresensi(f, from, to);
+            var dt = new DataTable("Rekap");
+            dt.Columns.AddRange(new DataColumn[11]
+            {
+                new DataColumn("#",typeof(int)),
+                new DataColumn("NIP/NIK"),
+                new DataColumn("Nama Pegawai"),
+                new DataColumn("Nama Unit Kerja"),
+                new DataColumn("Periode"),
+                new DataColumn("Waktu Masuk"),
+                new DataColumn("Lokasi Masuk"),
+                new DataColumn("Status Masuk"),
+                new DataColumn("Waktu Keluar"),
+                new DataColumn("Lokasi Keluar"),
+                new DataColumn("Status Keluar")
+            });
+            foreach (var _dt in rekap)
+            {
+                var _locKantor = lm.GetListLocationKantor(_dt.KantorId);
+                var _loc = new GeoLocation();
+                _dt.Masuk_Status = "-";
+                _dt.Masuk_Lokasi = "-";
+                _dt.Keluar_Status = "-";
+                _dt.Keluar_Lokasi = "-";
+                if (!string.IsNullOrEmpty(_dt.Masuk) && !_dt.Masuk.Equals("-"))
+                {
+                    _dt.Masuk_Status = "WFH";
+                    _loc = lm.getLocationPresensi(_dt.PegawaiId, _dt.KantorId, string.Concat(_dt.Period.ToString("dd/MM/yyyy"), " ", _dt.Masuk));
+                    foreach (var _lk in _locKantor)
+                    {
+                        if (_dt.Masuk_Status.Equals("WFH"))
+                        {
+                            var jarak = new Functions().getDistance(_loc.Latitude, _loc.Longitude, _lk.Latitude, _lk.Longitude);
+                            _dt.Masuk_Status = jarak <= 1000 ? "WFO" : "WFH";
+                            if (_dt.Masuk_Status.Equals("WFO"))
+                            {
+                                _dt.Masuk_Lokasi = _lk.Nama;
+                            }
+                        }
+                    }
+                    if (_dt.Masuk_Status.Equals("WFH"))
+                    {
+                        _dt.Masuk_Lokasi = "Diluar Kantor";
+                    }
+                }
+                if (!string.IsNullOrEmpty(_dt.Keluar) && !_dt.Keluar.Equals("-"))
+                {
+                    _dt.Keluar_Status = "WFH";
+                    _loc = lm.getLocationPresensi(_dt.PegawaiId, _dt.KantorId, string.Concat(_dt.Period.ToString("dd/MM/yyyy"), " ", _dt.Keluar));
+                    foreach (var _lk in _locKantor)
+                    {
+                        if (_dt.Keluar_Status.Equals("WFH"))
+                        {
+                            var jarak = new Functions().getDistance(_loc.Latitude, _loc.Longitude, _lk.Latitude, _lk.Longitude);
+                            _dt.Keluar_Status = jarak <= 1000 ? "WFO" : "WFH";
+                            if (_dt.Keluar_Status.Equals("WFO"))
+                            {
+                                _dt.Keluar_Lokasi = _lk.Nama;
+                            }
+                        }
+                    }
+                    if (_dt.Keluar_Status.Equals("WFH"))
+                    {
+                        _dt.Keluar_Lokasi = "Diluar Kantor";
+                    }
+                }
+                dt.Rows.Add(_dt.RNumber, _dt.PegawaiId, _dt.NamaPegawai, _dt.NamaUnitKerja, _dt.strPeriod, _dt.Masuk, _dt.Masuk_Lokasi, _dt.Masuk_Status, _dt.Keluar, _dt.Keluar_Lokasi, _dt.Keluar_Status);
+            }
+
+            var memoryStream = new MemoryStream();
+            using (var excelPackage = new ExcelPackage(memoryStream))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Rekap Presensi");
+                worksheet.Cells["A1"].LoadFromDataTable(dt, true);
+
+                worksheet.Cells["A1:K1"].AutoFitColumns();
+                worksheet.Column(1).AutoFit();
+                worksheet.Column(2).AutoFit();
+                worksheet.Column(3).AutoFit();
+                worksheet.Column(4).AutoFit();
+                worksheet.Column(5).AutoFit();
+                worksheet.Column(6).AutoFit();
+                worksheet.Column(7).AutoFit();
+                worksheet.Column(8).AutoFit();
+                worksheet.Column(9).AutoFit();
+                worksheet.Column(10).AutoFit();
+                worksheet.Column(11).AutoFit();
+
+                worksheet.Cells["A1:K1"].Style.Font.Bold = true;
+
+                //worksheet.Column(5).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                byte[] dataExcel = excelPackage.GetAsByteArray() as byte[];
+                return File(dataExcel, "application/vnd.ms-excel", "RekapPresensi.xls");
+            }
+        }
+    }
+}

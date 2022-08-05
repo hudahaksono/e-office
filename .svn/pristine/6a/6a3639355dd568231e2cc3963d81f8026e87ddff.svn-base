@@ -1,0 +1,59 @@
+﻿@model Dictionary<int, Surat.Models.Entities.SuratInbox>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr style="cursor: pointer;" onclick="bukaSuratKeluar('@lst.Value.SuratId','@lst.Value.SuratInboxId','@lst.Value.NomorSurat','@lst.Value.StatusTerkunci');">
+        @if (@lst.Value.StatusTerkunci == 1)
+        {
+            <th class="centertaligndisabled" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+            <td class="centertaligndisabled" style="width: 150px; font-weight: normal;">@lst.Value.TanggalKirim</td>
+            <td class="tddisabled">@lst.Value.NomorSurat</td>
+            <td class="tddisabled">@lst.Value.PenerimaSurat</td>
+            <td class="tddisabled">@lst.Value.Perihal</td>
+            <td class="tddisabled">@lst.Value.SifatSurat</td>
+        }
+        else
+        {
+            if (@lst.Value.StatusBuka == 1)
+            {
+                <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+                <td class="centertaligncolumn" style="width: 150px; font-weight: normal;">@lst.Value.TanggalKirim</td>
+                <td class="tdnormal">@lst.Value.NomorSurat</td>
+                <td class="tdnormal">@lst.Value.PenerimaSurat</td>
+                <td class="tdnormal">@lst.Value.Perihal</td>
+                <td class="tdnormal">@lst.Value.SifatSurat</td>
+            }
+            else
+            {
+                <th class="centertaligncolumn" style="font-weight: bold;" scope="row">@lst.Value.RNumber</th>
+                <td class="centertaligncolumn" style="width: 150px; font-weight: bold;">@lst.Value.TanggalKirim</td>
+                <td class="tdhighlight">@lst.Value.NomorSurat</td>
+                <td class="tdhighlight">@lst.Value.PenerimaSurat</td>
+                <td class="tdhighlight">@lst.Value.Perihal</td>
+                <td class="tdhighlight">@lst.Value.SifatSurat</td>
+            }
+        }
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaSuratKeluar = function (i, s, n, t) {
+        if (t == '0') {
+            window.location.href = '@Url.Action("BukaSuratKeluar", "Flow")?suratid=' + i + '&suratinboxid=' + s + '&nomorsurat=' + n;
+        }
+        else {
+            $.unblockUI();
+            showinfo('Surat masih di TU');
+        }
+        @*$.pjax({
+            container: '#dynamic_content',
+            type: "POST",
+            url: '@Url.Action("BukaSuratKeluar", "Flow")',
+            data: JSON.stringify({ 'suratinboxid': s, 'nomorsurat': n }),
+            dataType: 'html',
+            contentType: "application/json; charset=utf-8"
+        });*@
+    }
+</script>

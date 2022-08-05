@@ -1,0 +1,209 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <configSections>
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+    <section name="oracle.manageddataaccess.client" type="OracleInternal.Common.ODPMSectionHandler, Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342" />
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+  </configSections>
+  <appSettings>
+    <add key="webpages:Version" value="3.0.0.0" />
+    <add key="webpages:Enabled" value="false" />
+    <add key="ClientValidationEnabled" value="true" />
+    <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+    <add key="ServiceEofficeUrl1" value="http://10.20.20.131/api/Document/" /> <!--Production-->
+    <add key="ServiceEofficeUrl" value="http://10.20.21.83:85/api/document/" /> <!--Training-->
+    <add key="ServiceBaseUrl1" value="http://10.20.20.75/api/Document/" /> <!--Production-->
+    <add key="ServiceBaseUrl" value="http://10.20.21.83:85/api/document/" /> <!--Training-->
+    <add key="DigitalSignatureUrl" value="http://10.20.20.56/" />
+    <add key="AuthUserName" value="atrbpn" />
+    <add key="AuthPassword" value="EbJpZ522B05razEX" />
+    <add key="UrlDokumenTTE" value="http://10.11.20.136:9100/Public/Surat" />
+    <!--<add key="DigitalSignatureUrl" value="http://10.20.22.101/" />
+    <add key="AuthUserName" value="bsre" />
+    <add key="AuthPassword" value="securetransactions!!!" />-->
+    <add key="ListProfile" value="'A81001','A81002','A81003'" />
+    <add key="IsSendWhatsApp" value="false" />
+    <add key="IsSendMail" value="false" />
+    <add key="IsSendToCalendar" value="false" />
+    <add key="SmtpClient" value="smtp.atrbpn.go.id" />
+    <add key="SmtpPort" value="25" />
+    <add key="AddrEmail" value="noreply@atrbpn.go.id" />
+    <add key="PassEmail" value="loc2b/pass" />
+    <add key="IsFileAttMandatory" value="false" />
+    <add key="NamaSkema" value="surattrain" />
+    <add key="NamaSkemaMaster" value="surat" />
+    <add key="NamaSkemaLogin" value="surattrain" />
+    <add key="PageWhitelist" value="//eoffice.atrbpn.go.id" />
+    <add key="DurasiToken" value="86400" />
+    <add key="KodeToken" value="Eoffice" />
+    <add key="PageToken" value="https://belajareoffice.atrbpn.go.id/account/token" />
+    <!--<add key="UrlKMS" value="https://ppskatp.atrbpn.go.id/api/v1" />
+    <add key="UrlSPBE" value="http://10.20.57.121:1011/v1" />-->
+    <add key="MeteraiUrl" value="dev.scm.perurica.co.id/" />
+    <add key="MeteraiUserName" value="atrbpn" />
+    <add key="MeteraiPassword" value="EbJpZ522B05razEX" />
+  </appSettings>
+  <system.web.extensions>
+    <scripting>
+      <webServices>
+        <jsonSerialization maxJsonLength="50000000" />
+      </webServices>
+    </scripting>
+  </system.web.extensions>
+  <system.web>
+    <machineKey validationKey="3F0FB930D34EC9727EB142C916D2721BE8597C6A4BA78F4B3832821B018AA639D03DE04578AA35424B848C46BBF3AA0BACA88EC9C6255AB259DAE82AF9DD9A37" decryptionKey="BE625B00889637F1F92D5A84E430950D3CC720C76134E2EC" validation="SHA1" decryption="AES" compatibilityMode="Framework20SP2" />
+    <globalization uiCulture="id" culture="id-ID" />
+    <compilation debug="true" targetFramework="4.5" />
+    <httpRuntime targetFramework="4.5" maxRequestLength="2097152" enableVersionHeader="false" />
+    <membership defaultProvider="OracleMembershipProvider" userIsOnlineTimeWindow="15">
+      <providers>
+        <clear />
+        <add name="OracleMembershipProvider" type="Surat.OracleMembershipProvider" connectionStringName="KkpWebConnString" applicationName="KKPWeb" enablePasswordRetrieval="false" enablePasswordReset="true" requiresQuestionAndAnswer="false" requiresUniqueEmail="true" passwordFormat="Hashed" maxInvalidPasswordAttempts="4" minRequiredPasswordLength="1" passwordAttemptWindow="8" minRequiredNonalphanumericCharacters="0" />
+      </providers>
+    </membership>
+    <roleManager enabled="true" defaultProvider="OracleRoleProvider" cacheRolesInCookie="true" cookieName=".ASPROLES" cookieTimeout="30" cookiePath="/" cookieRequireSSL="false" cookieSlidingExpiration="true" cookieProtection="All">
+      <providers>
+        <clear />
+        <add name="OracleRoleProvider" type="Surat.OracleRoleProvider" connectionStringName="KkpWebConnString" applicationName="KKPWeb" />
+      </providers>
+    </roleManager>
+    <pages controlRenderingCompatibilityVersion="4.0">
+      <namespaces>
+        <add namespace="System.Web.Helpers" />
+        <add namespace="System.Web.Mvc" />
+        <add namespace="System.Web.Mvc.Ajax" />
+        <add namespace="System.Web.Mvc.Html" />
+        <add namespace="System.Web.Routing" />
+        <add namespace="System.Web.WebPages" />
+      </namespaces>
+    </pages>
+    <authentication mode="Forms">
+      <forms loginUrl="~/Account/Index" timeout="2880" name=".eofficeatrbpn" path="/" requireSSL="false" protection="All" />
+    </authentication>
+  </system.web>
+  <entityFramework>
+    <defaultConnectionFactory type="System.Data.Entity.Infrastructure.SqlConnectionFactory, EntityFramework" />
+    <providers>
+      <provider invariantName="Oracle.ManagedDataAccess.Client" type="Oracle.ManagedDataAccess.EntityFramework.EFOracleProviderServices, Oracle.ManagedDataAccess.EntityFramework, Version=6.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342" />
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+      <provider invariantName="Npgsql" type="Npgsql.NpgsqlServices, EntityFramework6.Npgsql" />
+    </providers>
+  </entityFramework>
+  <system.data>
+    <DbProviderFactories>
+      <remove invariant="Oracle.ManagedDataAccess.Client" />
+      <add name="ODP.NET, Managed Driver" invariant="Oracle.ManagedDataAccess.Client" description="Oracle Data Provider for .NET, Managed Driver" type="Oracle.ManagedDataAccess.Client.OracleClientFactory, Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342" />
+	    <remove invariant="Npgsql" />
+	    <add name="Npgsql Data Provider" invariant="Npgsql" description=".Net Data Provider for PostgreSQL" type="Npgsql.NpgsqlFactory, Npgsql, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7" support="FF" />
+	</DbProviderFactories>
+  </system.data>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Helpers" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.WebPages" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="0.0.0.0-5.2.3.0" newVersion="5.2.3.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Owin.Security" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-4.1.0.0" newVersion="4.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Owin" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-4.1.0.0" newVersion="4.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="10.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.IdentityModel.Tokens" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-6.5.0.0" newVersion="6.5.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.IdentityModel.Tokens.Jwt" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-6.5.0.0" newVersion="6.5.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itextsharp" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-5.5.13.1" newVersion="5.5.13.1" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="BouncyCastle.Crypto" publicKeyToken="0e99375e54769942" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-1.8.10.0" newVersion="1.8.10.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Npgsql" publicKeyToken="5d8b90d52f46fda7" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-4.0.0.0" newVersion="4.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.styledxmlparser" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.layout" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.kernel" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.svg" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.io" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="itext.forms" publicKeyToken="8354ae6d2174ddca" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-7.1.17.0" newVersion="7.1.17.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <system.webServer>
+    <staticContent>
+      <remove fileExtension=".woff" />
+      <mimeMap fileExtension=".woff" mimeType="application/font-woff" />
+      <remove fileExtension=".woff2" />
+      <mimeMap fileExtension=".woff2" mimeType="font/woff2" />
+      <remove fileExtension=".otf" />
+      <mimeMap fileExtension=".otf" mimeType="application/font-otf" />
+      <remove fileExtension=".xlsx" />
+      <mimeMap fileExtension=".xlsx" mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+      <remove fileExtension=".docx" />
+      <mimeMap fileExtension=".docx" mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+    </staticContent>
+    <handlers>
+      <remove name="ExtensionlessUrlHandler-Integrated-4.0" />
+      <remove name="OPTIONSVerbHandler" />
+      <remove name="TRACEVerbHandler" />
+      <add name="ExtensionlessUrlHandler-Integrated-4.0" path="*." verb="*" type="System.Web.Handlers.TransferRequestHandler" preCondition="integratedMode,runtimeVersionv4.0" />
+    </handlers>
+    <!--<httpErrors errorMode="Custom" existingResponse="Replace">
+      <remove statusCode="403" />
+      <remove statusCode="404" />
+      <remove statusCode="500" />
+      <error statusCode="403" responseMode="ExecuteURL" path="/Error/Forbidden" />
+      <error statusCode="404" responseMode="ExecuteURL" path="/Error/PageNotFound" />
+      <error statusCode="500" responseMode="ExecuteURL" path="/Error/InternalServerError" />
+    </httpErrors>-->
+    <security>
+      <requestFiltering>
+        <requestLimits maxAllowedContentLength="2147483648" />
+      </requestFiltering>
+    </security>
+  </system.webServer>
+  <connectionStrings>
+    <add name="KkpWebConnString" providerName="Oracle.ManagedDataAccess.Client" connectionString="User Id=oltpuser;Password=GQX8aWqax8;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.20.22.29)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME = kkpdb)));" />
+	  <add name="PostgresConn" providerName="Npgsql" connectionString="Server=10.20.21.71;Port=5432;Database=db_eoffice;User Id=postgres;Password=postgres" />
+  </connectionStrings>
+</configuration>

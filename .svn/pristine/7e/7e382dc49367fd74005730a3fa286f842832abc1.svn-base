@@ -1,0 +1,35 @@
+﻿@model Surat.Models.Entities.KuisionerReport
+<div style="text-align: center;">
+    <img src="~/resources/images/terimakasih1.png" class="img-rounded" width="80%" height="65%">
+</div>
+
+
+<div class="row">
+    <div class="container">
+        <div class="form-group">
+            <table class="table text-left table-bordered">
+                <thead>
+                    <tr>
+                        <th bgcolor="#5D7B9D" class="text-center"><font color="#fff"> <b>No.</b></font></th>
+                        <th bgcolor="#5D7B9D" class="text-center" width="60%"><font color="#fff"> <b>Nama Pertanyaan</b></font></th>
+                        <th bgcolor="#5D7B9D" class="text-center"><font color="#fff"> <b>Hasil Jawaban</b></font></th>
+ 
+                        @*<td align="center">Nama</td>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ViewBag.Datalist)
+                    {
+                        <tr>
+                            <td align="center">@item.Tipe</td>
+                            <td>@item.Nama_Pertanyaan</td>
+                            <td align="center"> @item.Nama_Jawaban</td>
+                            @*<td align="center">@ViewBag.namauser</td>*@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,103 @@
+﻿<link href='@Url.Content("~/resources/css/jquery.orgchart.css")' rel="stylesheet" />
+<script src='@Url.Content("~/resources/js/jquery.orgchart.js")' type="text/javascript"></script>
+<script src='@Url.Content("~/resources/js/jquery.mockjax.min.js")' type="text/javascript"></script>
+
+<div class="row">
+    <div class="page-title">
+        <div class="title_left" style="width:100%"><h2 style="width:100%">Structure Organizational Chart</h2></div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="x_panel">
+        <div class="x_content">
+            @*<h4>ajax</h4>*@
+            <div id="chart-container2"></div>
+        </div>
+        <div class="x_content">
+            <h4>top to down</h4>
+            <div id="chart-container"></div>
+        </div>
+        <div class="x_content">
+            <h4>left to right</h4>
+            <div id="chart-container1"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        var datasource = {
+            'name': 'Lao Lao',
+            'title': 'general manager',
+            'children': [
+                { 'name': 'Bo Miao', 'title': 'department manager' },
+                {
+                    'name': 'Su Miao', 'title': 'department manager',
+                    'children': [
+                        { 'name': 'Tie Hua', 'title': 'senior engineer' },
+                        {
+                            'name': 'Hei Hei', 'title': 'senior engineer',
+                            'children': [
+                                { 'name': 'Dan Dan', 'title': 'engineer' }
+                            ]
+                        },
+                        { 'name': 'Pang Pang', 'title': 'senior engineer' }
+                    ]
+                },
+                { 'name': 'Hong Miao', 'title': 'department manager' }
+            ]
+        };
+
+        $('#chart-container').orgchart({
+            'data': datasource,
+            'nodeContent': 'title'
+        });
+
+        $('#chart-container1').orgchart({
+            'data': datasource,
+            'nodeContent': 'title',
+            'direction': 'l2r'
+        });
+
+        $('.l2r').css('position', 'static');
+
+        $.mockjax({
+            url: '/orgchart/initdata',
+            responseTime: 1000,
+            contentType: 'application/json',
+            responseText: {
+                'name': 'Lao Lao',
+                'title': 'general manager',
+                'children': [
+                    { 'name': 'Bo Miao', 'title': 'department manager' },
+                    {
+                        'name': 'Su Miao', 'title': 'department manager',
+                        'children': [
+                            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+                            {
+                                'name': 'Hei Hei', 'title': 'senior engineer',
+                                'children': [
+                                    { 'name': 'Pang Pang', 'title': 'engineer' },
+                                    { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                                ]
+                            }
+                        ]
+                    },
+                    { 'name': 'Yu Jie', 'title': 'department manager' },
+                    { 'name': 'Yu Li', 'title': 'department manager' },
+                    { 'name': 'Hong Miao', 'title': 'department manager' },
+                    { 'name': 'Yu Wei', 'title': 'department manager' },
+                    { 'name': 'Chun Miao', 'title': 'department manager' },
+                    { 'name': 'Yu Tie', 'title': 'department manager' }
+                ]
+            }
+        });
+
+        $('#chart-container2').orgchart({
+            'data': mockjax,
+            'nodeContent': 'title'
+        });
+    });
+</script>

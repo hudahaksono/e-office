@@ -1,0 +1,260 @@
+﻿using iText.Html2pdf;
+using iText.IO.Font;
+using iText.IO.Image;
+using iText.IO.Source;
+using iText.Kernel.Colors;
+using iText.Kernel.Events;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using Surat.Models;
+using Surat.Models.Entities;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Web;
+
+namespace Surat.Codes.TataNaskah
+{
+    public class KopSK
+    {
+        DataMasterModel dataMasterModel = new DataMasterModel();
+        internal void generate(Document doc, string pathx, KopSurat kopsurat, string kantorid, string unitkerjaid, bool usesatker = true)
+        {
+
+            #region kop
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            if (string.IsNullOrEmpty(kopsurat.UnitKerjaId))
+            {
+                Kantor kantor = dataMasterModel.GetKantor(kantorid);
+                TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                kopsurat.NamaKantor_L1 = (tipekantorid == 1) ? dataMasterModel.GetNamaUnitKerjaById(unitkerjaid).ToUpper() : kantor.NamaKantor.ToUpper();
+                kopsurat.NamaKantor_L2 = "";
+                kopsurat.Alamat = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                kopsurat.Telepon = kantor.Telepon;
+                kopsurat.Email = kantor.Email;
+                kopsurat.FontSize = 11;
+            }
+
+            float[] columnWidths = { 85, 370, 68 };
+            Table _table = new Table(UnitValue.CreatePercentArray(columnWidths)).SetPadding(0).SetMarginTop(-20); //table buat kop
+
+            PdfFont fontkop = PdfFontFactory.CreateFont("Times-Bold");
+            Style stylekop = new Style()
+                .SetFont(fontkop)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetPaddingBottom(0f)
+                .SetMarginBottom(0f);
+
+            Cell _cell = new Cell(2, 0).Add(new Image(ImageDataFactory.Create(pathx + "/logobpn.png")).ScaleToFit(80, 78).SetHorizontalAlignment(HorizontalAlignment.RIGHT));
+            _cell.SetPadding(0f).SetMargin(0f)
+                .SetBorder(Border.NO_BORDER);
+            _table.AddCell(_cell);
+            _cell = new Cell().Add(new Paragraph("KEMENTERIAN AGRARIA DAN TATA RUANG/\nBADAN PERTANAHAN NASIONAL").AddStyle(stylekop).SetMultipliedLeading(1.0f)
+                .SetFontSize(17));
+            _cell.SetPaddingTop(6f).SetMargin(0f)
+                .SetBorder(Border.NO_BORDER);
+            _table.AddCell(_cell);
+            _cell = new Cell(2, 0).Add(new Paragraph("").AddStyle(stylekop));
+            _cell.SetPadding(0f).SetMargin(0f)
+                .SetBorder(Border.NO_BORDER);
+            _table.AddCell(_cell);
+            if (usesatker)
+            {
+                _cell = new Cell().Add(new Paragraph((string.IsNullOrEmpty(kopsurat.NamaKantor_L1) ? "" : kopsurat.NamaKantor_L1.ToUpper()) + "\n" + (string.IsNullOrEmpty(kopsurat.NamaKantor_L2) ? "" : kopsurat.NamaKantor_L2.ToUpper())).AddStyle(stylekop).SetMultipliedLeading(1.0f)
+
+               .SetFontSize(15));
+                _cell.SetPadding(-1f).SetMargin(0f)
+                    .SetBorder(Border.NO_BORDER);
+                _table.AddCell(_cell);
+            }
+            else
+            {
+                _cell = new Cell().Add(new Paragraph(" " + "\n" + " ").AddStyle(stylekop).SetMultipliedLeading(1.0f)
+               .SetFontSize(15));
+                _cell.SetPadding(-1f).SetMargin(0f)
+                    .SetBorder(Border.NO_BORDER);
+                _table.AddCell(_cell);
+            }
+            
+            doc.Add(_table);
+
+            #endregion
+        }
+
+        internal void garuda(Document doc, string pathx, KopSurat kopsurat, string kantorid, string unitkerjaid)
+        {
+
+            #region kop
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            if (string.IsNullOrEmpty(kopsurat.UnitKerjaId))
+            {
+                Kantor kantor = dataMasterModel.GetKantor(kantorid);
+                TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                kopsurat.NamaKantor_L1 = (tipekantorid == 1) ? dataMasterModel.GetNamaUnitKerjaById(unitkerjaid).ToUpper() : kantor.NamaKantor.ToUpper();
+                string L2 = "";
+                if (tipekantorid == 3)
+                {
+                    string induk = dataMasterModel.GetKantorIdIndukFromKantorId(kantorid);
+                    Kantor kantorInduk = dataMasterModel.GetKantor(induk);
+                    L2 = kantorInduk.NamaKantor.Substring(14);
+                }
+                else if (tipekantorid == 2)
+                {
+                    L2 = kantor.NamaKantor.Substring(14);
+                }
+
+                kopsurat.NamaKantor_L2 = L2.ToUpper();
+                kopsurat.Alamat = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                kopsurat.Telepon = kantor.Telepon;
+                kopsurat.Email = kantor.Email;
+                kopsurat.FontSize = 11;
+            }
+
+            float[] columnWidths = { 523 };
+            Table _table = new Table(columnWidths).SetPadding(0).SetMarginTop(-20).UseAllAvailableWidth(); //table buat kop
+
+            PdfFont fontkop = PdfFontFactory.CreateFont("Times-Bold");
+            Style stylekop = new Style()
+                .SetFont(fontkop)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetPaddingBottom(0f)
+                .SetMarginBottom(0f);
+
+            Cell _cell = new Cell().Add(new Image(ImageDataFactory.Create(pathx + "/garudaemas.png")).ScaleToFit(80, 78).SetHorizontalAlignment(HorizontalAlignment.CENTER));
+            _cell.SetPadding(0f).SetMargin(0f).SetBorder(Border.NO_BORDER).SetPaddingBottom(10);
+            _table.AddCell(_cell);
+            _cell = new Cell().Add(new Paragraph("MENTERI AGRARIA DAN TATA RUANG/\nKEPALA BADAN PERTANAHAN NASIONAL").AddStyle(stylekop).SetMultipliedLeading(1.0f)
+                .SetFontSize(17));
+            _cell.SetBorder(Border.NO_BORDER).SetPaddingBottom(10);
+            _table.AddCell(_cell);
+            doc.Add(_table);
+
+
+            #endregion
+        }
+
+        internal byte[] polish(byte[] byteArray, PdfFont fontBokos, string id, string pathx, bool ttb)
+        {
+
+
+            IRandomAccessSource source = new RandomAccessSourceFactory().CreateSource(byteArray);
+            MemoryStream baos = new MemoryStream();
+            var reader = new PdfReader(source, new ReaderProperties());
+
+            var writer = new PdfWriter(baos);
+
+            PdfDocument pdfDoc = new PdfDocument(reader, writer);
+            PdfDocumentInfo info = pdfDoc.GetDocumentInfo();
+            Document doc2 = new Document(pdfDoc);
+            ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+
+            
+
+            int numberOfPages = pdfDoc.GetNumberOfPages();
+            var wi = pdfDoc.GetPage(1).GetPageSize().GetWidth();
+            var hi = pdfDoc.GetPage(1).GetPageSize().GetHeight();
+            int numpg = 100;
+            for (int page = 1; page <= numberOfPages; page++)
+            {
+                pdfDoc.GetPage(page).SetIgnorePageRotationForContent(true);
+                string check = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page));
+                //if (check.Contains(id))
+                //{
+                //    PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc, page);
+                //    Rectangle rectangle = new Rectangle(10, 40, 570, 30);
+                //    Canvas can = new Canvas(pdfCanvas, rectangle);
+
+
+
+                //    Table t = new Table(new float[] { 40, 50, 467, 10 }).SetBorderTop(new SolidBorder(0.3f));
+
+                //    Cell c = new Cell().SetBorder(Border.NO_BORDER).Add(new Image(ImageDataFactory.Create(pathx + "/icon_tte_bsre.jpg")).ScaleToFit(25, 25).SetHorizontalAlignment(HorizontalAlignment.RIGHT)).SetPaddingTop(6);
+                //    t.AddCell(c);
+                //    Paragraph p = new Paragraph("");
+                //    c = new Cell().SetBorder(Border.NO_BORDER).Add(p);
+                //    t.AddCell(c);
+
+                //    string cont = "<span id='disclaimer'>Dokumen ini sah dan telah ditandatangani secara elektronik melalui e-Office ATR/BPN. Untuk memastikan keasliannya, silakan scan QRCode dan pastikan diarahkan ke alamat https://eoffice.atrbpn.go.id/ </span>";
+                //    string keterangan = "<link rel='stylesheet' type='text/css' href='" + pathx + "/pdf/PdfStyle.css'>" + cont;
+                //    foreach (IElement element in HtmlConverter.ConvertToElements(keterangan))
+                //    {
+                //        c = new Cell().SetBorder(Border.NO_BORDER).Add((IBlockElement)element);
+                //        t.AddCell(c);
+                //    }
+
+                //    can.Add(t);
+                //    can.Close();
+                //    numpg = page;
+                //}
+
+                #region katasambung
+                var nextPage = page + 1;
+                if (nextPage <= numberOfPages && page < numpg)
+                {
+                    string pageContent = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(nextPage));
+                    var text = pageContent.Substring(0, 30);
+                    string[] split = text.Split(' ');
+
+                    PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc, page);
+                    Rectangle rectangle = new Rectangle(330, 60, 200, 30);
+                    Canvas can = new Canvas(pdfCanvas, rectangle);
+                    Table t = new Table(new float[] { 200 });
+
+
+                    string cont = $"<span id='katasambung'>{split[0]}...</span>";
+                    string keterangan = "<link rel='stylesheet' type='text/css' href='" + pathx + "/pdf/PdfStyle.css'>" + cont;
+                    foreach (IElement element in HtmlConverter.ConvertToElements(keterangan))
+                    {
+                        Cell c = new Cell().Add((IBlockElement)element).SetBorder(Border.NO_BORDER).SetTextAlignment(TextAlignment.RIGHT);
+                        t.AddCell(c);
+                    }
+                    can.Add(t);
+                    can.Close();
+
+                }
+                #endregion
+
+                #region nomorhalaman
+                if (page > 1 && page <= numpg)
+                {
+                    PdfCanvas pdfCanvas = new PdfCanvas(pdfDoc, page);
+                    Rectangle rectangle = new Rectangle(290, hi-42 , 570, 30);
+                    Canvas can = new Canvas(pdfCanvas, rectangle);
+                    Table t = new Table(1).SetBorder(Border.NO_BORDER);
+
+                    string cont = $"<span id='nomorhal'>-{page.ToString()}-</span>";
+                    string keterangan = "<link rel='stylesheet' type='text/css' href='" + pathx + "/pdf/PdfStyle.css'>" + cont;
+                    foreach (IElement element in HtmlConverter.ConvertToElements(keterangan))
+                    {
+                        Cell c = new Cell().SetBorder(Border.NO_BORDER).Add((IBlockElement)element);
+                        t.AddCell(c);
+                    }
+                    can.Add(t);
+                    can.Close();
+                }
+
+                #endregion
+            }
+
+            writer.SetCloseStream(false);
+            doc2.Close();
+
+            byte[] byteResult = baos.ToArray();
+
+            return byteResult;
+        }
+    }
+   
+}

@@ -1,0 +1,283 @@
+﻿@model IEnumerable<Surat.Models.Entities.KopSurat>
+<style>
+    #TableListPusat_filter, #TableListPusat_info, 
+    #TableListKanwil_filter, #TableListKanwil_info, 
+    #TableListKantah_filter, #TableListKantah_info {
+        display: none
+    }
+
+    #TableListPusat_wrapper,
+    #TableListKanwil_wrapper,
+    #TableListKantah_wrapper {
+        overflow: hidden
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    @*<div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Kop Naskah Dinas
+            </h3>
+        </div>
+        <div class="title_right">
+            <form class="form-horizontal" id="frmCariSurat" method="post">
+                <div class="col-md-8 col-sm-8 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        @Html.TextBox("search", "", new { @class = "form-control", @placeholder = "Pencarian..." })
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>*@
+
+
+    <div class="" role="tabpanel" data-example-id="togglable-tabs" id="tabs">
+        <ul id="actTabs" class="nav nav-tabs hidden-print" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#tab1" role="tab" id="step1-tab" data-toggle="tab" aria-expanded="true">Pusat</a>
+            </li>
+            <li role="presentation" class="" id="tabStep2">
+                <a href="#tab2" role="tab" id="step2-tab" data-toggle="tab" aria-expanded="false">Kantor Wilayah</a>
+            </li>
+            <li role="presentation" class="" id="tabStep3">
+                <a href="#tab3" role="tab" id="step3-tab" data-toggle="tab" aria-expanded="false">Kantor Pertanahan</a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="tab-content" class="tab-content">
+        <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="step1-tab">
+            <div class="table-responsive">
+                <table id="TableListPusat" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Unit Kerja ID</th>
+                            <th style="text-align:center;">Nama Unit Kerja</th>
+                            <th style="text-align:center; width: 11%;">Status</th>
+                            <th style="text-align:center; width: 8%;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Pusat)
+                        {
+                            <tr>
+                                <td style="text-align:center;">@item.RNumber</td>
+                                <td>@item.UnitKerjaId</td>
+                                <td>@item.NamaUnitKerja</td>
+                                <td style="text-align:center;" id="@item.UnitKerjaId">
+                                    @if (item.Total == 1)
+                                    {
+                                        <span class="label label-success">Tersedia</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-danger">Belum Tersedia</span>
+                                    }
+                                </td>
+                                <td style="text-align:center">
+                                    @if (item.Total == 1)
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Kop" onclick="hapusKop('@item.UnitKerjaId')">&nbsp;&nbsp;&nbsp;</i>
+                                        <b class="fa fa-pencil-square-o" title="Ubah Kop" style="cursor: pointer;" onclick="Tampilan('@item.UnitKerjaId','')">&nbsp;&nbsp;&nbsp;</b>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-pencil" style="cursor: pointer;" title="Buat Kop" onclick="Tampilan('@item.UnitKerjaId','@item.KantorId')"></i>
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="tab2" aria-labelledby="step2-tab">
+            <div class="table-responsive">
+                <table id="TableListKanwil" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Unit Kerja ID</th>
+                            <th style="text-align:center;">Nama Unit Kerja</th>
+                            <th style="text-align:center; width: 11%;">Status</th>
+                            <th style="text-align:center; width: 8%;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Kanwil)
+                        {
+                            <tr>
+                                <td style="text-align:center;">@item.RNumber</td>
+                                <td>@item.UnitKerjaId</td>
+                                <td>@item.NamaUnitKerja</td>
+                                <td style="text-align:center;" id="@item.UnitKerjaId">
+                                    @if (item.Total == 1)
+                                    {
+                                        <span class="label label-success">Tersedia</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-danger">Belum Tersedia</span>
+                                    }
+                                </td>
+                                <td style="text-align:center" id="@(item.UnitKerjaId +"_1")">
+                                    @if (item.Total == 1)
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Kop" onclick="hapusKop('@item.UnitKerjaId')">&nbsp;&nbsp;&nbsp;</i>
+                                        <b class="fa fa-pencil-square-o" title="Ubah Kop" style="cursor: pointer;" onclick="Tampilan('@item.UnitKerjaId','')">&nbsp;&nbsp;&nbsp;</b>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-pencil" style="cursor: pointer;" title="Buat Kop" onclick="Tampilan('@item.UnitKerjaId','@item.KantorId')"></i>
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="tab3" aria-labelledby="step3-tab">
+            <div class="table-responsive">
+                <table id="TableListKantah" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center; width: 3%;">#</th>
+                            <th style="text-align:center; width: 13%;">Unit Kerja ID</th>
+                            <th style="text-align:center;">Nama Unit Kerja</th>
+                            <th style="text-align:center; width: 11%;">Status</th>
+                            <th style="text-align:center; width: 8%;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Kantah)
+                        {
+                            <tr>
+                                <td style="text-align:center;">@item.RNumber</td>
+                                <td>@item.UnitKerjaId</td>
+                                <td>@item.NamaUnitKerja</td>
+                                <td style="text-align:center;" id="@item.UnitKerjaId">
+                                    @if (item.Total == 1)
+                                    {
+                                       <span class="label label-success">Tersedia</span>
+                                    }
+                                    else
+                                    {
+                                       <span class="label label-danger">Belum Tersedia</span>
+                                    }
+                                </td>
+                                <td style="text-align:center">
+                                    @if (item.Total == 1)
+                                    {
+                                        <i class="fa fa-trash" style="cursor: pointer;" title="Hapus Kop" onclick="hapusKop('@item.UnitKerjaId')">&nbsp;&nbsp;&nbsp;</i>
+                                        <b class="fa fa-pencil-square-o" title="Ubah Kop" style="cursor: pointer;" onclick="Tampilan('@item.UnitKerjaId','')">&nbsp;&nbsp;&nbsp;</b>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-pencil" style="cursor: pointer;" title="Buat Kop" onclick="Tampilan('@item.UnitKerjaId','@item.KantorId')"></i>
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='DesainKopModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kopContent'>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script>
+
+    $("#TableListPusat, #TableListKanwil, #TableListKantah ").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $('#search').on('keyup', function () {
+        var table = $('#TableList').DataTable();
+        table.search(this.value).draw();
+    });
+
+    function Tampilan(id,kantorid) {
+        if ( id != '' && kantorid == '' ) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("KopEditor", "NaskahDinas")',
+                data: { id: id, kantorin:kantorid },
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data == 'noresults') {
+                        swal("Peringatan", "Data Kop surat tidak ditemukan", "warning")
+                    }
+                    else {
+                        $('#kopContent').html(data);
+                        $('#DesainKopModal').modal('show');
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+        else if (id != '' && kantorid != '') {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("KopEditor", "NaskahDinas")',
+                data: { id: id, kantorin: kantorid},
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data == 'noresults') {
+                        swal("Peringatan", "Data Kop surat tidak ditemukan", "warning")
+                    }
+                    else {
+                        $('#kopContent').html(data);
+                        $('#DesainKopModal').modal('show');
+                    }
+                },
+            })
+        }
+    }
+    $(document).ready(function () {
+        $('#DesainKopModal').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+
+    })
+    function hapusKop(unitkerjaid) {
+        var data = { "unitkerjaid": unitkerjaid }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("HapusKop", "NaskahDinas")',
+            data: data,
+            success: function (rsp) {
+                if (rsp.Status) {
+                    location.reload();
+                }
+                else {
+                    swal("Peringatan", "Data Kop gagal dihapus", "warning")
+                }
+            }
+        })
+    }
+</script>

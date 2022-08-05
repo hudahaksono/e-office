@@ -1,0 +1,45 @@
+﻿@model Dictionary<int, Surat.Models.Entities.ProfileTataUsaha>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin">@lst.Value.RNumber</td>
+        <td class="tdnormal">@lst.Value.ProfileId</td>
+        <td class="tdnormal">@lst.Value.NamaProfile</td>
+        <td class="tdnormal">@lst.Value.ProfileIdTU</td>
+        <td class="tdnormal">@lst.Value.NamaProfileTU</td>
+        <td style="text-align:center;cursor: pointer;" onclick="editProfileTU('@lst.Value.ProfileId','@lst.Value.NamaProfile','@lst.Value.NamaProfileTU');"><i class="fa fa-pencil"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editProfileTU = function (id, namaprofile, namaprofiletu) {
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        //$('#popuptitle').html('Edit data profile TU untuk<br>' + namaprofile);
+        
+        // Get Profile TU by ProfileId
+        $.ajax({
+            url: '@Url.Action("GetProfileTUByProfileId", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { profileid: id },
+            success: function (data) {
+                //console.log('data[0].ProfileId: ' + data[0].ProfileId);
+                $('#frmEditProfileTU')[0].reset();
+
+                $('#SelectedProfileId').val(data[0].ProfileId);
+
+                $('#editnamaprofile').val(data[0].NamaProfile);
+                $('#cmbEditProfileTU').val(data[0].ProfileIdTU).trigger('change');
+
+                $.unblockUI();
+            }
+        });
+
+        $('#ProfileTUEditorModal').modal('show');
+    }
+</script>

@@ -1,0 +1,315 @@
+﻿@model Surat.Models.Entities.AkunSaya
+
+@{  var imagePath = "../resources/images/tn64.jpg";
+
+    if (!IsPost)
+    {
+        string nip = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+
+        Surat.Models.AccountModel model = new Surat.Models.AccountModel();
+
+        var tipe = Model.tipeakun;
+        if (tipe.Equals("ASN"))
+        {
+
+            string foto = new Surat.Models.AccountModel().GetFotoPegawai(nip);
+
+            if (!string.IsNullOrEmpty(foto))
+            {
+                imagePath = "https://simpeg.atrbpn.go.id/app/client/bpn/uploads/siap/foto/" + foto;
+            }
+        }
+        if (tipe.Equals("PPNPN"))
+        {
+            imagePath = Url.Action("getPhotoPPNPN", "Konten") + "?id=" + nip;
+        }
+    }
+}
+
+
+<style>
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 0px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        border: 1px solid #CCC;
+    }
+</style>
+
+<div class="" id="editpanel">
+    <div class="page-title">
+        <div class="title_left"><h2 style="width:100%"><span id="LabelTitle">Akun Saya</span></h2></div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+
+    <div class="x_panel" style="padding-top:30px">
+        <div class="x_content" style="padding-bottom:30px">
+            <form class="form-horizontal form-label-left" id="frmInputUser" role="form">
+                @Html.HiddenFor(m => m.DataUserData.userid, new { @id = "UserId" })
+                @Html.HiddenFor(m => m.DataUserData.pegawaiid, new { @id = "PegawaiId" })
+                @Html.HiddenFor(m => m.tipeakun)
+                <div class="form-group">
+                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                        <img src='@imagePath' alt="" width="150" height="186">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="color: #cccccc;">Nama</label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.TextBoxFor(m => m.DataUserData.namapegawai, new { @class = "form-control", type = "text", @id = "namapegawai", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="color: #cccccc;">NIP</label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.TextBoxFor(m => m.DataUserData.pegawaiid, new { @class = "form-control", type = "text", @id = "pegawaiid", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="color: #cccccc;">Email</label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.TextBoxFor(m => m.DataUserData.email, new { @class = "form-control", @id = "txtemail", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="color: #cccccc;">Profile</label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.DropDownListFor(model => model.myprofileid, new SelectList(@Model.ListMyProfile, "ProfileId", "NamaProfile"), new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbMyProfiles" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="color: #cccccc;">Nomor Telepon</label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.TextBoxFor(m => m.nomortelepon, new { @class = "form-control", @id = "txtnomortelepon", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                    </div>
+                </div>
+                @*<div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Password <span style="color:red">*</span></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.PasswordFor(m => m.DataUserData.password, new { @class = "form-control", @id = "txtpassword" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Konfirmasi Password <span style="color:red">*</span></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        @Html.PasswordFor(m => m.DataUserData.konfirmasipassword, new { @class = "form-control", @id = "txtkonfirmasipassword" })
+                    </div>
+                </div>*@
+                @*<div class="ln_solid"></div>*@
+                <div class="form-group">
+                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                        @*<button id="btnsimpanuser" type="submit" class="btn btn-primary">Simpan</button>*@
+                        <button id="btnGantiSandi" type="button" class="btn btn-primary">Ganti Sandi</button>
+                        <button id="btnresetpassphrase" type="button" class="btn btn-success">Lupa Passphrase</button>
+                        @*<button id="btnsyncuser" type="button" class="btn btn-success"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Sinkronisasi ke Simpeg</button>*@
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var emailTTE = "";
+    $("#btnsyncuser").on("click", function (e) {
+
+        var userid = $('#UserId').val();
+        if (userid !== null && userid !== '') {
+
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var frm = new FormData();
+            frm.append("UserId", $('#UserId').val());
+            frm.append("PegawaiId", $('#PegawaiId').val());
+            frm.append("Nama", $('#namapegawai').val());
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SinkronisasiUser", "Admin")',
+                data: frm,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+
+                        //$('#UserId').val(data.ReturnValue);
+                    }
+                    else {
+                    }
+                    showinfo(data.Pesan);
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+
+            //$.unblockUI();
+
+            //showinfo(data.Pesan);
+            //showinfo("Proses sinkronisasi data Simpeg sudah selesai");
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmInputUser").submit(function (e) {
+
+        //console.log('userid: ' + $('#UserId').val());
+        showloading("Mengecek Isian Penggantian Sandi");
+
+        // Validasi Input
+        var vcheck_phone = $('#txtnomortelepon').val();
+        var vcheck_password = $('#txtpassword').val();
+        var vcheck_confirm = $('#txtkonfirmasipassword').val();
+
+        if (vcheck_phone == '' ||
+            vcheck_password == '' ||
+            vcheck_confirm == '') {
+            swal("Peringatan", "Data input wajib belum Anda masukkan", "warning")
+            return false;
+        }
+
+        var regex = /^[A-Za-z0-9]+$/;
+        var isValid = regex.test(vcheck_password);
+        if (!isValid) {
+            swal("Peringatan", "Sandi tidak boleh menggunakan spesial karakter", "warning")
+            return false;
+        }
+        if (!/[A-Z]/.test(vcheck_password)) {
+            swal("Peringatan", "Sandi harus mengandung huruf besar", "warning")
+            return false;
+        } else if (!/[a-z]/.test(vcheck_password)) {
+            swal("Peringatan", "Sandi harus mengandung huruf kecil", "warning")
+            return false;
+        } else if (!/[0-9]/.test(vcheck_password)) {
+            swal("Peringatan", "Sandi harus mengandung angka", "warning")
+            return false;
+        } else if (vcheck_password.length < 8) {
+            swal("Peringatan", "Sandi minimal 8 karakter", "warning")
+            return false;
+        }
+
+        if (vcheck_password != vcheck_confirm) {
+            swal("Peringatan", "Sandi dan Konfirmasi Sandi harus sama", "warning")
+            return false;
+        }
+
+        swal({
+            title: "Konfirmasi Penyimpanan",
+            text: "Penggantian Sandi",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("UpdateAkunSaya", "Admin")',
+                        data: { tip: $('#tipeakun').val(), tlp: vcheck_phone, pss: vcheck_password },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                swal({
+                                    title: 'Informasi',
+                                    text: 'Sandi Berhasil Diganti',
+                                    icon: 'success'
+                                }, function () {
+                                    window.location.replace("@Url.Action("Index", "Home")");
+                                });
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    $(document).ready(function () {
+        $('#btnresetpassphrase').hide();
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#txtpassword').val('********');
+        $('#txtkonfirmasipassword').val('********');
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("cekStatusTTE", "TandaTanganElektronik")',
+            success: function (data) {
+                if (data !== "") {
+                    $('#btnresetpassphrase').show();
+                    emailTTE = data;
+                    $.unblockUI();
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.unblockUI();
+            }
+        });
+    });
+
+    $("#btnresetpassphrase").on("click", function (e) {
+
+        swal({
+            title: "Konfirmasi Reset Passphrase",
+            text: "Anda dapat melakukan reset passphrase melalui tautan pada email yang dikirimkan ke alamat email " + emailTTE,
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    var userid = $('#UserId').val();
+                    if (userid !== null && userid !== '' && emailTTE !== null && emailTTE !== '') {
+                        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ResetPassPhrase", "TandaTanganElektronik")',
+                            success: function (data, textStatus, XMLHttpRequest) {
+                                if (data.Status) {
+                                    swal("Informasi", data.Pesan, "success")
+                                }
+                                else {
+                                    swal("Peringatan", data.Pesan, "warning")
+                                }
+                                $.unblockUI();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                        });
+                    } else {
+                        swal("Peringatan", "Akun TTE Tidak Ditemukan", "warning")
+                    }
+                }
+            });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnGantiSandi").on("click", function (e) {
+        window.open("https://app.atrbpn.go.id/Akun/pertanahan/AkunSaya/GantiPassword", "_blank");
+        e.preventDefault();
+        return false;
+    });
+</script>
+

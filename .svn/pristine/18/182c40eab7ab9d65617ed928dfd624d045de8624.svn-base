@@ -1,0 +1,977 @@
+﻿@model Surat.Models.Entities.Surat
+
+@{
+    var lstKeteranganSurat = new List<SelectListItem>();
+    lstKeteranganSurat.Add(new SelectListItem { Text = "", Value = "" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Terbuka", Value = "Terbuka" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Tertutup", Value = "Tertutup" });
+
+    var lstRedaksi = new List<SelectListItem>();
+    lstRedaksi.Add(new SelectListItem { Text = "", Value = "" });
+    lstRedaksi.Add(new SelectListItem { Text = "Tembusan", Value = "Tembusan" });
+}
+
+<script type="text/javascript">
+    $(function () {
+        $.validator.unobtrusive.parse(this);
+    });
+</script>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Buat Surat Keluar (Eksternal)
+            </h3>
+        </div>
+        <div class="title_right">
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="">
+
+                <form class="form-horizontal form-label-left" id="frmBuatBaruSuratKeluar" method="post">
+
+                    <div class="x_panel" style="padding-top: 20px; padding-bottom: 10px; margin-bottom: 10px;">
+                        <div class="row">
+                            <div class="col-md-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Tujuan Surat <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.TextBoxFor(model => model.PenerimaSurat, new { @class = "form-control", @id = "penerimasurat", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.PenerimaSurat, "Tujuan Surat wajib diisi.")
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Sifat Surat <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.SifatSurat, new SelectList(@Model.ListSifatSurat, "NamaSifatSurat", "NamaSifatSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSifatSurat", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.SifatSurat, "Sifat Surat wajib dipilih.")
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Jenis Surat <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.TipeSurat, new SelectList(@Model.ListTipeSurat, "NamaTipeSurat", "NamaTipeSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTipeSurat", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.TipeSurat, "Jenis Surat wajib dipilih.")
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Surat <span style="color:red">*</span></label>
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <div class='input-group date' id='tglSurat' style="margin-bottom: 0px;">
+                                            @Html.TextBoxFor(model => model.TanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @required = "required" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.TanggalSurat, "Tanggal Surat wajib diisi")
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" id="LabelNomorSurat">Nomor Surat</label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control", @id = "nomorsurat" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Perihal <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control", @id = "perihal", @rows = 2, @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.Perihal, "Perihal wajib diisi.")
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Keterangan Surat <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.KeteranganSurat, lstKeteranganSurat, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbKeteranganSurat", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.KeteranganSurat, "Keterangan Surat wajib dipilih.")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top:20px;">
+                            <div class="col-md-6 col-xs-12">
+                                <div class="x_title">
+                                    <h2 class="mytitleform">TEMBUSAN SURAT <small>Opsional</small></h2>
+                                    <div class="clearfix"></div>
+                                </div>
+
+                                @Html.HiddenFor(m => m.ProfileIdSelected, new { @id = "ProfileIdSelected" })
+                                @Html.HiddenFor(m => m.PegawaiIdSelected, new { @id = "PegawaiIdSelected" })
+                                @Html.HiddenFor(m => m.KategoriTujuanSurat, new { @id = "KategoriTujuanSurat" })
+
+                                <div class="form-group" style="padding-bottom:6px;">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Kategori Tujuan</label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div id="gender" class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-primary active" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default" id="LabelOpJabatan">
+                                                @Html.RadioButtonFor(model => model.KategoriTujuanSurat, "Jabatan", new { id = "OpJabatan" })
+                                                @Html.Label("OpJabatan", "Jabatan", new { @style = "font-family: 'Varela Round', sans-serif; font-weight: normal;" })
+                                            </label>
+                                            <label class="btn btn-default" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default" id="LabelOpPersonal">
+                                                @Html.RadioButtonFor(model => model.KategoriTujuanSurat, "Personal", new { id = "OpPersonal" })
+                                                @Html.Label("OpPersonal", "Personal", new { @style = "font-family: 'Varela Round', sans-serif; font-weight: normal;" })
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="DivUnitKerjaTujuanSurat">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Unit Kerja <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.UnitKerjaIdTujuan, new SelectList(@Model.ListUnitKerja, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaTujuan", @onchange = "UnitKerjaChanged()" })
+                                    </div>
+                                </div>
+                                <div class="form-group" id="DivJabatanTujuanSurat">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Jabatan <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.ProfileIdTujuan, new SelectList(@Model.ListProfileTujuan, "ProfileId", "NamaProfile"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbProfileTujuan", @onchange = "ProfileChanged()" })
+                                    </div>
+                                </div>
+                                <div class="form-group" id="DivPegawaiJabatanTujuanSurat">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Pegawai</label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.PegawaiIdTujuan, new SelectList(@Model.ListTujuanPegawai, "PegawaiId", "NamaLengkap"), new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbPegawaiPenerima" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="DivPegawaiPersonalTujuanSurat">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Pegawai <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        <div class='input-group' style="margin-bottom: 0px;">
+                                            @Html.TextBoxFor(model => model.NamaPegawaiTujuan, new { @class = "form-control", @id = "namapegawaitujuan" })
+                                            <span class="input-group-addon" id="BtnCariPegawaiPersonal" style="cursor:pointer;">
+                                                <span class="fa fa-search"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="DivJabatanPegawaiPersonalTujuanSurat">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" style="color:#cccccc;">Jabatan <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.TextBoxFor(model => model.InfoNamaProfileTujuan, new { @class = "form-control", @id = "infonamaprofiletujuan", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Redaksi <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.Redaksi, lstRedaksi, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbRedaksi" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
+                                        <button id="btnsimpantujuansurat" type="button" class="btn btn-primary">Simpan</button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive" style="padding-right:10px; padding-left:10px;">
+                                    <table id="myTableTujuan" class="table table-striped table-bordered dt-responsive" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Jabatan</th>
+                                                <th>Pegawai</th>
+                                                <th>Redaksi</th>
+                                                <th>Hapus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12">
+                                <div class="x_title">
+                                    <h2 class="mytitleform">FILE SURAT</h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <span class="btn btn-primary btn-file"><i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;Pilih File<input type="file" name="UploadFromFile" id="txtUploadFile" class="btn btn-primary" accept=".pdf" /></span>
+                                    </div>
+                                </div>
+                                <div class="table-responsive" style="padding-right:10px; padding-left:10px;">
+                                    <table id="myTableFile" class="table table-striped table-bordered dt-responsive" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>File</th>
+                                                <th>Lihat</th>
+                                                <th>Hapus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="title_right">
+                        <div class="pull-right" style="padding-bottom:10px;">
+                            <button id="save-btn" type="submit" class="btn btn-success">Kirim</button>
+                            <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+<div id='ListPegawaiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Daftar Pegawai</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="row">
+                                <div class="table-responsive" style="padding-right:10px;">
+                                    <form id="frmDaftarPegawai"></form>
+                                    <table id="myTableDaftarPegawai" class="table table-striped table-bordered dt-responsive" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%">#</th>
+                                                <th>NIP</th>
+                                                <th>Nama</th>
+                                                <th>Jabatan</th>
+                                                <th style="width:10%">Pilih</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="padding-top:20px;">
+                                    <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $.unblockUI();
+
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+        }
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#tglSurat, #tanggalsurat').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id',
+            maxDate: moment()
+        });
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+
+        $.ajax({
+            url: '@Url.Action("IsPembuatNomorSuratRole", "Admin")',
+            success: function (response) {
+                //console.log('response: ' + response);
+                if (response == '1') { }
+                else {
+                    $('#nomorsurat').attr("readonly", true);
+                    $("#nomorsurat").attr('style', 'background-color:white; color:#b0b0b0;');
+                    $("#LabelNomorSurat").attr('style', 'color:#cccccc;');
+                }
+            },
+            error: function (response) { }
+        });
+
+        // Hapus Session Tujuan Surat saat load halaman ini
+        $.ajax({
+            url: '@Url.Action("HapusSessionTujuanSurat", "Flow")',
+            error: function (response) { }
+        });
+
+        // Hapus Session Lampiran saat load halaman ini
+        $.ajax({
+            url: '@Url.Action("HapusSessionLampiran", "Flow")',
+            error: function (response) { }
+        });
+
+        createPagingTujuanSurat();
+        createPagingLampiranSurat();
+
+        createPagingDaftarPegawai();
+
+        SetFormsTujuanSurat('jabatan');
+    });
+
+    function ResetTujuanSuratValues() {
+        $('#namapegawaitujuan').val('');
+        $('#infonamaprofiletujuan').val('');
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+        $('#cmbUnitKerjaTujuan').val('').trigger('change');
+        $('#cmbProfileTujuan').val('').trigger('change');
+        $('#cmbPegawaiPenerima').val('').trigger('change');
+        $('#cmbRedaksi').val('').trigger('change');
+    };
+
+    function SetFormsTujuanSurat(tujuan) {
+        ResetTujuanSuratValues();
+
+        $('#KategoriTujuanSurat').val(tujuan);
+
+        $("#DivUnitKerjaTujuanSurat").hide();
+        $("#DivJabatanTujuanSurat").hide();
+        $("#DivPegawaiJabatanTujuanSurat").hide();
+        $("#DivPegawaiPersonalTujuanSurat").hide();
+        $("#DivJabatanPegawaiPersonalTujuanSurat").hide();
+
+        if (tujuan == 'jabatan') {
+            $("#DivUnitKerjaTujuanSurat").show();
+            $("#DivJabatanTujuanSurat").show();
+            $("#DivPegawaiJabatanTujuanSurat").show();
+        }
+        else if (tujuan == 'personal') {
+            $("#DivPegawaiPersonalTujuanSurat").show();
+            $("#DivJabatanPegawaiPersonalTujuanSurat").show();
+        }
+    }
+
+    $("#LabelOpJabatan").on("click", function (e) {
+        $("#LabelOpJabatan").attr('class', 'btn btn-primary active');
+        $("#LabelOpPersonal").attr('class', 'btn btn-default');
+
+        SetFormsTujuanSurat('jabatan');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#LabelOpPersonal").on("click", function (e) {
+        $("#LabelOpJabatan").attr('class', 'btn btn-default');
+        $("#LabelOpPersonal").attr('class', 'btn btn-primary active');
+
+        SetFormsTujuanSurat('personal');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#reset-btn").on("click", function (e) {
+        ResetForms();
+        return false;
+    });
+
+    function ResetForms() {
+        $('#frmBuatBaruSuratKeluar')[0].reset();
+        $('#cmbSifatSurat').val('').trigger('change');
+        $('#cmbTipeSurat').val('').trigger('change');
+        $('#cmbKeteranganSurat').val('').trigger('change');
+
+        ResetTujuanSuratValues();
+
+        // Hapus Session Tujuan Surat
+        $.ajax({
+            url: '@Url.Action("HapusSessionTujuanSurat", "Flow")',
+            error: function (response) {
+                $.unblockUI();
+            }
+        });
+        dtableTujuanSurat.ajax.reload(null, true);
+
+        // Hapus Session Lampiran
+        $.ajax({
+            url: '@Url.Action("HapusSessionLampiran", "Flow")',
+            error: function (response) {
+                $.unblockUI();
+            }
+        });
+        dtableLampiranSurat.ajax.reload(null, true);
+    };
+
+    function UnitKerjaChanged() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var id = $('#cmbUnitKerjaTujuan').val();
+
+        $.ajax({
+            url: '@Url.Action("GetProfilesByUnitKerja", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { unitkerjaid: id },
+            success: function (data) {
+                $('#cmbPegawaiPenerima').html("");
+                $('#cmbPegawaiPenerima').append($('<option></option>').val("").html(""));
+
+                $('#cmbProfileTujuan').html("");
+                $('#cmbProfileTujuan').append($('<option></option>').val("").html(""));
+                $.each(data, function (i, data) {
+                    $('#cmbProfileTujuan').append(
+                        $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                });
+
+                $.unblockUI();
+            }
+        });
+    };
+
+    function ProfileChanged() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var id = $('#cmbProfileTujuan').val();
+
+        $.ajax({
+            url: '@Url.Action("GetPegawaiByProfileId", "Flow")',
+            type: "GET",
+            dataType: "JSON",
+            data: { profileid: id },
+            success: function (data) {
+                $('#cmbPegawaiPenerima').html("");
+                $('#cmbPegawaiPenerima').append($('<option></option>').val("").html(""));
+                $.each(data, function (i, data) {
+                    $('#cmbPegawaiPenerima').append(
+                        $('<option></option>').val(data.PegawaiId).html(data.NamaLengkap));
+                });
+
+                $.unblockUI();
+            }
+        });
+    };
+
+    $("#BtnCariPegawaiPersonal").on("click", function (e) {
+        //$.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var vcheck_namapegawaitujuan = $('#namapegawaitujuan').val();
+        if (vcheck_namapegawaitujuan == '') {
+            $.unblockUI();
+            return false;
+        }
+
+        $('#infonamaprofiletujuan').val('');
+        $('#ProfileIdSelected').val('');
+        $('#PegawaiIdSelected').val('');
+
+        dtableDaftarPegawai.ajax.reload(null, true);
+        $('#ListPegawaiModal').modal('show');
+
+        @*// Cari Pegawai
+        $.ajax({
+            url: '@Url.Action("GetPegawaiByNama", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { namapegawai: $('#namapegawaitujuan').val() },
+            success: function (datapegawai) {
+                if (datapegawai[0] != null) {
+                    //console.log('PegawaiIdSelected: ' + datapegawai[0].PegawaiId);
+                    $('#PegawaiIdSelected').val(datapegawai[0].PegawaiId);
+                    $('#namapegawaitujuan').val(datapegawai[0].Nama); // lengkapi nama pegawai yang sukses dicari
+
+                    // Get List Profile by selected pegawai
+                    $.ajax({
+                        url: '@Url.Action("GetProfilesByPegawaiId", "Admin")',
+                        type: "GET",
+                        dataType: "JSON",
+                        data: { pegawaiid: datapegawai[0].PegawaiId },
+                        success: function (dataprofile) {
+                            if (dataprofile[0] != null) {
+                                //console.log('ProfileIdSelected: ' + dataprofile[0].ProfileId);
+                                $('#ProfileIdSelected').val(dataprofile[0].ProfileId);
+                                $('#infonamaprofiletujuan').val(dataprofile[0].NamaProfile);
+                            }
+                            else {
+                                showalert('Jabatan ' + datapegawai[0].NamaLengkap + ' tidak ditemukan dalam database');
+                            }
+                        }
+                    });
+                }
+                else {
+                    showalert('Data Pegawai ' + $('#namapegawaitujuan').val() + ' tidak ditemukan dalam database');
+                }
+
+                $.unblockUI();
+            }
+        });*@
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#ButtonReset").on("click", function (e) {
+        $('#frmFindDataPegawai')[0].reset();
+        $('#cmbSelectedProfile').val('').trigger('change');
+    });
+
+    $("#frmBuatBaruSuratKeluar").submit(function (e) {
+        if ($("#frmBuatBaruSuratKeluar").valid()) {
+
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var frm = this, frmdata = new FormData(this);
+            frmdata.append("ArahSuratKeluar", 'Eksternal');
+
+            // Save to SURAT
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("InsertSuratKeluar", "Flow")',
+                data: frmdata,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        // Reset Forms
+                        ResetForms();
+                        objpdf = null;
+
+
+                        // Hapus Session Tujuan Surat sebelum keluar dari halaman ini
+                        $.ajax({
+                            url: '@Url.Action("HapusSessionTujuanSurat", "Flow")',
+                            error: function (response) { }
+                        });
+                        dtableTujuanSurat.ajax.reload(null, true);
+
+
+                        // Hapus Session Lampiran sebelum keluar dari halaman ini
+                        $.ajax({
+                            url: '@Url.Action("HapusSessionLampiran", "Flow")',
+                            error: function (response) { }
+                        });
+                        dtableLampiranSurat.ajax.reload(null, true);
+
+
+                        // Success message
+                        showinfo(data.Pesan);
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    var dtableTujuanSurat;
+    var createPagingTujuanSurat = function () {
+        dtableTujuanSurat = $('#myTableTujuan').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("ListSessionNewTujuanSurat", "Flow")',
+                type: "POST"
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NamaJabatan" },
+                { "data": "NamaPegawai" },
+                { "data": "Redaksi" },
+                {
+                    "data": "Hapus",
+                    "className": "centertaligncolumn",
+                    "width": "5%",
+                    render: function (data, type, row) {
+                        return '<b class="editor-active fa fa-trash" style="cursor: pointer;"></b>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#myTableTujuan tbody').delegate('tr b', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableTujuanSurat.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data tujuan surat ke : " + data.NamaJabatan + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", data.TujuanSuratId);
+                $.ajax({
+                    url: '@Url.Action("HapusSessionTujuanSuratById", "Flow")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableTujuanSurat.ajax.reload(null, true);
+                            showinfo('Data berhasil dihapus');
+                        }
+                        else {
+                            showalert("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    });
+
+    $("#btnsimpantujuansurat").on("click", function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        // Validasi Input
+        var vcheck_profileId = '';
+        var vcheck_pegawaiid = '';
+        var vcheck_namaprofile = '';
+        var vcheck_namapegawai = '';
+        var vcheck_redaksi = $('#cmbRedaksi').val();
+        var kategoritujuansurat = $('#KategoriTujuanSurat').val();
+        if (kategoritujuansurat == 'jabatan') {
+            vcheck_profileId = $('#cmbProfileTujuan').val();
+            vcheck_pegawaiid = $('#cmbPegawaiPenerima').val();
+            vcheck_namaprofile = $('#cmbProfileTujuan :selected').text();
+            vcheck_namapegawai = $('#cmbPegawaiPenerima :selected').text();
+        }
+        else if (kategoritujuansurat == 'personal') {
+            vcheck_profileId = $('#ProfileIdSelected').val();
+            vcheck_pegawaiid = $('#PegawaiIdSelected').val();
+            vcheck_namaprofile = $('#infonamaprofiletujuan').val();
+            vcheck_namapegawai = $('#namapegawaitujuan').val();
+        }
+
+        //console.log('vcheck_profileId: ' + vcheck_profileId);
+        //console.log('vcheck_pegawaiid: ' + vcheck_pegawaiid);
+        //console.log('vcheck_namaprofile: ' + vcheck_namaprofile);
+        //console.log('vcheck_namapegawai: ' + vcheck_namapegawai);
+
+        if (kategoritujuansurat == 'jabatan') {
+            if (vcheck_profileId == '' ||
+                vcheck_redaksi == '') {
+                $.unblockUI();
+                showalert('Data input wajib belum Anda masukkan');
+                return false;
+            }
+        }
+        else if (kategoritujuansurat == 'personal') {
+            if (vcheck_profileId == '' ||
+                vcheck_pegawaiid == '' ||
+                vcheck_redaksi == '') {
+                $.unblockUI();
+                showalert('Data input wajib belum Anda masukkan');
+                return false;
+            }
+        }
+
+        var frm = new FormData();
+        frm.append("ProfileId", vcheck_profileId);
+        frm.append("Redaksi", $('#cmbRedaksi').val());
+        frm.append("Nip", vcheck_pegawaiid);
+        frm.append("NamaJabatan", vcheck_namaprofile);
+        frm.append("NamaPegawai", vcheck_namapegawai);
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InsertSessionTujuanSurat", "Flow")',
+            data: frm,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    ResetTujuanSuratValues();
+                    dtableTujuanSurat.ajax.reload(null, true);
+                }
+                else {
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    var dtableLampiranSurat;
+    var createPagingLampiranSurat = function () {
+        dtableLampiranSurat = $('#myTableFile').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("ListSessionLampiran", "Flow")',
+                type: "POST"
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NamaFile" },
+                {
+                    "data": "Lihat",
+                    "className": "centertaligncolumn",
+                    "width": "5%",
+                    render: function (data, type, row) {
+                        return '<i class="editor-active fa fa-eye" style="cursor: pointer;"></i>';
+                    }
+                },
+                {
+                    "data": "Hapus",
+                    "className": "centertaligncolumn",
+                    "width": "5%",
+                    render: function (data, type, row) {
+                        return '<b class="editor-active fa fa-trash" style="cursor: pointer;"></b>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#myTableFile tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableLampiranSurat.row($(this).closest('tr')).data();
+
+        //var byteArray = new Uint8Array(data.ObjectFile);
+        //var blob = new Blob([byteArray], { type: "application/pdf;base64" });
+        //var objurl = window.URL.createObjectURL(blob);
+
+        var id = data.LampiranSuratId;
+        if (id !== null && id !== '') {
+
+            var objurl = '@Url.Action("GetFileLampiranById", "Flow")?lampiransuratid=' + id;
+
+            objpdf = objurl;
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalContent').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+
+            dtableLampiranSurat.$('tr.selected').removeClass('selected');
+        }
+    });
+
+    $('#myTableFile tbody').delegate('tr b', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableLampiranSurat.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data File : " + data.NamaFile + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", data.LampiranSuratId);
+                $.ajax({
+                    url: '@Url.Action("HapusSessionLampiranById", "Flow")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableLampiranSurat.ajax.reload(null, true);
+                            showinfo('Data berhasil dihapus');
+                        }
+                        else {
+                            showalert("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    });
+
+    var dfFileDokumen = null;
+    $("#txtUploadFile").on("change", function (e) {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+        if (numFiles > 0) {
+            var file = dfFileDokumen = input.get(0).files[0],
+                blob = new Blob([file], { type: "application/pdf;base64" }),
+                objurl = window.URL.createObjectURL(blob);
+
+            if (file.size > 20000 * 1024) { dfFileDokumen = null; showmsg('Peringatan', 'File maksimum 20Mb'); return false; }
+
+            //console.log(blob);
+            objpdf = objurl;
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalContent').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    //$.unblockUI();
+
+                    var frm = new FormData();
+                    frm.append("namafile", dfFileDokumen.name);
+                    frm.append("file", dfFileDokumen);
+
+                    // Save to SESSIONLAMPIRAN
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("InsertSessionLampiran", "Flow")',
+                        data: frm,
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                dtableLampiranSurat.ajax.reload(null, true);
+                            }
+                            else {
+                            }
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    });
+
+
+    var dtableDaftarPegawai;
+    var createPagingDaftarPegawai = function () {
+        dtableDaftarPegawai = $('#myTableDaftarPegawai').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("GetListPegawaiByNama", "Admin")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmDaftarPegawai').serializeArray(); data.form = ftp; ftp.push({ name: "namapegawai", value: $('#namapegawaitujuan').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "PegawaiId" },
+                { "data": "NamaLengkap" },
+                { "data": "Jabatan" },
+                {
+                    "data": "Pilih",
+                    "className": "centertaligncolumn",
+                    "width": "10%",
+                    render: function () {
+                        return '<i class="fa fa-check" style="cursor: pointer; color:#b72a2a;"></i>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#myTableDaftarPegawai tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDaftarPegawai.row($(this).closest('tr')).data();
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        //console.log('PegawaiIdSelected: ' + data.PegawaiId);
+        $('#PegawaiIdSelected').val(data.PegawaiId);
+        $('#namapegawaitujuan').val(data.Nama); // lengkapi nama pegawai yang sukses dicari
+
+        // Get List Profile by selected pegawai
+        $.ajax({
+            url: '@Url.Action("GetProfilesByPegawaiId", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { pegawaiid: data.PegawaiId },
+            success: function (dataprofile) {
+                if (dataprofile[0] != null) {
+                    //console.log('ProfileIdSelected: ' + dataprofile[0].ProfileId);
+                    $('#ProfileIdSelected').val(dataprofile[0].ProfileId);
+                    $('#infonamaprofiletujuan').val(dataprofile[0].NamaProfile);
+                }
+                else {
+                    showalert('Jabatan ' + data.NamaLengkap + ' tidak ditemukan dalam database');
+                }
+
+                $.unblockUI();
+                $('#ListPegawaiModal').modal('hide');
+            }
+        });
+    });
+
+</script>

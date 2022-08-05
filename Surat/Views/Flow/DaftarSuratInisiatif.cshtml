@@ -1,0 +1,59 @@
+﻿@model Dictionary<int, Surat.Models.Entities.SuratInbox>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr style="cursor: pointer;" onclick="bukaSuratKeluar('@lst.Value.SuratId','@lst.Value.SuratInboxId','@lst.Value.NomorSurat','@lst.Value.StatusTerkunci');">
+        @if (@lst.Value.StatusTerkunci == 1)
+        {
+            <th class="centertaligndisabled" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+            <td class="centertaligndisabled" style="width: 150px; font-weight: normal;">@lst.Value.TanggalKirim</td>
+            <td class="tddisabled">@lst.Value.Perihal</td>
+            <td class="tddisabled">@lst.Value.PengirimSurat</td>
+            <td class="tddisabled">@lst.Value.Redaksi</td>
+            <td class="tddisabled">@lst.Value.InfoTargetSelesai</td>
+        }
+        else
+        {
+            if (@lst.Value.StatusBuka == 1)
+            {
+                <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+                <td class="centertaligncolumn" style="width: 150px; font-weight: normal;">@lst.Value.TanggalKirim</td>
+                if (@lst.Value.StatusUrgent == 1)
+                {
+                <td class="tdnormal"><i class="fa fa-exclamation-circle red"></i>&nbsp;@lst.Value.Perihal</td>
+                }
+                else
+                {
+                <td class="tdnormal">@lst.Value.Perihal</td>
+                }
+                <td class="tdnormal">@lst.Value.PengirimSurat</td>
+                <td class="tdnormal">@lst.Value.Redaksi</td>
+                <td class="tdnormal">@lst.Value.InfoTargetSelesai</td>
+            }
+            else
+            {
+                <th class="centertaligncolumn" style="font-weight: bold;" scope="row">@lst.Value.RNumber</th>
+                <td class="centertaligncolumn" style="width: 150px; font-weight: bold;">@lst.Value.TanggalKirim</td>
+                if (@lst.Value.StatusUrgent == 1)
+                {
+                <td class="tdhighlight"><i class="fa fa-exclamation-circle red"></i>&nbsp;@lst.Value.Perihal</td>
+                }
+                else
+                {
+                <td class="tdhighlight">@lst.Value.Perihal</td>
+                }
+                <td class="tdhighlight">@lst.Value.PengirimSurat</td>
+                <td class="tdhighlight">@lst.Value.Redaksi</td>
+                <td class="tdhighlight">@lst.Value.InfoTargetSelesai</td>
+            }
+        }
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaSuratKeluar = function (i, s, n, t) {
+        window.location.href = '@Url.Action("BukaSuratInisiatif", "Flow")?suratid=' + i + '&suratinboxid=' + s + '&nomorsurat=' + n;
+    }
+</script>

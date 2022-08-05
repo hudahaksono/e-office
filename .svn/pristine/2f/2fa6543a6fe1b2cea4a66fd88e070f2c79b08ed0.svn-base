@@ -1,0 +1,60 @@
+﻿@media print {
+    .print:last-child {
+        page-break-after: auto;
+    }
+
+  .anchorprint {
+    width: 50%;
+  }
+
+  html,
+    body {
+    width: 210mm;
+  }
+
+  .page {
+    margin:0 0;
+    border: initial;
+    border-radius: initial;
+    width: initial;
+    /*min-height: 297mm;*/
+    box-shadow: initial;
+    background: initial;
+  }
+
+  tr.page-break-print {
+    display: block;
+    page-break-before: always;
+  }
+
+  div.avoid-div-break {
+    page-break-inside: avoid;
+  }
+
+    div.x_panel.no-border {
+        border: none;
+        margin:0 0;
+        padding:0 0;
+    }
+
+    div.x_content.clear {
+        padding:0 0;
+        margin:0 0;
+    }
+
+    div#right_col.right_col {
+        margin-left: 0;
+    }
+
+    div#tab-content.tab-content {
+        padding:0 0;
+    }
+
+    footer#bbar.hidden-xs{
+        display:none;
+    }
+
+    a#back-to-top.btn.btn-primary.back-to-top{
+        display:none;
+    }
+}

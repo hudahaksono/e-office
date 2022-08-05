@@ -1,0 +1,242 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+//using System.Net.NetworkInformation;
+using System.Web;
+using System.Web.Mvc;
+//using DeviceId;
+using Surat.Codes;
+
+namespace Surat.Controllers
+{
+    [AccessDeniedAuthorize]
+    public class HomeController : Controller
+    {
+        //Functions functions = new Functions();
+        Functions functions = new Functions();
+        Models.DataMasterModel dataMasterModel = new Models.DataMasterModel();
+        Models.PersuratanModel persuratanmodel = new Models.PersuratanModel();
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public async Task<ActionResult> Dashboard()
+        {
+            string pegawaiid = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).PegawaiId;
+            string unitkerjaid = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).UnitKerjaId;
+            string namaunitkerja = (string.IsNullOrEmpty(unitkerjaid)) ? "" : dataMasterModel.GetNamaUnitKerjaById(unitkerjaid);
+            string kantorid = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).KantorId;
+            string profileidtu = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).ProfileIdTU;
+
+            string satkerid = kantorid;
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+            if (tipekantorid == 1)
+            {
+                //satkerid = profileidtu;
+                satkerid = unitkerjaid;
+            }
+
+            Models.Entities.ChartSurat chartData = new Models.Entities.ChartSurat();
+
+            chartData.UnitKerjaId = unitkerjaid;
+            chartData.NamaUnitKerja = namaunitkerja;
+
+
+            #region Data Progress, tipe Chart Gauge
+
+            decimal totalSuratSatker = 0;
+            decimal jumlahSuratSatkerSelesai = 0;
+
+            Models.Entities.ChartSuratGauge chartDataGaugeSatker = new Models.Entities.ChartSuratGauge();
+            Models.Entities.ChartSuratGauge chartDataGaugePersonal = new Models.Entities.ChartSuratGauge();
+
+            chartDataGaugePersonal.TotalSuratPersonal = 0;
+            chartDataGaugePersonal.JumlahSelesaiPersonal = 0;
+
+            chartData.JumlahSurat = "0";
+            chartData.JumlahInbox = "0";
+            chartData.JumlahTerkirim = "0";
+            chartData.JumlahSelesai = "0";
+
+            if (!string.IsNullOrEmpty(unitkerjaid))
+            {
+                var _tr = dataMasterModel.GetTipeUser(pegawaiid,kantorid);
+                if (_tr.Status)
+                {
+                    string tipeUser = _tr.ReturnValue;
+                    List<Models.Entities.RekapSurat> listRekapSurat = persuratanmodel.GetRekapSurat(unitkerjaid, satkerid, "ALL");
+                    foreach (Models.Entities.RekapSurat item in listRekapSurat)
+                    {
+                        if (item.NIP == pegawaiid)
+                        {
+                            chartDataGaugePersonal.TotalSuratPersonal = item.JumlahSurat;
+                            chartDataGaugePersonal.JumlahSelesaiPersonal = item.JumlahSelesai;
+
+                            chartData.JumlahSurat = string.Format("{0:#,##0}", item.JumlahSurat);
+                            chartData.JumlahInbox = string.Format("{0:#,##0}", item.JumlahInbox);
+                            chartData.JumlahTerkirim = string.Format("{0:#,##0}", item.JumlahTerkirim);
+                            chartData.JumlahSelesai = string.Format("{0:#,##0}", item.JumlahSelesai);
+                        }
+
+                        totalSuratSatker += item.JumlahSurat;
+                        jumlahSuratSatkerSelesai += item.JumlahSelesai;
+                    }
+                }
+            }
+            else
+            {
+                chartDataGaugePersonal.TotalSuratPersonal = 0;
+                chartDataGaugePersonal.JumlahSelesaiPersonal = 0;
+            }
+
+            chartDataGaugeSatker.TotalSuratSatker = totalSuratSatker;
+            chartDataGaugeSatker.JumlahSelesaiSatker = jumlahSuratSatkerSelesai;
+
+            chartData.chartGaugeSatker = chartDataGaugeSatker;
+            chartData.chartGaugePersonal = chartDataGaugePersonal;
+
+            //chartData.SuratBelumDibuka = persuratanmodel.JumlahSuratBelumDibukaDenganTipe(satkerid,pegawaiid, functions.MyProfiles(pegawaiid, kantorid));
+
+            chartData.SuratBelumDibuka = persuratanmodel.JumlahSuratBelumDibukaDenganTipeV2(unitkerjaid, pegawaiid);
+
+            #endregion
+
+            //if (dataMasterModel.CheckUserProfile(pegawaiid, kantorid, "'H1601000','H1600000','H2080000'"))
+            //{
+            //    chartData.satker_pusat = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT","pusat"));
+            //    chartData.akun_pusat = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("SM", "pusat"));
+            //    chartData.satker_kanwil = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT", "kanwil"));
+            //    chartData.satker_kanwil_aktif = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT", "kanwil_a"));
+            //    chartData.satker_kanwil_total = string.Format("{0:#,##0}", dataMasterModel.JumlahDataTotal("kanwil"));
+            //    chartData.akun_kanwil= string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("SM", "kanwil"));
+            //    chartData.satker_kantah = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT", "kantah"));
+            //    chartData.satker_kantah_aktif = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT", "kantah_a"));
+            //    chartData.satker_kantah_total = string.Format("{0:#,##0}", dataMasterModel.JumlahDataTotal("kantah"));
+            //    chartData.akun_kantah = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("SM", "kantah"));
+            //    chartData.satker_total = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("CT", "total"));
+            //    chartData.akun_total = string.Format("{0:#,##0}", dataMasterModel.JumlahDataAktif("SM", "total"));
+            //}
+
+            return View(chartData);
+        }
+        //public ActionResult RekapUnit(int? draw, int? start, int? length)
+        //{
+        //    var result = new List<Models.Entities.DaftarKantor>();
+        //    decimal? total = 0;
+        //    string pegawaiid = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).PegawaiId;
+        //    string kantorid = (HttpContext.User.Identity as Models.Entities.InternalUserIdentity).KantorId;
+        //    if (dataMasterModel.CheckUserProfile(pegawaiid, kantorid, "'H1601000','H1600000','H2080000'"))
+        //    {
+        //        string Unit = Request.Form["unit"].ToString();
+        //        string Tipe = Request.Form["tipe"].ToString();
+
+        //        if (!string.IsNullOrEmpty(Tipe))
+        //        {
+        //            int recNumber = start ?? 0;
+        //            int RecordsPerPage = length ?? 10;
+        //            int from = recNumber + 1;
+        //            int to = from + RecordsPerPage - 1;
+        //            if (Tipe.Equals("aktif"))
+        //            {
+        //                result = dataMasterModel.DataKantorBelumDaftar(Unit, from, to);
+        //            }
+        //            else if (Tipe.Equals("tte"))
+        //            {
+        //                result = dataMasterModel.DataKantorBelumGunakanTTE(Unit, from, to);
+        //            }
+
+        //            if (result.Count > 0)
+        //            {
+        //                total = result[0].Total;
+        //            }
+        //        }
+        //    }
+        //    return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        //}
+
+        public ActionResult openGantiPassword()
+        {
+            var log = HttpContext.User.Identity as Models.Entities.InternalUserIdentity;
+            var inuser = new Models.Entities.InternalUserData();
+            inuser.userid = log.UserId;
+            inuser.namapegawai = log.NamaPegawai;
+            inuser.pegawaiid = log.PegawaiId;
+            inuser.username = log.UserName;
+            inuser.email = log.Email;
+            var akunsaya = new Models.Entities.AkunSaya();
+            akunsaya.tipeakun = dataMasterModel.GetTipeAkun(log.PegawaiId, log.UserId);
+            akunsaya.nomortelepon = dataMasterModel.GetPhone(log.PegawaiId, akunsaya.tipeakun);
+            akunsaya.DataUserData = inuser;
+            return PartialView("GantiPassword", akunsaya);
+        }
+
+        [HttpPost]
+        public JsonResult GetNotifBadge()
+        {
+            var log = HttpContext.User.Identity as Models.Entities.InternalUserIdentity;
+            int cSuratMasuk = OtorisasiUser.getCountSurat("Masuk");
+            int cSuratInisiatif = OtorisasiUser.getCountSurat("Inisiatif");
+            int cProsesSurat = OtorisasiUser.getCountProsesSurat();
+            int cProsesTTE = OtorisasiUser.getCountProsesTTE();
+            int cProsesDraft = Decimal.ToInt32(new Surat.Models.NaskahDinasModel().GetJumlahPersetujuanKonsep(log.UserId));
+            int cPengaduan = OtorisasiUser.getCountPengaduan();
+            int cRapatOnline = OtorisasiUser.getCountRapatOnline();
+            int cTotal = cProsesSurat + cProsesDraft + cProsesTTE + cSuratMasuk + cSuratInisiatif + cPengaduan + cRapatOnline;
+
+            return Json(new
+            {
+                status = cTotal > 0,
+                countData = new
+                {
+                    cProsesSurat = new
+                    {
+                        total = string.Format("{0:#,##0}", cProsesSurat),
+                        title = "Jumlah Menunggu Persetujuan",
+                        href = Url.Action("ProsesSurat", "Flow")
+                    },
+                    cProsesDraft = new
+                    {
+                        total = string.Format("{0:#,##0}", cProsesDraft),
+                        title = "Jumlah Koordinasi Konsep Naskah Dinas",
+                        href = Url.Action("ProsesList", "NaskahDinas")
+                    },
+                    cProsesTTE = new
+                    {
+                        total = string.Format("{0:#,##0}", cProsesTTE),
+                        title = "Jumlah Permohonan TTE",
+                        href = Url.Action("ProsesTTE", "TandaTanganElektronik")
+                    },
+                    cSuratMasuk = new
+                    {
+                        total = string.Format("{0:#,##0}", cSuratMasuk),
+                        title = "Jumlah Surat Masuk",
+                        href = Url.Action("KotakMasuk", "Surat")
+                    },
+                    cSuratInisiatif = new
+                    {
+                        total = string.Format("{0:#,##0}", cSuratInisiatif),
+                        title = "Jumlah Surat Inisiatif",
+                        href = Url.Action("SuratInisiatif", "Flow")
+                    },
+                    cPengaduan = new
+                    {
+                        total = string.Format("{0:#,##0}", cPengaduan),
+                        title = "Jumlah Surat Pengaduan",
+                        href = Url.Action("ListPengaduan", "Pengaduan")
+                    },
+                    cRapatOnline = new
+                    {
+                        total = string.Format("{0:#,##0}", cRapatOnline),
+                        title = "Jumlah Rapat Online",
+                        href = Url.Action("ListRapatOnline", "Meeting")
+                    }
+                },
+                total = cTotal,
+                totalstring = string.Format("{0:#,##0}", cTotal)
+            });
+        }
+    }
+}

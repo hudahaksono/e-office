@@ -1,0 +1,387 @@
+﻿@model Surat.Models.Entities.DataBukuTamu
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Aplikasi Buku Tamu</title>
+    <link rel="shortcut icon" href="../../favicon.ico" />
+
+    <link href='@Url.Content("~/resources/css/bootstrap.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/font-awesome.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/qrpage.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/custom.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.buttons.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/pnotify.nonblock.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/sweetalert/sweetalert.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/bootstrap-datetimepicker.css")' rel="stylesheet" />
+
+    <script src='@Url.Content("~/resources/js/jquery-1.10.2.js")'></script>
+    <script src='@Url.Content("~/resources/js/moment.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/bootstrap-datetimepicker.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/id.js")'></script>
+    <script src='@Url.Content("~/resources/js/bootstrap.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.buttons.js")'></script>
+    <script src='@Url.Content("~/resources/js/pnotify.nonblock.js")'></script>
+    <script src='@Url.Content("~/resources/js/jquery.validate.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/jquery.validate.unobtrusive.min.js")'></script>
+    <script src='@Url.Content("~/resources/sweetalert/sweetalert.min.js")'></script>
+
+    <style>
+        .btn {
+            padding: 10px !important;
+        }
+
+        .form-control {
+            border: 1px solid #cccccc !important;
+            background-color: white !important;
+            border-radius: 0.8em !important;
+            line-height: 30px !important;
+            box-shadow: 0 !important;
+            margin: 0 !important;
+            height: 40px;
+            font-size: 14pt;
+        }
+
+        .form-date {
+            border: 1px solid #cccccc !important;
+            background-color: white !important;
+            border-radius: 0.8em 0em 0em 0.8em !important;
+            line-height: 30px !important;
+            box-shadow: 0 !important;
+            margin: 0 !important;
+            height: 40px;
+            font-size: 14pt;
+        }
+
+        .input-group-addon {
+            border: 1px solid #cccccc !important;
+            box-shadow: 0 !important;
+        }
+
+        .control-label {
+            margin-top: 10px !important;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: lightgray !important;
+            font-style: italic;
+            opacity: 1; /* Firefox */
+        }
+
+        .field-validation-error {
+            color: #ad1010;
+            font-family: 'Varela Round', sans-serif;
+            font-style: italic;
+            font-size: smaller;
+        }
+
+        .input-validation-error {
+            border: 1px solid #cccccc !important;
+            background-color: #fff8f8 !important;
+        }
+
+        .field-validation-valid {
+            display: none;
+        }
+
+        .validation-summary-errors {
+            font-weight: bold !important;
+            color: #ad1010 !important;
+        }
+
+        .validation-summary-valid {
+            display: none;
+        }
+    </style>
+</head>
+<body style="background-color: white;">
+    <div id="after_content" style="display:none;">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="page-title">
+                <div class="title">
+                    <h3>
+                        Data Tamu
+                    </h3>
+                    <hr />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Tamu Unit Kerja", new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        @Html.TextBox("txtNamaUnitKerja", Model.NamaUnitKerja, new { @class = "form-control", @readonly = "readonly", @style = "height:40px; font-size:14pt; background-color: white;" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Nomor Induk Kependudukan", new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        @Html.TextBox("txtNIK", "", new { @class = "form-control", @readonly = "readonly", @style = "height:40px; font-size:14pt; background-color: white;" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Nama Lengkap", new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        @Html.TextBox("txtNamaLengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "height:40px;font-size:14pt; background-color: white;" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Instansi", new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        @Html.TextBox("txtInstansi", "", new { @class = "form-control", @readonly = "readonly", @style = "height:40px;font-size:14pt; background-color: white;" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Keperluan", new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        @Html.TextArea("txtKeperluan", "", new { @class = "form-control", @rows = "3", @readonly = "readonly", @style = "font-size:14pt; background-color: white;" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dynamic_content">
+        @if (string.IsNullOrEmpty(Model.UnitKerjaId) || string.IsNullOrEmpty(Model.UserId) || string.IsNullOrEmpty(Model.KantorId))
+        {
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <center>
+                        <h2>
+                            :: Data Wajib Tidak Ditemukan :: <br />Pastikan Tautan yang anda gunakan benar.
+                        </h2>
+                    </center>
+                </div>
+            </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_content">
+                            <form data-parsley-validate id="frmKirimData" role="form" method="post" style="font-size: 12pt;">
+                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="border-bottom: 2px double #a3a2a2;">
+                                        <div class="mytitleform2" style="text-align:center;font-weight:600;font-size:larger;">:: BUKU TAMU ::<br />@Model.NamaUnitKerja</div>
+                                    </div>
+                                    @Html.HiddenFor(x => x.KantorId)
+                                    @Html.HiddenFor(x => x.UnitKerjaId)
+                                    @Html.HiddenFor(x => x.UserId)
+                                </div>
+                                <div class="row col-md-8 col-sm-8 col-xs-12" style="margin-bottom: 40px;">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.NIK, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.NIK, new { @class = "form-control", @required = "required", @placeholder = "Nomor KTP", @style = "height:40px; font-size:14pt;", maxlength = "20", @oninput = "this.value = this.value.replace(/[^0-9]/g, '');", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.NIK)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.NamaLengkap, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.NamaLengkap, new { @class = "form-control", @required = "required", @placeholder = "Nama Lengkap", @style = "height:40px; font-size:14pt;", maxlength = "50", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.NamaLengkap)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.TempatLahir, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.TempatLahir, new { @class = "form-control", @required = "required", @placeholder = "Tempat Lahir", @style = "height:40px; font-size:14pt;", maxlength = "100", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.TempatLahir)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.TanggalLahir, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                <div class='input-group date' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(x => x.TanggalLahir, "{0:dd/MM/yyyy}", new { @class = "form-date", @required = "required", @placeholder = "Tanggal Lahir", @style = "height:40px; font-size:14pt;", maxlength = "10", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                    <label class="input-group-addon" for="TanggalLahir" style="border-radius: 0em 0.8em 0.8em 0em !important;">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </label>
+                                                </div>
+                                                @Html.ValidationMessageFor(x => x.TanggalLahir)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.Alamat, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextAreaFor(x => x.Alamat, new { @class = "form-control", @required = "required", @placeholder = "Alamat", @style = "font-size:14pt;", maxlength = "380", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.Alamat)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.NoTelp, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.NoTelp, new { @class = "form-control", @required = "required", @placeholder = "Nomor Telepon", @style = "height:40px; font-size:14pt;", maxlength = "20", @oninput = "this.value = this.value.replace(/[^0-9]/g, '');", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.NoTelp)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.Email, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @required = "required", @placeholder = "Email", @style = "height:40px; font-size:14pt;", maxlength = "100", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.Email)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.Instansi, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextBoxFor(x => x.Instansi, new { @class = "form-control", @required = "required", @placeholder = "Asal Instansi / Kantor", @style = "height:40px; font-size:14pt;", maxlength = "200", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.Instansi)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            @Html.LabelFor(x => x.Keperluan, new { @class = "control-label required col-md-12 col-sm-12 col-xs-12" })
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                @Html.TextAreaFor(x => x.Keperluan, new { @class = "form-control", @required = "required", @placeholder = "Keperluan (Jelaskan secara detail)", @style = "font-size:14pt;", maxlength = "1970", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                                @Html.ValidationMessageFor(x => x.Keperluan)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                <button type="submit" class="btn btn-success col-xs-12" style="color:wheat;margin-top:15px;"><i class="fa fa-floppy-o"></i>&nbsp;Simpan</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-6 col-sm-10 col-xs-12">
+                                                <button type="button" class="btn btn-warning col-xs-12" style="color:wheat;margin-top:15px;" onclick="resetform()"><i class="fa fa-refresh"></i>&nbsp;Batal</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col-md-4 col-sm-4 col-xs-12">
+                                    <div class="col-md-12 col-xs-12">
+                                        <p style="text-align:justify;">
+                                            Selamat Datang di @Model.NamaUnitKerja.
+                                        </p>
+                                        <p style="text-align:justify;">
+                                            Mohon isi data diri dengan lengkap dan jelas untuk mendaftarkan kedatangan anda di @Model.NamaUnitKerja.
+                                        </p>
+                                        <p style="text-align:justify; font-weight: 600;">
+                                            Isian anda akan di verifikasi oleh petugas kami sebelum mendapatkan kartu pengunjung.
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#TanggalLahir').datetimepicker({
+                format: 'DD/MM/YYYY',
+                locale: 'id'
+            });
+        });
+
+        function showloading(txt){
+            swal({
+                title: "Harap Tunggu...",
+                text: txt,
+                imageUrl: "@Url.Content("~/resources/images/proses.gif")",
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
+        }
+
+        function closeloading(){
+            swal.close();
+        }
+
+        function resetform() {
+            showloading("Memuat Ulang Buku Tamu");
+            $('#frmKirimData')[0].reset();
+            closeloading();
+        }
+
+        $("#frmKirimData").submit(function (e) {
+            if ($("#frmKirimData").valid()) {
+                swal({
+                    title: "",
+                    text: "Kirim Pengajuan",
+                    type: "info",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    confirmButtonColor: "#5AE02D",
+                    confirmButtonText: "Simpan Data Tamu",
+                    cancelButtonText: "Batal",
+                    showLoaderOnConfirm: true
+                },
+                    function (doConfirm) {
+                        if (doConfirm) {
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("SimpanBukuTamu", "Public")',
+                                data: $('#frmKirimData').serialize(),
+                                success: function (data) {
+                                    if (data.Status === false) {
+                                        swal("Perhatian", data.Pesan, "warning");
+                                    }
+                                    else {
+                                        new PNotify({ title: 'Proses Berhasil', text: data.Pesan, delay: 3000, styling: 'bootstrap3', addclass: 'dark' });
+                                        $('#txtNIK').val($('#NIK').val());
+                                        $('#txtNamaLengkap').val($('#NamaLengkap').val());
+                                        $('#txtInstansi').val($('#Instansi').val());
+                                        $('#txtKeperluan').val($('#Keperluan').val());
+                                        $('#dynamic_content').hide();
+                                        $('#after_content').show();
+                                        resetform();
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                }
+                            });
+                        } else {
+                            $(pResult).html("Simpan Buku Tamu Dibatalkan");
+                            closeloading();
+                        }
+                    });
+            }
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Surat</RootNamespace>
+    <AssemblyName>Surat</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort>44392</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.10.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework6.Npgsql, Version=3.1.1.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework6.Npgsql.3.1.1\lib\net45\EntityFramework6.Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus.Interfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=a694d7f3b0907a61, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.Interfaces.6.0.0\lib\net35\EPPlus.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus.System.Drawing, Version=6.0.0.0, Culture=neutral, PublicKeyToken=2308d35469c9bac0, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.System.Drawing.6.0.0\lib\net35\EPPlus.System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.barcodes, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.barcodes.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.forms, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.forms.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.html2pdf, Version=3.0.5.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.pdfhtml.3.0.5\lib\net45\itext.html2pdf.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.io, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.io.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.kernel, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.kernel.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.layout, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.layout.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.pdfa, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.pdfa.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.sign, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.sign.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.styledxmlparser, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.styledxmlparser.dll</HintPath>
+    </Reference>
+    <Reference Include="itext.svg, Version=7.1.17.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itext7.7.1.17\lib\net45\itext.svg.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xmlworker">
+      <HintPath>..\libs\itextsharp.xmlworker.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xtra">
+      <HintPath>..\libs\itextsharp.xtra.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit, Version=2.15.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
+      <HintPath>..\packages\MailKit.2.15.0\lib\net45\MailKit.dll</HintPath>
+    </Reference>
+    <Reference Include="MessagingToolkit.QRCode, Version=1.0.3541.23206, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\MessagingToolkit.QRCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Client">
+      <HintPath>..\libs\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core">
+      <HintPath>..\libs\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb">
+      <HintPath>..\libs\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Exchange.WebServices, Version=15.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\Microsoft.Exchange.WebServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Exchange.WebServices.Auth">
+      <HintPath>..\libs\Microsoft.Exchange.WebServices.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.5.0\lib\net45\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=6.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Logging.6.5.0\lib\net45\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Tokens.6.5.0\lib\net45\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb">
+      <HintPath>..\libs\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Jwt, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Jwt.4.1.0\lib\net45\Microsoft.Owin.Security.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.4.1.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MimeKit, Version=2.15.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
+      <HintPath>..\packages\MimeKit.2.15.0\lib\net45\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Npgsql.4.0.0\lib\net45\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess">
+      <HintPath>..\libs\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess.EntityFramework">
+      <HintPath>..\libs\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="QRCoder, Version=1.3.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QRCoder.1.3.9\lib\net40\QRCoder.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Base, Version=2019.4.1.0, Culture=neutral, PublicKeyToken=ebe6666cba19647a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\Stimulsoft.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report, Version=2019.4.1.0, Culture=neutral, PublicKeyToken=ebe6666cba19647a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\Stimulsoft.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Stimulsoft.Report.Mvc, Version=2019.4.1.0, Culture=neutral, PublicKeyToken=ebe6666cba19647a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\Stimulsoft.Report.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\netstandard1.1\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=6.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.6.5.0\lib\net45\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Cors">
+      <HintPath>..\libs\System.Web.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libs\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccessDeniedAuthorizeAttribute.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Codes\Functions.cs" />
+    <Compile Include="Codes\PdfUtil.cs" />
+    <Compile Include="Codes\TataNaskah\SuratEdaran.cs" />
+    <Compile Include="Codes\TataNaskah\SuratPelaksanaHarian.cs" />
+    <Compile Include="Codes\TataNaskah\SuratPengantarNaskahDinas.cs" />
+    <Compile Include="Codes\TataNaskah\SuratPernyataan.cs" />
+    <Compile Include="Codes\TataNaskah\SuratTugas.cs" />
+    <Compile Include="Codes\TataNaskah\SuratPengantarPersuratan.cs" />
+    <Compile Include="Codes\TataNaskah\KopSK.cs" />
+    <Compile Include="Codes\TataNaskah\KopSuratAlamat.cs" />
+    <Compile Include="Codes\TataNaskah\NotaDinas.cs" />
+    <Compile Include="Codes\TataNaskah\SuratDinas.cs" />
+    <Compile Include="Codes\TataNaskah\SuratKeputusan.cs" />
+    <Compile Include="Codes\TataNaskah\Pengumuman.cs" />
+    <Compile Include="Codes\TataNaskah\SuratKeterangan.cs" />
+    <Compile Include="Codes\TataNaskah\SuratUndangan.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\CetakController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\ExpiredTTEController.cs" />
+    <Compile Include="Controllers\FlowController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\KearsipanController.cs" />
+    <Compile Include="Controllers\KontenController.cs" />
+    <Compile Include="Controllers\KuisionerController.cs" />
+    <Compile Include="Controllers\PenomoranController.cs" />
+    <Compile Include="Controllers\NaskahDinasController.cs" />
+    <Compile Include="Controllers\LaporanController.cs" />
+    <Compile Include="Controllers\PengumumanController.cs" />
+    <Compile Include="Controllers\KKPController.cs" />
+    <Compile Include="Controllers\SuratController.cs" />
+    <Compile Include="Controllers\EvidenceSPBEController.cs" />
+    <Compile Include="Controllers\TandaTanganElektronikController.cs" />
+    <Compile Include="Controllers\MeetingController.cs" />
+    <Compile Include="Controllers\MonitoringController.cs" />
+    <Compile Include="Controllers\NotulenController.cs" />
+    <Compile Include="Controllers\PengaduanController.cs" />
+    <Compile Include="Controllers\PublicController.cs" />
+    <Compile Include="Controllers\WebApiController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AccountModel.cs" />
+    <Compile Include="Models\ApiServices.cs" />
+    <Compile Include="Models\BpnDbContext.cs" />
+    <Compile Include="Models\DataMasterModel.cs" />
+    <Compile Include="Models\Entities\ExpiredTTE.cs" />
+    <Compile Include="Models\Entities\Penomoran.cs" />
+    <Compile Include="Models\Entities\MasterData.cs" />
+    <Compile Include="Models\Entities\MasterUserPegawai.cs" />
+    <Compile Include="Models\Entities\MonitoringLaporan.cs" />
+    <Compile Include="Models\Entities\Laporan.cs" />
+    <Compile Include="Models\Entities\Admin.cs" />
+    <Compile Include="Models\Entities\Pengumuman.cs" />
+    <Compile Include="Models\Entities\Pengaduan.cs" />
+    <Compile Include="Models\Entities\Surat.cs" />
+    <Compile Include="Models\Entities\TransactionResultcs.cs" />
+    <Compile Include="Models\Entities\WebApi.cs" />
+    <Compile Include="Models\ExpiredTTEModel.cs" />
+    <Compile Include="Models\HakAksesModel.cs" />
+    <Compile Include="Models\InternalUser.cs" />
+    <Compile Include="Models\KontentModel.cs" />
+    <Compile Include="Models\KonterModel.cs" />
+    <Compile Include="Models\PenomoranModel.cs" />
+    <Compile Include="Models\NaskahDinasModel.cs" />
+    <Compile Include="Models\KuisionerModel.cs" />
+    <Compile Include="Models\KearsipanModel.cs" />
+    <Compile Include="Models\LaporanModel.cs" />
+    <Compile Include="Models\PengumumanModel.cs" />
+    <Compile Include="Models\PostgresDbContext.cs" />
+    <Compile Include="Models\KKPModel.cs" />
+    <Compile Include="Models\SuratModel.cs" />
+    <Compile Include="Models\TandaTanganElektronikModel.cs" />
+    <Compile Include="Models\PublicModel.cs" />
+    <Compile Include="Models\MeetingModel.cs" />
+    <Compile Include="Models\NotulenModel.cs" />
+    <Compile Include="Models\OtorisasiUser.cs" />
+    <Compile Include="Models\PengaduanModel.cs" />
+    <Compile Include="Models\PersuratanModel.cs" />
+    <Compile Include="Models\WebApiModel.cs" />
+    <Compile Include="MyHub.cs" />
+    <Compile Include="OracleMembershipProvider.cs" />
+    <Compile Include="OracleRoleProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Content Include="Contents\pdfviewer.html" />
+    <Content Include="favicon.ico" />
+    <Content Include="Global.asax" />
+    <Content Include="Reports\checkbox.jpg" />
+    <Content Include="Reports\garudaemas.png" />
+    <Content Include="Reports\icon_tte_bsre.jpg" />
+    <Content Include="Reports\logobpn.png" />
+    <Content Include="Reports\logoqr.png" />
+    <Content Include="Reports\logoqr_small.png" />
+    <Content Include="Reports\pdf\PdfStyle.css" />
+    <Content Include="Reports\TTE.png" />
+    <Content Include="resources\Bookman Old Style\readme.html" />
+    <Content Include="resources\css\animate.css" />
+    <Content Include="resources\css\animate.min.css" />
+    <Content Include="resources\css\bootstrap-datetimepicker.css" />
+    <Content Include="resources\css\bootstrap-select.min.css" />
+    <Content Include="resources\css\bootstrap.min.css" />
+    <Content Include="resources\css\buttons.dataTables.min.css" />
+    <Content Include="resources\css\hamburgers.min.css" />
+    <Content Include="resources\css\main.css" />
+    <Content Include="resources\css\qrCodeScanner.css" />
+    <Content Include="resources\css\qrpage.css" />
+    <Content Include="resources\css\custom.css" />
+    <Content Include="resources\css\custom.min.css" />
+    <Content Include="resources\css\dataTables.bootstrap.min.css" />
+    <Content Include="resources\css\daterangepicker.css" />
+    <Content Include="resources\css\font-awesome.min.css" />
+    <Content Include="resources\css\icheck-bootstrap.css" />
+    <Content Include="resources\css\jquery-ui.min.css" />
+    <Content Include="resources\css\jquery.mCustomScrollbar.min.css" />
+    <Content Include="resources\css\jquery.orgchart.css" />
+    <Content Include="resources\css\login.css" />
+    <Content Include="resources\css\mycss.css" />
+    <Content Include="resources\css\nav-tabs.css" />
+    <Content Include="resources\css\ol.css" />
+    <Content Include="Contents\UserManual.pdf" />
+    <Content Include="Contents\panduanzoommeetingdanzoho.pdf" />
+    <None Include="packages.config" />
+    <Content Include="Reports\HelloWorld.mrt" />
+    <None Include="Properties\PublishProfiles\SuratProfile.pubxml" />
+    <Content Include="resources\Bookman Old Style\Bookman Old Style Regular.ttf" />
+    <Content Include="Reports\pdf\fonts\BOOKOS.TTF" />
+    <Content Include="Reports\pdf\fonts\BOOKOSB.TTF" />
+    <Content Include="Reports\pdf\fonts\BOOKOSBI.TTF" />
+    <Content Include="Reports\pdf\fonts\BOOKOSI.TTF" />
+    <Content Include="Reports\pdf\fonts\ARIALN.TTF" />
+    <Content Include="Reports\pdf\fonts\ARIALNI.TTF" />
+    <Content Include="Reports\pdf\fonts\FREESCPT.ttf" />
+    <None Include="resources\css\peta.css" />
+    <Content Include="resources\css\peta.min.css">
+      <DependentUpon>peta.css</DependentUpon>
+    </Content>
+    <Content Include="resources\css\pnotify.buttons.css" />
+    <Content Include="resources\css\pnotify.css" />
+    <Content Include="resources\css\pnotify.nonblock.css" />
+    <Content Include="resources\css\printcss.css" />
+    <Content Include="resources\css\select2.min.css" />
+    <Content Include="resources\css\smart_wizard.css" />
+    <Content Include="resources\css\smart_wizard_theme_dots.css" />
+    <Content Include="resources\css\style-cetak.css" />
+    <Content Include="resources\css\style.css" />
+    <Content Include="resources\css\table.css" />
+    <Content Include="resources\css\titlehead.css" />
+    <Content Include="resources\css\util.css" />
+    <Content Include="resources\css\viewer.min.css" />
+    <Content Include="resources\face\face-api.min.js" />
+    <Content Include="resources\face\recogV3.js" />
+    <Content Include="resources\flipper.css" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\css\font-awesome.css" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\css\font-awesome.min.css" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\fontawesome-webfont.svg" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\HELP-US-OUT.txt" />
+    <Content Include="resources\fonts\fontawesome-webfont.svg" />
+    <Content Include="resources\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="resources\fonts\montserrat\OFL.txt" />
+    <Content Include="resources\html\template.html" />
+    <Content Include="resources\icon_tte_bsre.jpg" />
+    <Content Include="resources\images\2.jpg" />
+    <Content Include="resources\images\3.jpg" />
+    <Content Include="resources\images\4.jpg" />
+    <Content Include="resources\images\annotation-check.svg" />
+    <Content Include="resources\images\annotation-comment.svg" />
+    <Content Include="resources\images\annotation-help.svg" />
+    <Content Include="resources\images\annotation-insert.svg" />
+    <Content Include="resources\images\annotation-key.svg" />
+    <Content Include="resources\images\annotation-newparagraph.svg" />
+    <Content Include="resources\images\annotation-noicon.svg" />
+    <Content Include="resources\images\annotation-note.svg" />
+    <Content Include="resources\images\annotation-paragraph.svg" />
+    <Content Include="resources\images\avatar.png" />
+    <Content Include="resources\images\banner.jpg" />
+    <Content Include="resources\images\batik.jpg" />
+    <Content Include="resources\images\benar.png" />
+    <Content Include="resources\images\bgreen.jpg" />
+    <Content Include="resources\images\checkbox.jpg" />
+    <Content Include="resources\images\default-user.jpg" />
+    <Content Include="resources\images\eoffice.png" />
+    <Content Include="resources\images\eofficeNew.png" />
+    <Content Include="resources\images\evaluasi.png" />
+    <Content Include="resources\images\evaluasi2.png" />
+    <Content Include="resources\images\findbarButton-next%402x.png" />
+    <Content Include="resources\images\findbarButton-next-rtl%402x.png" />
+    <Content Include="resources\images\findbarButton-next-rtl.png" />
+    <Content Include="resources\images\findbarButton-next.png" />
+    <Content Include="resources\images\findbarButton-previous%402x.png" />
+    <Content Include="resources\images\findbarButton-previous-rtl%402x.png" />
+    <Content Include="resources\images\findbarButton-previous-rtl.png" />
+    <Content Include="resources\images\findbarButton-previous.png" />
+    <Content Include="resources\images\foto.png" />
+    <Content Include="resources\images\grab.cur" />
+    <Content Include="resources\images\grabbing.cur" />
+    <Content Include="resources\images\himbauan001.jpeg" />
+    <Content Include="resources\images\img-01.png" />
+    <Content Include="resources\images\loading-icon.gif" />
+    <Content Include="resources\images\loading-small%402x.png" />
+    <Content Include="resources\images\loading-small.png" />
+    <Content Include="resources\images\logo.png" />
+    <Content Include="resources\images\logobpn.png" />
+    <Content Include="resources\images\logobsre.png" />
+    <Content Include="resources\images\mappin\globe.png" />
+    <Content Include="resources\images\mappin\greendot.png" />
+    <Content Include="resources\images\mappin\greenPenta.png" />
+    <Content Include="resources\images\mappin\greenrectangle.png" />
+    <Content Include="resources\images\mappin\greenstar.png" />
+    <Content Include="resources\images\mappin\greentriangle.png" />
+    <Content Include="resources\images\mappin\orangedot.png" />
+    <Content Include="resources\images\mappin\orangerectangle.png" />
+    <Content Include="resources\images\mappin\orangestar.png" />
+    <Content Include="resources\images\mappin\orangetriangle.png" />
+    <Content Include="resources\images\mappin\reddot.png" />
+    <Content Include="resources\images\mappin\redPenta.png" />
+    <Content Include="resources\images\mappin\redrectangle.png" />
+    <Content Include="resources\images\mappin\redstar.png" />
+    <Content Include="resources\images\mappin\redtriangle.png" />
+    <Content Include="resources\images\nicEditIcons-latest.gif" />
+    <Content Include="resources\images\nomap.png" />
+    <Content Include="resources\images\north.png" />
+    <Content Include="resources\images\proses.gif" />
+    <Content Include="resources\images\qr_icon.svg" />
+    <Content Include="resources\images\salah.png" />
+    <Content Include="resources\images\secondaryToolbarButton-documentProperties%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-documentProperties.png" />
+    <Content Include="resources\images\secondaryToolbarButton-firstPage%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-firstPage.png" />
+    <Content Include="resources\images\secondaryToolbarButton-handTool%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-handTool.png" />
+    <Content Include="resources\images\secondaryToolbarButton-lastPage%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-lastPage.png" />
+    <Content Include="resources\images\secondaryToolbarButton-rotateCcw%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-rotateCcw.png" />
+    <Content Include="resources\images\secondaryToolbarButton-rotateCw%402x.png" />
+    <Content Include="resources\images\secondaryToolbarButton-rotateCw.png" />
+    <Content Include="resources\images\selesaikuisioner.png" />
+    <Content Include="resources\images\shadow.png" />
+    <Content Include="resources\images\spin.gif" />
+    <Content Include="resources\images\table.png" />
+    <Content Include="resources\images\tanah.jpg" />
+    <Content Include="resources\images\terimakasih.png" />
+    <Content Include="resources\images\terimakasih1.png" />
+    <Content Include="resources\images\texture.png" />
+    <Content Include="resources\images\tn64.jpg" />
+    <Content Include="resources\images\toolbarButton-bookmark%402x.png" />
+    <Content Include="resources\images\toolbarButton-bookmark.png" />
+    <Content Include="resources\images\toolbarButton-download%402x.png" />
+    <Content Include="resources\images\toolbarButton-download.png" />
+    <Content Include="resources\images\toolbarButton-menuArrows%402x.png" />
+    <Content Include="resources\images\toolbarButton-menuArrows.png" />
+    <Content Include="resources\images\toolbarButton-openFile%402x.png" />
+    <Content Include="resources\images\toolbarButton-openFile.png" />
+    <Content Include="resources\images\toolbarButton-pageDown%402x.png" />
+    <Content Include="resources\images\toolbarButton-pageDown-rtl%402x.png" />
+    <Content Include="resources\images\toolbarButton-pageDown-rtl.png" />
+    <Content Include="resources\images\toolbarButton-pageDown.png" />
+    <Content Include="resources\images\toolbarButton-pageUp%402x.png" />
+    <Content Include="resources\images\toolbarButton-pageUp-rtl%402x.png" />
+    <Content Include="resources\images\toolbarButton-pageUp-rtl.png" />
+    <Content Include="resources\images\toolbarButton-pageUp.png" />
+    <Content Include="resources\images\toolbarButton-presentationMode%402x.png" />
+    <Content Include="resources\images\toolbarButton-presentationMode.png" />
+    <Content Include="resources\images\toolbarButton-print%402x.png" />
+    <Content Include="resources\images\toolbarButton-print.png" />
+    <Content Include="resources\images\toolbarButton-search%402x.png" />
+    <Content Include="resources\images\toolbarButton-search.png" />
+    <Content Include="resources\images\toolbarButton-secondaryToolbarToggle%402x.png" />
+    <Content Include="resources\images\toolbarButton-secondaryToolbarToggle-rtl%402x.png" />
+    <Content Include="resources\images\toolbarButton-secondaryToolbarToggle-rtl.png" />
+    <Content Include="resources\images\toolbarButton-secondaryToolbarToggle.png" />
+    <Content Include="resources\images\toolbarButton-sidebarToggle%402x.png" />
+    <Content Include="resources\images\toolbarButton-sidebarToggle-rtl%402x.png" />
+    <Content Include="resources\images\toolbarButton-sidebarToggle-rtl.png" />
+    <Content Include="resources\images\toolbarButton-sidebarToggle.png" />
+    <Content Include="resources\images\toolbarButton-viewAttachments%402x.png" />
+    <Content Include="resources\images\toolbarButton-viewAttachments.png" />
+    <Content Include="resources\images\toolbarButton-viewOutline%402x.png" />
+    <Content Include="resources\images\toolbarButton-viewOutline-rtl%402x.png" />
+    <Content Include="resources\images\toolbarButton-viewOutline-rtl.png" />
+    <Content Include="resources\images\toolbarButton-viewOutline.png" />
+    <Content Include="resources\images\toolbarButton-viewThumbnail%402x.png" />
+    <Content Include="resources\images\toolbarButton-viewThumbnail.png" />
+    <Content Include="resources\images\toolbarButton-zoomIn%402x.png" />
+    <Content Include="resources\images\toolbarButton-zoomIn.png" />
+    <Content Include="resources\images\toolbarButton-zoomOut%402x.png" />
+    <Content Include="resources\images\toolbarButton-zoomOut.png" />
+    <Content Include="resources\images\treeitem-collapsed%402x.png" />
+    <Content Include="resources\images\treeitem-collapsed-rtl%402x.png" />
+    <Content Include="resources\images\treeitem-collapsed-rtl.png" />
+    <Content Include="resources\images\treeitem-collapsed.png" />
+    <Content Include="resources\images\treeitem-expanded%402x.png" />
+    <Content Include="resources\images\treeitem-expanded.png" />
+    <Content Include="resources\inline\dataTables.rowsGroup.js" />
+    <Content Include="resources\inline\echarts.min.js" />
+    <Content Include="resources\inline\jquery.table.marge.js" />
+    <Content Include="resources\inline\table2excel.js" />
+    <Content Include="resources\jquery.flipper-responsive.js" />
+    <Content Include="resources\js\autocomplete\jquery.autocomplete.js" />
+    <Content Include="resources\js\autocomplete\kategoripengadaan.js" />
+    <Content Include="resources\js\bootstrap-datetimepicker.id.js" />
+    <Content Include="resources\js\bootstrap-datetimepicker.min.js" />
+    <Content Include="resources\js\bootstrap-progressbar.min.js" />
+    <Content Include="resources\js\bootstrap-select.min.js" />
+    <Content Include="resources\js\bootstrap.min.js" />
+    <Content Include="resources\js\ckeditor.js" />
+    <Content Include="resources\js\compatibility.min.js" />
+    <Content Include="resources\js\custom.js" />
+    <Content Include="resources\js\custom\custom.js" />
+    <Content Include="resources\js\dataTables.bootstrap.min.js" />
+    <Content Include="resources\js\datatables\buttons.flash.min.js" />
+    <Content Include="resources\js\datatables\buttons.html5.min.js" />
+    <Content Include="resources\js\datatables\buttons.print.min.js" />
+    <Content Include="resources\js\datatables\dataTables.bootstrap.min.js" />
+    <Content Include="resources\js\datatables\dataTables.buttons.min.js" />
+    <Content Include="resources\js\datatables\dataTables.fixedHeader.min.js" />
+    <Content Include="resources\js\datatables\dataTables.responsive.min.js" />
+    <Content Include="resources\js\datatables\jquery.dataTables.min.js" />
+    <Content Include="resources\js\datatables\jszip.min.js" />
+    <Content Include="resources\js\datatables\pdfmake.min.js" />
+    <Content Include="resources\js\datatables\responsive.bootstrap.min.js" />
+    <Content Include="resources\js\datatables\vfs_fonts.js" />
+    <Content Include="resources\js\daterangepicker.js" />
+    <Content Include="resources\js\echarts-all.js" />
+    <Content Include="resources\js\flot\curvedLines.js" />
+    <Content Include="resources\js\flot\date.js" />
+    <Content Include="resources\js\flot\jquery.flot.js" />
+    <Content Include="resources\js\flot\jquery.flot.orderBars.js" />
+    <Content Include="resources\js\flot\jquery.flot.pie.js" />
+    <Content Include="resources\js\flot\jquery.flot.resize.js" />
+    <Content Include="resources\js\flot\jquery.flot.spline.js" />
+    <Content Include="resources\js\flot\jquery.flot.stack.js" />
+    <Content Include="resources\js\flot\jquery.flot.time.min.js" />
+    <Content Include="resources\js\flot\jquery.flot.tooltip.min.js" />
+    <Content Include="resources\js\green.js" />
+    <Content Include="resources\js\html2canvas.js" />
+    <Content Include="resources\js\historySort.js" />
+    <Content Include="resources\js\id.js" />
+    <Content Include="resources\js\infiniteScroll.js" />
+    <Content Include="resources\js\jquery-1.10.2.js" />
+    <Content Include="resources\js\jquery-ui.min.js" />
+    <Content Include="resources\js\jquery-validation\additional-methods.min.js" />
+    <Content Include="resources\js\jquery-validation\jquery.validate.min.js" />
+    <Content Include="resources\js\jquery.backstretch.js" />
+    <Content Include="resources\js\jquery.blockUI.js" />
+    <Content Include="resources\js\jquery.confirm.js" />
+    <Content Include="resources\js\jquery.dataTables.min.js" />
+    <Content Include="resources\js\jquery.form.js" />
+    <Content Include="resources\js\jquery.inputmask.bundle.min.js" />
+    <Content Include="resources\js\jquery.mCustomScrollbar.concat.min.js" />
+    <Content Include="resources\js\jquery.min.js" />
+    <Content Include="resources\js\jquery.mockjax.min.js" />
+    <Content Include="resources\js\jquery.nicescroll.min.js" />
+    <Content Include="resources\js\jquery.orgchart.js" />
+    <Content Include="resources\js\jquery.pjax.js" />
+    <Content Include="resources\js\jquery.signalR-2.2.3.min.js" />
+    <Content Include="resources\js\jquery.smartWizard.js" />
+    <Content Include="resources\js\jquery.ui.touch-punch.min.js" />
+    <Content Include="resources\js\jquery.validate.min.js" />
+    <Content Include="resources\js\jquery.validate.unobtrusive.min.js" />
+    <Content Include="resources\js\jqueryautocomplete\jquery.autocomplete.js" />
+    <Content Include="resources\js\jspdf.min.js" />
+    <Content Include="resources\js\l10n.min.js" />
+    <Content Include="resources\js\main.js" />
+    <Content Include="resources\js\mcustom-scrollbar\jquery.mCustomScrollbar.concat.min.js" />
+    <Content Include="resources\js\mcustom-scrollbar\jquery.mCustomScrollbar.min.css" />
+    <Content Include="resources\js\mcustom-scrollbar\mCSB_buttons.png" />
+    <Content Include="resources\js\moment-with-locales.js" />
+    <Content Include="resources\js\moment.js" />
+    <Content Include="resources\js\moment.min.js" />
+    <Content Include="resources\js\moris\morris.min.js" />
+    <Content Include="resources\js\moris\raphael-min.js" />
+    <Content Include="resources\js\myjs.js" />
+    <Content Include="resources\js\newecharts.min.js" />
+    <Content Include="resources\js\nicEdit-latest.js" />
+    <Content Include="resources\js\nicescroll\jquery.nicescroll.min.js" />
+    <Content Include="resources\js\nprogress.js" />
+    <Content Include="resources\js\ol.js" />
+    <Content Include="resources\js\pace.min.js" />
+    <Content Include="resources\js\pdf.min.js" />
+    <Content Include="resources\js\pdf.worker.min.js" />
+    <Content Include="resources\js\pdfobject.min.js" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\fontawesome-webfont.eot" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\fontawesome-webfont.ttf" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\fontawesome-webfont.woff" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\fontawesome-webfont.woff2" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\fonts\FontAwesome.otf" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\animated.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\bordered-pulled.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\core.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\fixed-width.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\font-awesome.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\icons.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\larger.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\list.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\mixins.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\path.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\rotated-flipped.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\screen-reader.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\stacked.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\less\variables.less" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\font-awesome.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_animated.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_bordered-pulled.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_core.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_fixed-width.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_icons.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_larger.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_list.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_mixins.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_path.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_rotated-flipped.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_screen-reader.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_stacked.scss" />
+    <Content Include="resources\fonts\font-awesome-4.7.0\scss\_variables.scss" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Black.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-BlackItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Bold.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-BoldItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-ExtraBold.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-ExtraBoldItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-ExtraLight.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-ExtraLightItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Italic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Light.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-LightItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Medium.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-MediumItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Regular.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-SemiBold.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-SemiBoldItalic.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-Thin.ttf" />
+    <Content Include="resources\fonts\montserrat\Montserrat-ThinItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Black.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-BlackItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Bold.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-BoldItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-ExtraBold.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-ExtraBoldItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-ExtraLight.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-ExtraLightItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Italic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Light.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-LightItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Medium.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-MediumItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Regular.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-SemiBold.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-SemiBoldItalic.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-Thin.ttf" />
+    <Content Include="resources\fonts\poppins\Poppins-ThinItalic.ttf" />
+    <Content Include="resources\Freestyle Script\Freestyle Script Bold.ttf" />
+    <Content Include="resources\Freestyle Script\Freestyle Script Regular.ttf" />
+    <Content Include="resources\fonts\Roboto-Regular.ttf" />
+    <Content Include="resources\face\weights\face_expression_model-shard1" />
+    <Content Include="resources\face\weights\face_expression_model-weights_manifest.json" />
+    <Content Include="resources\face\weights\face_landmark_68_model-shard1" />
+    <Content Include="resources\face\weights\face_landmark_68_model-weights_manifest.json" />
+    <Content Include="resources\face\weights\face_landmark_68_tiny_model-shard1" />
+    <Content Include="resources\face\weights\face_landmark_68_tiny_model-weights_manifest.json" />
+    <Content Include="resources\face\weights\face_recognition_model-shard1" />
+    <Content Include="resources\face\weights\face_recognition_model-shard2" />
+    <Content Include="resources\face\weights\face_recognition_model-weights_manifest.json" />
+    <Content Include="resources\face\weights\tiny_face_detector_model-shard1" />
+    <Content Include="resources\face\weights\tiny_face_detector_model-weights_manifest.json" />
+    <None Include="resources\js\peta.js" />
+    <Content Include="resources\js\peta.min.js">
+      <DependentUpon>peta.js</DependentUpon>
+    </Content>
+    <Content Include="resources\js\pnotify.buttons.js" />
+    <Content Include="resources\js\pnotify.js" />
+    <Content Include="resources\js\pnotify.nonblock.js" />
+    <Content Include="resources\js\popper.js" />
+    <Content Include="resources\js\printThis.js" />
+    <Content Include="resources\js\progressbar\bootstrap-progressbar.min.js" />
+    <Content Include="resources\js\qrCodeScanner.js" />
+    <Content Include="resources\js\qr_packed.js" />
+    <Content Include="resources\js\select2.full.min.js" />
+    <Content Include="resources\js\select2.multi-checkboxes.min.js" />
+    <Content Include="resources\js\shp.min.js" />
+    <Content Include="resources\js\tilt.jquery.min.js" />
+    <Content Include="resources\js\viewer.js" />
+    <Content Include="resources\leaflet\images\layers-2x.png" />
+    <Content Include="resources\leaflet\images\layers.png" />
+    <Content Include="resources\leaflet\images\marker-icon-2x.png" />
+    <Content Include="resources\leaflet\images\marker-icon.png" />
+    <Content Include="resources\leaflet\images\marker-shadow.png" />
+    <Content Include="resources\leaflet\leaflet-src.esm.js" />
+    <Content Include="resources\leaflet\leaflet-src.js" />
+    <Content Include="resources\leaflet\leaflet.css" />
+    <Content Include="resources\leaflet\leaflet.js" />
+    <Content Include="resources\qrcode.png" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-all.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-circle.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-none.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-sea.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-simple.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-sky.css" />
+    <Content Include="resources\step-form-wizard\css\step-form-wizard-sun.css" />
+    <Content Include="resources\step-form-wizard\img\t1-arr-left-hover.png" />
+    <Content Include="resources\step-form-wizard\img\t1-arr-left.png" />
+    <Content Include="resources\step-form-wizard\img\t1-arr-right.png" />
+    <Content Include="resources\step-form-wizard\img\t1-arr.png" />
+    <Content Include="resources\step-form-wizard\img\t2-arr-left.png" />
+    <Content Include="resources\step-form-wizard\img\t2-arr-right.png" />
+    <Content Include="resources\step-form-wizard\img\t2-nav-arr-down.png" />
+    <Content Include="resources\step-form-wizard\img\t2-nav-arr-rtl.png" />
+    <Content Include="resources\step-form-wizard\img\t2-nav-arr.png" />
+    <Content Include="resources\step-form-wizard\img\t2-nav-bg-down.png" />
+    <Content Include="resources\step-form-wizard\img\t2-nav-bg.png" />
+    <Content Include="resources\step-form-wizard\img\t4-arr-left.png" />
+    <Content Include="resources\step-form-wizard\img\t4-arr-right.png" />
+    <Content Include="resources\step-form-wizard\js\step-form-wizard.js" />
+    <Content Include="resources\step-form-wizard\js\step-form-wizard.min.js" />
+    <Content Include="resources\sweetalert\sweetalert-dev.js" />
+    <Content Include="resources\sweetalert\sweetalert.css" />
+    <Content Include="resources\sweetalert\sweetalert.min.js" />
+    <Content Include="resources\switchery\switchery.css" />
+    <Content Include="resources\switchery\switchery.js" />
+    <Content Include="resources\switchery\switchery.min.css" />
+    <Content Include="resources\switchery\switchery.min.js" />
+    <Content Include="resources\tinymce\jquery.tinymce.min.js" />
+    <Content Include="resources\tinymce\license.txt" />
+    <Content Include="resources\tinymce\plugins\advlist\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\anchor\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\autolink\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\autoresize\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\autosave\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\bbcode\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\charmap\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\codesample\css\prism.css" />
+    <Content Include="resources\tinymce\plugins\codesample\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\code\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\colorpicker\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\contextmenu\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\directionality\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-cool.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-cry.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-embarassed.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-foot-in-mouth.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-frown.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-innocent.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-kiss.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-laughing.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-money-mouth.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-sealed.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-smile.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-surprised.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-tongue-out.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-undecided.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-wink.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\img\smiley-yell.gif" />
+    <Content Include="resources\tinymce\plugins\emoticons\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\fullpage\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\fullscreen\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\help\img\logo.png" />
+    <Content Include="resources\tinymce\plugins\help\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\hr\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\imagetools\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\image\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\importcss\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\insertdatetime\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\legacyoutput\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\link\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\lists\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\media\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\nonbreaking\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\noneditable\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\pagebreak\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\paste\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\preview\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\print\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\save\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\searchreplace\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\spellchecker\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\tabfocus\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\table\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\template\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\textcolor\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\textpattern\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\toc\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\visualblocks\css\visualblocks.css" />
+    <Content Include="resources\tinymce\plugins\visualblocks\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\visualchars\plugin.min.js" />
+    <Content Include="resources\tinymce\plugins\wordcount\plugin.min.js" />
+    <Content Include="resources\tinymce\skins\lightgray\content.inline.min.css" />
+    <Content Include="resources\tinymce\skins\lightgray\content.min.css" />
+    <Content Include="resources\tinymce\skins\lightgray\content.mobile.min.css" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce-small.svg" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce.svg" />
+    <Content Include="resources\tinymce\skins\lightgray\img\anchor.gif" />
+    <Content Include="resources\tinymce\skins\lightgray\img\loader.gif" />
+    <Content Include="resources\tinymce\skins\lightgray\img\object.gif" />
+    <Content Include="resources\tinymce\skins\lightgray\img\trans.gif" />
+    <Content Include="resources\tinymce\skins\lightgray\skin.min.css" />
+    <Content Include="resources\tinymce\skins\lightgray\skin.mobile.min.css" />
+    <Content Include="resources\tinymce\themes\inlite\theme.min.js" />
+    <Content Include="resources\tinymce\themes\mobile\theme.min.js" />
+    <Content Include="resources\tinymce\themes\modern\theme.min.js" />
+    <Content Include="resources\tinymce\tinycss.css" />
+    <Content Include="resources\tinymce\tinymce.min.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Account\AkunSaya.cshtml" />
+    <Content Include="Views\Account\Denied.cshtml" />
+    <Content Include="Views\Account\Index.cshtml" />
+    <Content Include="Views\Account\ListKantor.cshtml" />
+    <Content Include="Views\Shared\_Loading.cshtml" />
+    <Content Include="Views\Konten\DocViewer.cshtml" />
+    <Content Include="Views\Flow\SuratMasuk.cshtml" />
+    <Content Include="Views\Flow\SuratKeluar.cshtml" />
+    <Content Include="Views\Monitoring\DalamProses.cshtml" />
+    <Content Include="Views\Flow\InfoSuratV2.cshtml" />
+    <Content Include="Views\Flow\BuatSuratMasuk.cshtml" />
+    <Content Include="Views\Flow\BuatSuratKeluar.cshtml" />
+    <Content Include="Views\Flow\CetakLembarDisposisi.cshtml" />
+    <Content Include="Views\Flow\SettingEkspedisiSurat.cshtml" />
+    <Content Include="Views\Flow\DaftarLampiranSurat.cshtml" />
+    <Content Include="Views\Flow\EntriSuratKeluar.cshtml" />
+    <Content Include="Views\Flow\DaftarLampiranSuratKeluar.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiProfileTU.cshtml" />
+    <Content Include="Views\Admin\DaftarProfileFlow.cshtml" />
+    <Content Include="Views\Flow\EntriSuratMasuk.cshtml" />
+    <Content Include="Views\Admin\DaftarUserLogin.cshtml" />
+    <Content Include="Views\Admin\DaftarProfileTU.cshtml" />
+    <Content Include="Views\Flow\DaftarSemuaSurat.cshtml" />
+    <Content Include="Views\Admin\ListHakAkses.cshtml" />
+    <Content Include="Views\Error\Forbidden.cshtml" />
+    <Content Include="Views\Error\PageNotFound.cshtml" />
+    <Content Include="Views\Error\InternalServerError.cshtml" />
+    <Content Include="Views\Flow\ViewSurat.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratHistory.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiUnitKerja.cshtml" />
+    <Content Include="Views\Admin\DaftarUnitKerja.cshtml" />
+    <Content Include="Views\Admin\DaftarProfilePerUnit.cshtml" />
+    <Content Include="Views\Flow\SuratPengantar.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratPengantar.cshtml" />
+    <Content Include="Views\Flow\BuatSuratKeluarExternal.cshtml" />
+    <Content Include="Views\Flow\LembarDisposisi.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratDisposisi.cshtml" />
+    <Content Include="Views\Flow\ProsesSurat.cshtml" />
+    <Content Include="Views\Flow\DaftarProsesSurat.cshtml" />
+    <Content Include="Views\Cetak\LaporanSuratMasuk.cshtml" />
+    <Content Include="Views\Cetak\LaporanSuratKeluar.cshtml" />
+    <Content Include="Views\Flow\SuratPengantarBaru.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratSP.cshtml" />
+    <Content Include="Views\Konten\DocViewerSP.cshtml" />
+    <Content Include="Views\Flow\SuratOutbox.cshtml" />
+    <Content Include="Views\Flow\KirimUlangSurat.cshtml" />
+    <Content Include="Views\Flow\BuatSuratInisiatif.cshtml" />
+    <Content Include="Views\Flow\BuatSuratKeluarInternal.cshtml" />
+    <Content Include="Views\Flow\DaftarLampiranSuratView.cshtml" />
+    <Content Include="Views\Flow\SuratInisiatif.cshtml" />
+    <Content Include="Views\Flow\EntriSuratInisiatif.cshtml" />
+    <Content Include="Views\Notulen\DaftarNotulen.cshtml" />
+    <Content Include="Views\Notulen\Notulen.cshtml" />
+    <Content Include="Views\Notulen\EntriNotulen.cshtml" />
+    <Content Include="Views\Notulen\GetNotulenTop4.cshtml" />
+    <Content Include="Views\Notulen\ViewNotulen.cshtml" />
+    <Content Include="Views\Flow\EntriDisposisiSurat.cshtml" />
+    <Content Include="Views\Flow\SuratForEdit.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratForEdit.cshtml" />
+    <Content Include="Views\Flow\EditSurat.cshtml" />
+    <Content Include="Views\Notulen\EntriDataNotulen.cshtml" />
+    <Content Include="Views\Admin\DaftarUserPPNPN.cshtml" />
+    <Content Include="Views\Flow\SuratKembali.cshtml" />
+    <Content Include="Views\Flow\DaftarSuratKembali.cshtml" />
+    <Content Include="Views\Flow\ViewSuratByTU.cshtml" />
+    <Content Include="Views\Konten\ImageViewer.cshtml" />
+    <Content Include="Views\Konten\WordExcelViewer.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiJabatan.cshtml" />
+    <Content Include="Views\Admin\DaftarJabatan.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiAsalSurat.cshtml" />
+    <Content Include="Views\Admin\DaftarAsalSurat.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiDelegasi.cshtml" />
+    <Content Include="Views\Admin\DaftarDelegasi.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiKlasifikasiArsip.cshtml" />
+    <Content Include="Views\Admin\DaftarKlasifikasiArsip.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiKonterSurat.cshtml" />
+    <Content Include="Views\Meeting\RapatOnline.cshtml" />
+    <Content Include="Views\Meeting\DaftarRapatOnline.cshtml" />
+    <Content Include="Views\Meeting\EntriDataRapatOnline.cshtml" />
+    <Content Include="Views\Account\CountDownHTOnline.cshtml" />
+    <Content Include="Views\Meeting\ListRapatOnline.cshtml" />
+    <Content Include="Views\Meeting\DaftarListRapatOnline.cshtml" />
+    <Content Include="Views\Meeting\ViewDataRapatOnline.cshtml" />
+    <Content Include="Views\Public\Index.cshtml" />
+    <Content Include="Views\Admin\IndexUserAkses.cshtml" />
+    <Content Include="Views\Admin\DaftarUserAkses.cshtml" />
+    <Content Include="Views\Pengaduan\ListPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\BuatPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\DaftarListPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\BukaPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\DaftarLampiranAduan.cshtml" />
+    <Content Include="Views\Pengaduan\DaftarAduanHistory.cshtml" />
+    <Content Include="Views\Pengaduan\DaftarSemuaPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\InfoPengaduan.cshtml" />
+    <Content Include="Views\Pengaduan\ViewPengaduan.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\SudahTTE.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\ProsesTTE.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\PengajuanTTE.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\BuatDokumen.cshtml" />
+    <Content Include="Views\Public\Surat.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\PersetujuanTTE.cshtml" />
+    <Content Include="Views\Surat\Inisiatif.cshtml" />
+    <Content Include="Views\Surat\ListSP.cshtml" />
+    <Content Include="Views\Surat\BuatSP.cshtml" />
+    <Content Include="Views\Surat\KopSetting.cshtml" />
+    <Content Include="Views\Surat\ListDraft.cshtml" />
+    <Content Include="Views\Surat\EditorNaskahDinas.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\BuatDokumenMulti.cshtml" />
+    <Content Include="Views\Surat\BuatSuratKeluar.cshtml" />
+    <Content Include="Views\Meeting\DataAbsensi.cshtml" />
+    <Content Include="resources\leaflet\leaflet-src.esm.js.map" />
+    <Content Include="resources\leaflet\leaflet-src.js.map" />
+    <Content Include="resources\leaflet\leaflet.js.map" />
+    <Content Include="Views\Kuisioner\AdministrasiKuisioner.cshtml" />
+    <Content Include="Views\Kuisioner\EnteriPertanyaan.cshtml" />
+    <Content Include="Views\Kuisioner\EntriPertanyaan.cshtml" />
+    <Content Include="Views\Kuisioner\PengisianKuisioner.cshtml" />
+    <Content Include="Views\Kuisioner\ReportIndividu.cshtml" />
+    <Content Include="Views\Kuisioner\ReportKuisioner.cshtml" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-all.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-circle.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-none.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-sea.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-simple.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-sky.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard-sun.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\step-form-wizard.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\themes\circle.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\themes\sea.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\themes\simple.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\themes\sky.scss" />
+    <Content Include="resources\step-form-wizard\css\sass\themes\sun.scss" />
+    <Content Include="Views\Konten\DocViewerWithoutHeader.cshtml" />
+    <Content Include="Views\Surat\BuatSuratMasuk.cshtml" />
+    <Content Include="Views\NaskahDinas\EditorKorespondensi.cshtml" />
+    <Content Include="Views\NaskahDinas\KonsepList.cshtml" />
+    <Content Include="Views\NaskahDinas\KopEditor.cshtml" />
+    <Content Include="Views\NaskahDinas\ProsesList.cshtml" />
+    <Content Include="Views\NaskahDinas\SettingKopSurat.cshtml" />
+    <Content Include="Views\NaskahDinas\KoordinasiDraft.cshtml" />
+    <Content Include="Views\NaskahDinas\EditorPeraturan.cshtml" />
+    <Content Include="Views\NaskahDinas\KonsepFinal.cshtml" />
+    <Content Include="Views\Flow\InfoSurat.cshtml" />
+    <Content Include="Views\Flow\NewSuratPengantar.cshtml" />
+    <Content Include="resources\tinymce\fonts\BOOKOS.TTF" />
+    <Content Include="resources\tinymce\fonts\BOOKOSB.TTF" />
+    <Content Include="resources\tinymce\fonts\BOOKOSBI.TTF" />
+    <Content Include="resources\tinymce\fonts\BOOKOSI.TTF" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce-mobile.woff" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce-small.eot" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce-small.ttf" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce-small.woff" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce.eot" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce.ttf" />
+    <Content Include="resources\tinymce\skins\lightgray\fonts\tinymce.woff" />
+    <Content Include="resources\tinymce\langs\readme.md" />
+    <Content Include="Views\NaskahDinas\DaftarKodeKlasifikasiArsip.cshtml" />
+    <Content Include="Views\Admin\PengalihanSurat.cshtml" />
+    <Content Include="Views\Admin\KonfigurasiSifatSurat.cshtml" />
+    <Content Include="Views\Admin\DaftarSifatSurat.cshtml" />
+    <Content Include="Views\Pengumuman\Form.cshtml" />
+    <Content Include="Views\Pengumuman\List.cshtml" />
+    <Content Include="Views\Pengumuman\Index.cshtml" />
+    <Content Include="Views\Pengumuman\View.cshtml" />
+    <Content Include="Views\Konten\ImageViewerWithoutHeader.cshtml" />
+    <Content Include="Views\Public\Gambar.cshtml" />
+    <Content Include="Views\Laporan\PenggunaEoffice.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\PersetujuanAkses.cshtml" />
+    <Content Include="Views\Admin\SettingHakAksesKKP.cshtml" />
+    <Content Include="Views\Admin\IndexAksesKKP.cshtml" />
+    <Content Include="Views\NaskahDinas\SettingNaskahDinas.cshtml" />
+    <Content Include="Views\NaskahDinas\SettingFormatPenomoran.cshtml" />
+    <Content Include="Views\Surat\ViewSurat.cshtml" />
+    <Content Include="Views\Account\Verifikasi.cshtml" />
+    <Content Include="Views\Surat\KotakSurat.cshtml" />
+    <Content Include="Views\Surat\DaftarLampiranSurat.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Public\LihatDokumen.cshtml" />
+    <Content Include="Views\Public\Load.cshtml" />
+    <Content Include="Views\Account\Token.cshtml" />
+    <Content Include="Views\NaskahDinas\SettingKopAdhoc.cshtml" />
+    <Content Include="Views\Meeting\PresensiPeserta.cshtml" />
+    <Content Include="Views\Meeting\PendaftaranPeserta.cshtml" />
+    <Content Include="Views\Meeting\ValidasiPeserta.cshtml" />
+    <Content Include="Views\Surat\BuatSuratInisiatif.cshtml" />
+    <Content Include="Views\TandaTanganElektronik\PersetujuanJabatan.cshtml" />
+    <Content Include="Views\Account\FaceRecogV3.cshtml" />
+    <Content Include="Views\Laporan\RekapPresensi.cshtml" />
+    <Content Include="Views\Penomoran\Index.cshtml" />
+    <Content Include="Views\Penomoran\Open.cshtml" />
+    <Content Include="Views\Penomoran\SettingKodePenandatangan.cshtml" />
+    <Content Include="Views\Penomoran\PermintaanNomor.cshtml" />
+    <Content Include="Views\Kuisioner\TabelHasilJawaban.cshtml" />
+    <Content Include="Views\Kearsipan\DaftarArsip.cshtml" />
+    <Content Include="Views\Kearsipan\DaftarLampiranArsip.cshtml" />
+    <Content Include="Views\Kearsipan\DaftarSemuaArsip.cshtml" />
+    <Content Include="Views\Kearsipan\DaftarSemuaArsipExport.cshtml" />
+    <Content Include="Views\Kearsipan\GolonganMasterArsip.cshtml" />
+    <Content Include="Views\Kearsipan\HapusLampiranArsip.cshtml" />
+    <Content Include="Views\Kearsipan\KlasifikasiMasterArsip.cshtml" />
+    <Content Include="Views\Kearsipan\MasterArsip.cshtml" />
+    <Content Include="Views\Kearsipan\MenuKearsipan.cshtml" />
+    <Content Include="Views\Surat\BuatSuratJawaban.cshtml" />
+    <Content Include="Views\Public\BukuTamu.cshtml" />
+    <Content Include="Views\Laporan\RekapBukuTamu.cshtml" />
+    <Content Include="Views\Surat\SuratTerkirim.cshtml" />
+    <Content Include="Views\Surat\KirimKembali.cshtml" />
+    <Content Include="Views\Surat\PengantarSuratMasuk.cshtml" />
+    <Content Include="Views\Surat\BuatPengantarSuratMasuk.cshtml" />
+    <Content Include="Views\Meeting\RekapPresensi.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Dashboard.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\fonts\fontawesome-webfont.eot" />
+    <Content Include="resources\fonts\fontawesome-webfont.ttf" />
+    <Content Include="resources\fonts\fontawesome-webfont.woff" />
+    <Content Include="resources\fonts\fontawesome-webfont.woff2" />
+    <Content Include="resources\fonts\FontAwesome.otf" />
+    <Content Include="resources\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="resources\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="resources\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="resources\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="resources\fonts\ProximaNovaCond-Black.otf" />
+    <Content Include="resources\fonts\ProximaNovaCond-Bold.otf" />
+    <Content Include="resources\fonts\ProximaNovaCond-Reg.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\ExpiredTTE\" />
+    <Folder Include="Views\WebApi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BPN-Itext\PDFEditor.csproj">
+      <Project>{f574a6ba-63e8-4acf-9dd8-6b44843cd42e}</Project>
+      <Name>PDFEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>10900</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:10900/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

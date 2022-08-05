@@ -1,0 +1,535 @@
+﻿@model Surat.Models.Entities.CariBukuTamu
+@{
+    var lstNull = new List<SelectListItem>();
+    var lstStatus = new List<SelectListItem>();
+    lstStatus.Add(new SelectListItem { Text = "Pilih Status", Value = "" });
+    lstStatus.Add(new SelectListItem { Text = "Diterima", Value = "1" });
+    lstStatus.Add(new SelectListItem { Text = "Ditolak", Value = "0" });
+}
+<script src='@Url.Content("~/resources/js/daterangepicker.js")'></script>
+<link href="~/resources/css/daterangepicker.css" rel="stylesheet" />
+<div class="" id="dynamic_content">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <form class="form-horizontal" id="frmCari" method="post">
+            <div class="page-title">
+                <div class="title_left">
+                    <h3>
+                        Rekap Buku Tamu
+                    </h3>
+                </div>
+                <div class="title_right">
+                    <button class="pull-right btn btn-warning" onclick="getQrCode()"><i class="fa fa-qrcode"></i> Lihat QRCode</button>
+                </div>
+            </div>
+            <div class="row">
+                @Html.LabelFor(x => x.UnitKerjaId, new { @class = "control-label textleft col-md-2 col-sm-2 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.DropDownListFor(x => x.UnitKerjaId, Model.listUnitKerja, new { @class = "select2_single form-control input-md", @onchange = "reloadPegawai()" })
+                </div>
+            </div>
+            <div class="row">
+                @Html.LabelFor(x => x.TanggalMulai, new { @class = "control-label textleft col-md-2 col-sm-2 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-prepend input-group" style="max-width:235px;">
+                        <span class="add-on input-group-addon"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i></span>
+                        @Html.TextBox("dtRange", "", new { @class = "form-control input-md", @type = "text" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 col-sm-8 col-xs-12">
+                    <button type="submit" class="btn btn-success" style="width:150px;"><i class="fa fa-search"></i>&nbsp;Cari</button>
+                    <button id="UnduhExcel" type="button" class="btn btn-primary" style="width:150px;"><i class="fa fa-file-excel-o"></i>&nbsp;Unduh</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <table id="tblRekap" class="table table-striped table-bordered" style="width:100%; background-color:white;">
+        <thead>
+            <tr>
+                <th style="text-align:right;width:5px;">#</th>
+                <th style="text-align:center;width:100px">NIK</th>
+                <th style="width:250px">Nama Lengkap</th>
+                <th style="width:250px">Instansi</th>
+                <th>Keperluan</th>
+                <th style="width:110px">Kedatangan</th>
+                <th style="width:70px">Status</th>
+                <th style="width:40px">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody id="listSurat"></tbody>
+    </table>
+</div>
+
+<div id='divDetail' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2 id="popuptitle">Detail Tamu</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <form class="form-horizontal form-label-left" method="post" id="frmSPBE">
+                            @Html.Hidden("vTamuId")
+                            @Html.Hidden("vKantorId")
+                            @Html.Hidden("vUnitKerjaId")
+                            <div class="form-group">
+                                @Html.Label("txtNIK", "Nomor Induk Kependudukan", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtNIK", "", new { @class = "form-control", @style = "height:40px;", maxlength = "20", @oninput = "this.value = this.value.replace(/[^0-9]/g, '');", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                    @*<div class="input-group">
+                    @Html.TextBox("txtNIK", "", new { @class = "form-control", @readonly = "readonly", @style = "height:40px;" })
+                    <span class="input-group-btn" style="height:40px;">
+                        <button class="btn btn-default" onclick="CekDukcapil()"><i class="fa fa-search"></i>&nbsp;Cek</button>
+                    </span>
+                </div>*@
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtNamaLengkap", "Nama Lengkap", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtNamaLengkap", "", new { @class = "form-control", @style = "height:40px;", maxlength = "50", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtTempatLahir", "Tempat Lahir", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtTempatLahir", "", new { @class = "form-control", @style = "height:40px;" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtTanggalLahir", "Tanggal Lahir", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtTanggalLahir", "{0:dd/MM/yyyy}", new { @class = "form-control", @style = "height:40px;", maxlength = "100", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtNoTelp", "Nomor Telepon", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtNoTelp", "", new { @class = "form-control", @style = "height:40px;", maxlength = "20", @oninput = "this.value = this.value.replace(/[^0-9]/g, '');", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtEmail", "Email", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtEmail", "", new { @class = "form-control", @style = "height:40px;", maxlength = "100", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtAlamat", "Alamat", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextArea("txtAlamat", "", new { @class = "form-control", @rows = "3", maxlength = "380", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtInstansi", "Instansi", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextBox("txtInstansi", "", new { @class = "form-control", @style = "height:40px;", maxlength = "200", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("txtKeperluan", "Keperluan", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left" })
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.TextArea("txtKeperluan", "", new { @class = "form-control", @rows = "3", maxlength = "430", spellcheck = "false", autocomplete = "off", autocorrect = "off" })
+                                </div>
+                            </div>
+                            <div id="divCatatan">
+                                <div class="form-group">
+                                    <label class="control-label col-md-12 col-sm-12 col-xs-12" style="text-align: left;"><i class="fa fa-sign-in"></i>&nbsp;Catatan Penerimaan Tamu</label>
+                                    <div class="clearfix"></div>
+                                    <hr style="margin-top: 1px; margin-bottom: 3px;" />
+                                </div>
+                                <div class="form-group" style="display:none;">
+                                    @Html.Label("ddlPegawaiId", "Pegawai", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left;" })
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownList("ddlPegawaiId", lstNull, new { @class = "select2_single form-control input-md" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    @Html.Label("ddlStatus", "Status", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left;" })
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownList("ddlStatus", lstStatus, new { @class = "select2_single form-control input-md", @style = "max-width: 100px;" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    @Html.Label("txtCatatan", "Catatan", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align: left;" })
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.TextArea("txtCatatan", "", new { @class = "form-control", @rows = "3" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="divBtnSimpan">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <button class="btn btn-sm btn-success" type="button" style="width:100%" onclick="SimpanCatatan()"><i class="fa fa-floppy-o"></i>&nbsp;&nbsp;Simpan Perubahan</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='divQrCode' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="x_panel" style="padding:20px">
+                <div class="x_title">
+                    <h2 id="popuptitle">QR Code Buku Tamu</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <center>
+                                <img id="imgqrcode" class="col-md-12 col-sm-12 col-xs-12" />
+                            </center>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <button class="btn btn-sm btn-success" type="button" style="width:100%" onclick="copyLink()"><i class="fa fa-copy"></i>&nbsp;&nbsp;Salin Tautan</button>
+                            <a download="qrcode_bukutamu.png" href="#" class="btn btn-sm btn-success" style="width:100%" id="btnDownloadQR"><i class="fa fa-floppy-o"></i>&nbsp;&nbsp;Simpan QrCode</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var dtableRekapLaporan;
+    var dtMulai = "", dtSampai = "";
+    var createRekapPresensi = function () {
+        dtableRekapLaporan = $('#tblRekap').DataTable({
+            "bLengthChange": false,
+            "paging": true,
+            "pageLength": 15,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarBukuTamu", "Laporan")',
+                type: "POST",
+                data: function (data) { var ftp = $('#frmCari').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "cariMulai", value: dtMulai }, { name: "cariSampai", value: dtSampai }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "numeric", "width": "5px" },
+                { "data": "NIK", "className": "centertaligncolumn", "width": "100px" },
+                { "data": "NamaLengkap", "width": "250px" },
+                { "data": "Instansi", "width": "250px" },
+                { "data": "Keperluan" },
+                { "data": "Waktu_Kedatangan", "width": "110px" },
+                { "data": "StatusTamu", "width": "70px" },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "width": "40px",
+                    "render": function (data, type) {
+                        var link = '<i class="fa fa-eye" style="cursor: pointer;" title="Lihat Lengkap"></i>';
+                        return link;
+                    }
+                }
+            ]
+        });
+    };
+
+    $('#tblRekap tbody').delegate('tr i', 'click', function (e) {
+        e.preventDefault();
+        showloading("Menyiapkan Data Tamu");
+        var data = dtableRekapLaporan.row($(this).closest('tr')).data();
+        $("#vTamuId").val(data.TamuId);
+        $("#vKantorId").val(data.KantorId);
+        $("#vUnitKerjaId").val(data.UnitKerjaId);
+
+        $("#txtKedatangan").val(data.Waktu_Kedatangan);
+        $("#txtNIK").val(data.NIK);
+        $("#txtNamaLengkap").val(data.NamaLengkap);
+        $("#txtTempatLahir").val(data.TempatLahir);
+        $("#txtTanggalLahir").val(data.TanggalLahir);
+        $("#txtNoTelp").val(data.NoTelp);
+        $("#txtEmail").val(data.Email);
+        $("#txtAlamat").val(data.Alamat);
+        $("#txtInstansi").val(data.Instansi);
+        $("#txtKeperluan").val(data.Keperluan);
+        $("#ddlStatus").val(data.ResponStatus).trigger("change");
+        $("#txtCatatan").val(data.ResponCatatan);
+        $("#divBtnSimpan").show()
+        var st = false;
+        if (data.ResponStatus != "" && data.ResponStatus != null) {            
+            $("#divBtnSimpan").hide()
+            st = true;
+        }
+        $("#txtKedatangan").attr("readonly", st);
+        $("#txtNIK").attr("readonly", st);
+        $("#txtNamaLengkap").attr("readonly", st);
+        $("#txtTempatLahir").attr("readonly", st);
+        $("#txtTanggalLahir").attr("readonly", st);
+        $("#txtNoTelp").attr("readonly", st);
+        $("#txtEmail").attr("readonly", st);
+        $("#txtAlamat").attr("readonly", st);
+        $("#txtInstansi").attr("readonly", st);
+        $("#txtKeperluan").attr("readonly", st);
+        $("#ddlStatus").attr("disabled", st);
+        $("#txtCatatan").attr("readonly", st);
+
+        $('#divDetail').modal('show');
+        closeloading();
+    });
+
+    function reloadPegawai() {
+        var ukid = $('#UnitKerjaId').val();
+        $('#ddlPegawaiId').html("");
+        if (ukid != "" && ukid != null) {
+            $.ajax({
+                url: '@Url.Action("GetListPegawai", "Laporan")',
+                type: "GET",
+                dataType: "JSON",
+                data: { unitkerjaid: ukid, tipe: "ASN" },
+                success: function (data) {
+                    if (data.length > 1) {
+                        $('#ddlPegawaiId').append($('<option></option>').val("").html("-- Pilih Pegawai --"));
+                    }
+                    $.each(data, function (i, data) {
+                        $('#ddlPegawaiId').append(
+                            $('<option></option>').val(data.PegawaiId).html(data.NamaLengkap));
+                    });
+                    if (data.length > 1) {
+                        $('#ddlPegawaiId').val("");
+                    }
+                    closeloading();
+                }
+            });
+        }
+    };
+
+    $("#btnCetak").click(function (e) {
+        e.preventDefault();
+        swal({
+            title: "Rekap Buku Tamu",
+            text: "Tampilkan Pencetakan",
+            type: "info",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("doRekapBukuTamuPdf", "Laporan")',
+                        data: $('#frmCari').serializeArray(),
+                        contentType: false,
+                        processData: false,
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            if (data.Status) {
+                                swal("Informasi", textsuccess, "success")
+                            }
+                            else {
+                                swal("Peringatan", data.Pesan, "warning")
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                        }
+                    });
+                }
+            });
+    });
+
+    $("#frmCari").submit(function (e) {
+        dtableRekapLaporan.ajax.reload(null, true);
+        e.preventDefault();
+        return false;
+    });
+
+    $(document).ready(function () {
+        createRekapPresensi();
+        $('.select2_single').select2({ width: '100%' });
+
+        $('#dtRange').daterangepicker({
+            "timePicker24Hour": false,
+            "dateLimit": {
+                "months": 1
+            },
+            timePicker: false,
+            locale: {
+                format: 'DD MMM YYYY'
+            }
+        });
+
+        $('#dtRange').on('apply.daterangepicker', function (ev, picker) {
+            dtMulai = picker.startDate.format('YYYY-MM-DD')
+            dtSampai = picker.endDate.format('YYYY-MM-DD');
+        });
+
+        $('#txtTanggalLahir').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+        });
+    });
+
+    $("#UnduhExcel").click(function () {
+        showloading("Menyiapkan Rekap Buku Tamu");
+        var ukid = $('#UnitKerjaId').val();
+
+        var params = "ukid=" + ukid + '&dtm=' + dtMulai + '&dts=' + dtSampai;
+        var request = new XMLHttpRequest();
+        request.responseType = "blob";
+        request.open("GET", "GetExportBukuTamu" + "?" + params);
+        request.onload = function () {
+            var url = window.URL.createObjectURL(this.response);
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.href = url;
+            a.download = this.response.name || "Rekap Buku Tamu.xlsx"
+            a.click();
+            closeloading();
+        }
+        request.send();
+    })
+
+    function CekDukcapil() {
+        var frmdata = new FormData();
+        frmdata.append("nik", $('#txtNIK').val());
+        frmdata.append("nm", $('#txtNamaLengkap').val());
+        frmdata.append("tpl", $('#txtTempatLahir').val());
+        frmdata.append("tgl", $('#txtTanggalLahir').val());
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("cekDukcapil", "Laporan")',
+            data: frmdata,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data.Status === false) {
+                    swal("Peringatan", data.Pesan, "warning")
+                } else {
+                    swal("Informasi", data.Pesan, "success")
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+    }
+
+    function SimpanCatatan() {
+        var frmdata = new FormData();
+        frmdata.append("nik", $('#txtNIK').val());
+        frmdata.append("nm", $('#txtNamaLengkap').val());
+        frmdata.append("tpl", $('#txtTempatLahir').val());
+        frmdata.append("tgl", $('#txtTanggalLahir').val());
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("cekDukcapil", "Laporan")',
+            data: frmdata,
+            contentType: false,
+            processData: false,
+            success: function (ck) {
+                frmdata.append("tlp", $('#txtNoTelp').val());
+                frmdata.append("eml", $('#txtEmail').val());
+                frmdata.append("alm", $('#txtAlamat').val());
+                frmdata.append("ins", $('#txtInstansi').val());
+                frmdata.append("kep", $('#txtKeperluan').val());
+                frmdata.append("tid", $('#vTamuId').val());
+                frmdata.append("ukid", $('#vUnitKerjaId').val());
+                frmdata.append("stt", $('#ddlStatus').val());
+                frmdata.append("ctt", $('#txtCatatan').val());
+                frmdata.append("std", ck.Status);
+
+                var txt = "Yakin Anda mau menyimpan perubahan ini ?";
+                if (ck.Status == false) {
+                    txt = "Data Dukcapil Pengunjung Tidak Sesuai,\n" + txt;
+                }
+
+                swal({
+                    title: "Konfirmasi Perubahan",
+                    text: txt,
+                    type: "info",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Ya",
+                    cancelButtonText: "Batal",
+                    showLoaderOnConfirm: true
+                },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("doUbahBukuTamu", "Laporan")',
+                                data: frmdata,
+                                contentType: false,
+                                processData: false,
+                                success: function (data) {
+                                    if (data.Status === false) {
+                                        swal("Peringatan", data.Pesan, "warning")
+                                    } else {
+                                        dtableRekapLaporan.ajax.reload(null, true);
+                                        $('#divDetail').modal('hide');
+                                        swal("Informasi", data.Pesan, "success")
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+                                }
+                            });
+                        }
+                    });
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+        return false;
+    }
+    function setClipboard(text, title) {
+        var input = document.createElement('input');
+        input.setAttribute('value', text);
+        document.body.appendChild(input);
+        input.select();
+        input.setSelectionRange(0, 99999); /*For mobile devices*/
+        var result = document.execCommand('copy');
+        document.body.removeChild(input);
+        new PNotify({ title: 'Informasi', text: title + " Berhasil disalin", delay: 2000, styling: 'bootstrap3', addclass: 'dark' });
+        return result;
+    }
+
+    var linkUrl = window.location.protocol + "//" + window.location.host;
+
+    function copyLink() {
+        setClipboard(linkUrl, "Tautan");
+    }
+
+    function getQrCode() {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("getQrCodeBukuTamu", "Laporan")',
+            data: { host: window.location.protocol + "//" + window.location.host },
+            success: function (data, textStatus, XMLHttpRequest) {
+                linkUrl = data.Url;
+                $("#imgqrcode").attr('src', data.QrCode);
+                $("#btnDownloadQR").attr("href", data.QrCode)
+                $('#divQrCode').modal('show');
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                swal(textStatus, "Terjadi Kesalahan \n" + errorThrown, "warning");
+            }
+        });
+    }
+</script>

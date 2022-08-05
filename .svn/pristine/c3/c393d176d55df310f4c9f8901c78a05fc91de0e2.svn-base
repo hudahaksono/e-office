@@ -1,0 +1,445 @@
+﻿@model Surat.Models.Entities.MasterArsip
+
+<link rel="stylesheet" type="text/css" src="@Url.Content("~/resources/inline/datatables.min.css")" />
+
+@*<script src="@Url.Content("~/resources/inline/select2.full.min.js")"></script>
+    <script src='@Url.Content("~/resources/inline/select2.min.js")'></script>*@
+
+@*<script src="@Url.Content("~/resources/inline/datatables2.js")"></script>*@
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+<script src='@Url.Content("~/resources/inline/dataTables.rowsGroup.js")'></script>
+<script src="@Url.Content("~/resources/inline/table2excel.js")"></script>
+@*<script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>*@
+@*<script src="https://cdn.jsdelivr.net/gh/linways/table-to-excel@v1.0.4/dist/tableToExcel.js"></script>*@
+
+
+
+@*<script src="@Url.Content("~/resources/inline/jquery.rowspanizer.js")"></script>*@
+<script src="@Url.Content("~/resources/inline/jquery.table.marge.js")"></script>
+
+@{
+    var lstTahun = new List<SelectListItem>();
+    for (int i = DateTime.Now.Year; i >= 1945; i--)
+    {
+        lstTahun.Add(new SelectListItem { Text = i.ToString(), Value = i.ToString() });
+    }
+
+    var lstNull = new List<SelectListItem>();
+
+
+}
+
+<style>
+    .hiddentable {
+        position: absolute;
+        left: -9999px;   
+
+    }
+
+    .tdmiddle {
+        vertical-align: middle;
+    }
+
+    th {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    .tdExport {
+        border: 2px solid black
+    }
+
+    .tableExport {
+        border: 2px solid black;
+        border-collapse: collapse
+    }
+</style>
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+<div id="isiBody">
+    <div class="" id="dynamic_content">
+        <div class="title_left">
+
+            <button class="btn btn-primary btn-md" id="add_member" type="button" onclick="location.href='@Url.Action("MasterArsip", "Kearsipan")'"><i class="fa fa-paste"></i> Tambah Data Arsip</button>
+        </div>
+        <form class="form-horizontal" id="frmCariArsip" method="post" action="@Url.Action("DaftarArsip", "Kearsipan")">
+
+            <div class="clearfix"></div>
+            <div style="padding-bottom:0px; margin-bottom: -10px" id="DivFilterData">
+                <div>
+                    <div class="row">
+                        <div class="col-md-10 col-sm-10 col-xs-10 form-group">
+                            @Html.TextBoxFor(model => model.MetaData, new { @class = "form-control", @id = "MetaData", @placeholder = "Silahkan Masukan Kata Kunci Untuk Mencari Arsip......" })
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2 form-group">
+                            <button id="srchbutton" type="submit" class="btn btn-info btn-block"><i class="fa fa-search"></i> Cari</button>
+                        </div>
+                    </div>
+                    <div class="row ">
+
+                        <div class="col-md-6 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                            @Html.DropDownListFor(model => model.GolonganArsip, new SelectList(@Model.ListGolonganMasterArsip2, "NamaJenis", "ValueJenisArsip"), "Jenis Naskah Dinas", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbGolongan", @onchange = "FilterChanged()" })
+
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                            @Html.DropDownListFor(model => model.Tahun, lstTahun, "Tahun", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTahun", @onchange = "FilterChanged()" })
+                        </div>
+                        <div class="col-md-2 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                            <button class="btn btn-success btn-block" id="downloadexcel" type="button"><i class="fa fa-file-excel-o"></i> Download Excel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+        </form>
+
+        <div class="table-responsive">
+            <section id="flip-scroll">
+                <table id="myTableMasterArsip" class="table table-hover table-bordered dt-responsive infinite-scroll" style="width:100%; background-color:white;">
+                    <thead>
+                        <tr style="background-color: #696969;">
+                            <th class="text-center p-1" style="color:white">No.</th>
+                            <th class="text-center p-1" style="color:white">No. Naskah Dinas</th>
+                            <th class="text-center p-1" style="color:white">Kode Klasifikasi</th>
+                            <th class="text-center p-1" style="color:white">Jenis Arsip / Uraian</th>
+                            <th class="text-center p-1" style="color:white">Tahun</th>
+                            <th class="text-center p-1" style="color:white">Jumlah Berkas</th>
+                            <th class="text-center p-1" style="color:white">Tingkat Perkembangan</th>
+                            <th class="text-center p-1" style="color:white">Gedung</th>
+                            <th class="text-center p-1" style="color:white">Lantai</th>
+                            <th class="text-center p-1" style="color:white">Rak</th>
+                            <th class="text-center p-1" style="color:white">Nomor Boks</th>
+                            <th class="text-center p-1" style="color:white">Keterangan</th>
+                            <th class="text-center p-1 noExport hidden-print" style="color:white">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataplaceholder"></tbody>
+
+                </table>
+            </section>
+            <div id="ketFind">
+                <div style="margin-top: 8%;text-align:center;text-shadow: #e0e0e0 1px 1px 0;">
+                    <h1><b>PENCARIAN ARSIP</b></h1>
+                    @*<i class="fa fa-folder-open" style="font-size:9em"></i>*@
+                    <img src="~/resources/images/backgroundarsip.png" style="width:80px;" />
+                    <br />
+                    <p>*Masukan Keyword Untuk Mencari Arsip</p>
+                    <p>**Atau Pilih Filter yang sesuai</p>
+                </div>
+            </div>
+        </div>
+        @Html.Partial("_Loading")
+    </div>
+</div>  
+    <table id="myTableMasterArsipExport" class="hiddentable">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>No. Naskah Dinas</th>
+                <th>Kode Klasifikasi</th>
+                <th>Jenis Arsip / Uraian</th>
+                <th>Tahun</th>
+                <th>Jumlah Berkas</th>
+                <th>Tingkat Perkembangan</th>
+                <th>Gedung</th>
+                <th>Lantai</th>
+                <th>Rak</th>
+                <th>Nomor Boks</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody id="dataplaceholderexport"></tbody>
+    </table> 
+<!-- VIEW ARSIP MODAL START -->
+<div id='ViewArsipModal' class='modal' data-target="#ViewArsipModal" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" style="width: 98%; max-height: 98%;">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" onclick="ResetFile()" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id="MasterArsipUploadLabel">Berkas Arsip</h2>
+                    <hr />
+                    <div class="panel panel-default">
+                        <a class="acctitle" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                            <div class="panel-heading bg-primary" role="tab" id="headingTwo">
+                                <h4 class="panel-title">
+                                    File PDF
+                                </h4>
+                            </div>
+                        </a>
+                        <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <div class="uploadsection">
+                                    <div id="fileUploaded">
+                                        <ul class="nav nav-tabs">
+                                        </ul>
+                                        <div class="tab-content" id="tabPdf">
+                                            <div id="tampilanDokumen"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- VIEW ARSIP MODAL END -->
+
+
+
+<script type="text/javascript">
+
+
+    function OpenMenuAdd(param, title) {
+        $("#isiBody").hide()
+        $("#settingElement").fadeIn("slow")
+        if (param == "TambahMasterArsip") {
+            callSetting('@Url.Action("MasterArsip", "Kearsipan")', title)
+        }
+    }
+
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    var loadData = function () {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariArsip');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSemuaArsip", "Kearsipan")',
+            data: $('#frmCariArsip').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    $('#ketFind').html(`
+                        <div style="margin-top: 8%;text-align:center;text-shadow: #e0e0e0 1px 1px 0;">
+                            <h1><b>Arsip Tidak Ditemukan</b></h1>
+                            <i class="fa fa-exclamation-circle" style="font-size:9em"></i>
+                        </div>
+                    `)
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                    $('#ketFind').hide();
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#frmCariArsip").submit(function (e) {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariArsip');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSemuaArsip", "Kearsipan")',
+            data: $('#frmCariArsip').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    $('#ketFind').html(`
+                        <div style="margin-top: 8%;text-align:center;text-shadow: #e0e0e0 1px 1px 0;">
+                            <h1><b>Arsip Tidak Ditemukan</b></h1>
+                            <i class="fa fa-exclamation-circle" style="font-size:9em"></i>
+                            <p>*Coba Gunakan Kata Kunci Lainnya</p>
+                        </div>
+                    `)
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                    $('#ketFind').hide();
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+         $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSemuaArsipExport", "Kearsipan")',
+            data: $('#frmCariArsip').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholderexport').html('');
+                }
+                else {
+                    $('#dataplaceholderexport').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    function FilterChanged() {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariArsip');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSemuaArsip", "Kearsipan")',
+            data: $('#frmCariArsip').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    $('#ketFind').html(`
+                        <div style="margin-top: 8%;text-align:center;text-shadow: #e0e0e0 1px 1px 0;">
+                            <h1><b>Arsip Tidak Ditemukan</b></h1>
+                            <i class="fa fa-exclamation-circle" style="font-size:9em"></i>
+                            <p>*Coba Gunakan Kata Kunci Lainnya</p>
+                        </div>
+                    `)
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                    $('#ketFind').hide();
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+         $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSemuaArsipExport", "Kearsipan")',
+            data: $('#frmCariArsip').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholderexport').html('');
+                }
+                else {
+                    $('#dataplaceholderexport').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    function ResetFile() {
+        $('#tampilanDokumen').html("");
+        $('#tabPdf').html(`<div id="tampilanDokumen"></div>`);
+    };
+
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        //loadData();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+
+    moreRowsUrl = '@Url.Action("DaftarSemuaArsip", "Kearsipan")';
+    $(window).scroll(scrollHandler);
+
+
+
+    //// VIEW BERKAS ARSIP ////
+    function ViewArsip(idDetail) {
+            console.log(idDetail)
+        $('#ViewArsipModal').modal('show');
+
+        //$("#fileUploaded ul").prepend(`
+        //    <li role="presentation"><a href="#upload${idDetail}" aria-controls="upload${idDetail}" role="tab" data-toggle="tab" style="cursor:pointer"><i class="fa fa-file-pdf-o" style="font-size:1.2em"></i></a></li>
+        //`)
+
+         $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DaftarLampiranArsip", "Kearsipan")',
+                data: { IdMasterArsipDetail: idDetail },
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data == 'noresults') {
+                        $('#fileUploaded ul').html('<h2 class="text-center">Tidak ada berkas arsip</h2>');
+                    }
+                    else {
+                        $('#fileUploaded ul').html(data);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+    }
+    let isexpand = false
+     var BukaFileLampiran = function (id, namafile, kantorid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFileArsip", "Kearsipan")?id=' + id + '&kantorid=' + kantorid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewerWithoutHeader", "Konten")',
+                    success: function (data) {
+
+                        $('#tampilanDokumen').html(data);
+                        //if (!isexpand) {
+                        //    $("#tabPdf").prepend(`<div class="PdfDetail" style="padding:5px 10px; background-color:rgba(222, 222, 222, 1)">
+                        //    <h5> <span class="filename">${namafile}</span> <span class="hapus pull-right" style="color: red;cursor:pointer;" onclick="HapusFileArsip(${id})">Hapus</span></h5>
+                        //</div>`);
+
+
+                        //    isexpand = true
+                        //}
+
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                });
+            }
+
+        }
+    }
+
+
+
+
+</script>

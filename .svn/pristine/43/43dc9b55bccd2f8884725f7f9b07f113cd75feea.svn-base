@@ -1,0 +1,59 @@
+﻿@model Dictionary<int, Surat.Models.Entities.ListJabatan>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin">@lst.Value.RNumber</td>
+        <td class="tdnormal" style="min-width:15vmin">@lst.Value.ProfileId</td>
+        <td class="tdnormal">@lst.Value.NamaProfile</td>
+        <td class="tdnormal">@lst.Value.NamaUnitKerja</td>
+        <td class="tdnormal" style="min-width:15vmin">@lst.Value.ProfileIdTU</td>
+        <td class="tdnormal" style="min-width:15vmin">@lst.Value.ProfileIdBA</td>
+        <td style="text-align:center;cursor: pointer;" onclick="editProfile('@lst.Value.ProfileId','@lst.Value.NamaProfile');"><i class="fa fa-pencil"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editProfile = function (id, namaprofile) {
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        //$('#popuptitle').html('Edit data profile TU untuk<br>' + namaprofile);
+
+        $('#frmEditJabatan')[0].reset();
+        $('#cmbEditUnitKerja').val('').trigger('change');
+        $('#cmbEditUnitKerjaTU').val('').trigger('change');
+        $('#cmbEditProfileTU').val('').trigger('change');
+        $('#cmbEditUnitKerjaBA').val('').trigger('change');
+        $('#cmbEditProfileBA').val('').trigger('change');
+
+        // Get Jabatan by ProfileId
+        $.ajax({
+            url: '@Url.Action("GetJabatanByProfileId", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { profileid: id },
+            success: function (data) {
+                
+                $('#SelectedProfileId').val(data[0].ProfileId);
+
+                $('#editidprofile').val(data[0].ProfileId);
+                $('#editnamaprofile').val(data[0].NamaProfile);
+                $('#cmbEditUnitKerja').val(data[0].UnitKerjaId).trigger('change');
+                $('#cmbEditUnitKerjaTU').val(data[0].UnitKerjaIdTU).trigger('change');
+                $('#cmbEditUnitKerjaBA').val(data[0].UnitKerjaIdBA).trigger('change');
+
+                $('#SelectedProfileIdTU').val(data[0].ProfileIdTU);
+                $('#SelectedProfileIdBA').val(data[0].ProfileIdBA);
+
+                $("#editidprofile").prop('readonly', true);
+
+                $.unblockUI();
+            }
+        });
+
+        $('#ProfileEditorModal').modal('show');
+    }
+</script>

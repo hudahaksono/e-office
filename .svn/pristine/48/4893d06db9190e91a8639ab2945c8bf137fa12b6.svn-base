@@ -1,0 +1,934 @@
+﻿@model Surat.Models.Entities.ChartSurat
+
+<script src='@Url.Content("~/resources/js/echarts-all.js")'></script>
+<script src='@Url.Content("~/resources/js/green.js")'></script>
+
+<script src='@Url.Content("~/resources/js/moris/raphael-min.js")'></script>
+<script src='@Url.Content("~/resources/js/moris/morris.min.js")'></script>
+
+<!-- Custom Css -->
+<link href='@Url.Content("~/resources/css/style.css")' rel="stylesheet" />
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .flex-container {
+        display: flex;
+        flex-direction: row;
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .flex-item {
+        background-color: #f1f1f1;
+        padding: 10px;
+        flex: 75%;
+    }
+
+    .flex-item-mini {
+        padding: 10px;
+        flex: 25%;
+        -webkit-transition: background-color 0.5s ease-out;
+        -moz-transition: background-color 0.5s ease-out;
+        -o-transition: background-color 0.5s ease-out;
+        transition: background-color 0.5s ease-out;
+    }
+
+    .flex-item-mini:hover {
+        background-color: deeppink !important;
+        cursor:pointer;
+    }
+
+    .flex-item-mini-lower {
+        padding: 10px;
+        flex: 25%;
+        -webkit-transition: background-color 0.5s ease-out;
+        -moz-transition: background-color 0.5s ease-out;
+        -o-transition: background-color 0.5s ease-out;
+        transition: background-color 0.5s ease-out;
+    }
+
+    .flex-item-mini-lower:hover {
+        background-color: deeppink !important;
+        cursor: pointer;
+    }
+
+    .catatan-row {
+        margin: 5px;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        white-space: nowrap;
+    }
+
+    .info-box {
+        width: 25%;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+</style>
+
+@{ 
+    int TotalSuratBelumDibuka = 0;
+    string TextSuratBelumDibuka = string.Empty;
+    if(Model.SuratBelumDibuka != null)
+    {
+        foreach (var srt in Model.SuratBelumDibuka)
+        {
+            TotalSuratBelumDibuka += srt.Jumlah;
+            TextSuratBelumDibuka += (string.IsNullOrEmpty(TextSuratBelumDibuka) ? "" : ", ") + srt.Jumlah.ToString() + " Surat " + srt.Tipe;
+        }
+    }
+}
+
+<div class="">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                @Model.NamaUnitKerja
+            </h3>
+        </div>
+        @*<div class="title_right">
+                <form class="form-horizontal" id="frmCariSurat" method="post">
+                    <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                        <p><a class="btn btn-default" href="@Url.Action("GetPdf", "Konten")?filename=UserManual.pdf" target="_blank">Petunjuk Penggunaan &raquo;</a></p>
+                    </div>
+                </form>
+            </div>*@
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row x_panel tile" style="padding-top:7px; border:1px solid #E6E9ED;">
+        <div class="x_content">
+            <div class="" role="tabpanel" data-example-id="togglable-tabs" id="tabs">
+                <ul id="actTabs" class="nav nav-tabs hidden-print" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#tab1" role="tab" id="dashboard-tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-user"></i></a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#tab2" role="tab" id="pegawai-tab" data-toggle="tab" aria-expanded="false" onclick="getDataSatker('ASN')"><i class="fa fa-users" title="List Pegawai "></i></a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#tab3" role="tab" id="ppnpn-tab" data-toggle="tab" aria-expanded="false" onclick="getDataSatker('PPNPN')"><i class="fa fa-users" title="List PPNPN dan Tenaga Ahli"></i></a>
+                    </li>
+                </ul>
+            </div>
+            <div id="tab-content" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="dashboard-tab">
+                    @*---------- INFORMASI PERSURATAN BAR UNTUK TU ----------*@
+                    @if (@OtorisasiUser.isTU() && (User.Identity as Surat.Models.Entities.InternalUserIdentity).KantorId == "980FECFC746D8C80E0400B0A9214067D")
+                    {
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("SuratMasuk", "Flow")" target="_blank"><b>Naskah Dinas Belum Dibaca</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: orangered;"><a href="@Url.Action("SuratMasuk", "Flow")" target="_blank"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahSuratBelumDibuka2" style="padding-left:10px; margin-top:0px;" title="@TextSuratBelumDibuka">@TotalSuratBelumDibuka</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("ProsesTTE", "TandaTanganElektronik")" target="_blank"><b>Naskah Dinas yang perlu di TTE</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: limegreen;"><a href="@Url.Action("ProsesTTE", "TandaTanganElektronik")" target="_blank"><i class="fa fa-pencil-square-o" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><a id="LabelJumlahProsesTTE2" style="padding-left:10px; margin-top:0px;"></a></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("KonsepList", "NaskahDinas")" target="_blank"><b>Konsep Naskah Dinas dalam Proses</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: dodgerblue;"><a href="@Url.Action("KonsepList", "NaskahDinas")" target="_blank"><i class="fa fa-copy" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahKonsepList" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("ProsesSurat", "Flow")" target="_blank"><b>Naskah Dinas Masuk yang Perlu Persetujuan</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: darkorange;"><a href="@Url.Action("ProsesSurat", "Flow")" target="_blank"><i class="fa fa-check-square-o" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahProses2" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("PersetujuanTTE", "TandaTanganElektronik")" target="_blank"><b>PDF Naskah Dinas dalam Proses Persetujuan</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: mediumpurple;"><a href="@Url.Action("PersetujuanTTE", "TandaTanganElektronik")" target="_blank"><i class="fa fa-rotate-right" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahPersetujuanPDF" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("ProsesList", "NaskahDinas")" target="_blank"><b> Konsep Naskah Dinas perlu Persetujuan</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: gold;"><a href="@Url.Action("ProsesList", "NaskahDinas")" target="_blank"><i class="fa fa-upload" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahProsesList" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Surat Selesai Satuan Kerja</b></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div id="TotalProgress" style="height:300px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Surat Selesai Saya</b></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div id="ProgressSaya" style="height:300px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @*---------- INFORMASI PERSURATAN BAR UNTUK NON TU ----------*@
+                    else
+                    {
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("SuratMasuk", "Flow")" target="_blank"><b>Naskah Dinas Belum Dibaca</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: orangered;"><a href="@Url.Action("SuratMasuk", "Flow")" target="_blank"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahSuratBelumDibuka2" style="padding-left:10px; margin-top:0px;" title="@TextSuratBelumDibuka">@TotalSuratBelumDibuka</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("ProsesTTE", "TandaTanganElektronik")" target="_blank"><b>Naskah Dinas Perlu Di TTE</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: limegreen;"><a href="@Url.Action("ProsesTTE", "TandaTanganElektronik")" target="_blank"><i class="fa fa-pencil-square-o" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><a id="LabelJumlahProsesTTE2" style="padding-left:10px; margin-top:0px;"></a></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("ProsesList", "NaskahDinas")" target="_blank"><b>Konsep Naskah Dinas Perlu Persetujuan</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini" style="background-color: darkorange;"><a href="@Url.Action("ProsesList", "NaskahDinas")" target="_blank"><i class="fa fa-copy" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahPersetujuanKonsep" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("Notulen", "Notulen")" target="_blank"><b>Daftar Notulensi</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: dodgerblue;"><a href="@Url.Action("Notulen", "Notulen")" target="_blank"><i class="fa fa-book" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahNotulen" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><a href="@Url.Action("SuratOutbox", "Flow")" target="_blank"><b>Naskah Dinas Terkirim</b></a></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: mediumpurple;"><a href="@Url.Action("SuratOutbox", "Flow")" target="_blank"><i class="fa fa-paper-plane" aria-hidden="true" style="color:azure;"></i></a></div>
+                                                <div class="flex-item"><span id="LabelJumlahSuratOutbox2" style="padding-left:10px; margin-top:0px;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Naskah Dinas Selesai</b></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="flex-container">
+                                                <div class="flex-item-mini-lower" style="background-color: gold;"><i class="fa fa-check-square-o" aria-hidden="true" style="color:azure;"></i></div>
+                                                <div class="flex-item count">@Model.chartGaugePersonal.JumlahSelesaiPersonal</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="row top_tiles" style="padding-left:10px;padding-top:10px;padding-right:10px;">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Surat Selesai Satuan Kerja</b></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div id="TotalProgress" style="height:300px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="x_panel" style="padding:0px; border: 1px solid #E6E9ED;">
+                                        <div class="x_title" style="border-bottom: 1px solid #E6E9ED;">
+                                            <h2 style="font-family: 'Ubuntu', sans-serif; font-size:10pt; text-transform: uppercase;"><b>Surat Selesai Saya</b></h2>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div id="ProgressSaya" style="height:300px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab2" aria-labelledby="pegawai-tab">
+                    <div class="table-responsive" style="border:none;">
+                        <form id="frmRekapSurat"></form>
+                        <h4>List Persuratan Pegawai</h4>
+                        @Html.HiddenFor(m => m.UnitKerjaId, new { @id = "UnitKerjaId" })
+                        <table id="myTableRekapSurat" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%">#</th>
+                                    <th style="width:10%">NIP</th>
+                                    <th>Nama</th>
+                                    <th>Foto</th>
+                                    <th>Jabatan</th>
+                                    <th class="numeric">Jumlah</th>
+                                    <th class="numeric">Inbox</th>
+                                    <th class="numeric">Terkirim</th>
+                                    <th class="numeric">Selesai</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab3" aria-labelledby="ppnpn-tab">
+                    <div class="table-responsive" style="border:none;">
+                        <form id="frmRekapSuratPPNPN"></form>
+                        <h4>List Persuratan PPNPN dan Tenaga Ahli</h4>
+                        <table id="myTableRekapSuratPPNPN" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%">#</th>
+                                    <th style="width:10%">NIK</th>
+                                    <th>Nama</th>
+                                    <th>Foto</th>
+                                    <th>Jabatan</th>
+                                    <th class="numeric">Jumlah</th>
+                                    <th class="numeric">Inbox</th>
+                                    <th class="numeric">Terkirim</th>
+                                    <th class="numeric">Selesai</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNotif" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div id="contentnotif">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lightbox-target {
+        position: fixed;
+        top: -100%;
+        width: 100%;
+        background: rgba(0,0,0,.7);
+        width: 100%;
+        opacity: 0;
+        -webkit-transition: opacity .5s ease-in-out;
+        -moz-transition: opacity .5s ease-in-out;
+        -o-transition: opacity .5s ease-in-out;
+        transition: opacity .5s ease-in-out;
+        overflow: hidden;
+    }
+
+        /* Styles the lightbox image, centers it vertically and horizontally, adds the zoom-in transition and makes it responsive using a combination of margin and absolute positioning */
+
+        .lightbox-target img {
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-height: 0%;
+            max-width: 0%;
+            border: 3px solid white;
+            box-shadow: 0px 0px 8px rgba(0,0,0,.3);
+            box-sizing: border-box;
+            -webkit-transition: .5s ease-in-out;
+            -moz-transition: .5s ease-in-out;
+            -o-transition: .5s ease-in-out;
+            transition: .5s ease-in-out;
+        }
+
+    /* Styles the close link, adds the slide down transition */
+
+    a.lightbox-close {
+        -webkit-transition: .5s ease-in-out;
+        -moz-transition: .5s ease-in-out;
+        -o-transition: .5s ease-in-out;
+        transition: .5s ease-in-out;
+    }
+
+        /* Provides part of the "X" to eliminate an image from the close link */
+
+        a.lightbox-close:before {
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        /* Provides part of the "X" to eliminate an image from the close link */
+
+        a.lightbox-close:after {
+            -webkit-transform: rotate(-45deg);
+            -moz-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+        }
+
+    /* Uses the :target pseudo-class to perform the animations upon clicking the .lightbox-target anchor */
+
+    .lightbox-target:target {
+        opacity: 1;
+        top: 0;
+        bottom: 0;
+        overflow: scroll;
+    }
+
+        .lightbox-target:target img {
+            max-height: 100%;
+            max-width: 100%;
+        }
+
+        .lightbox-target:target a.lightbox-close {
+            top: 0;
+        }
+</style>
+
+<div class="lightbox-target" id="zoom">
+    <a class="lightbox-close" href="#" id="imgZoom">
+        <img src="../resources/images/tn64.jpg" />
+    </a>
+</div>
+@*<div id='bsre' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="row" id=''>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 style="font-weight:bold" class="text-center" id=""><i class="fa fa-exclamation-triangle"></i> &nbsp; PENGUMUMAN PERPANJANGAN MAINTENANCE</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="closeModalButton"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="" id="">
+                                <p>Sehubungan dengan Maintenance Layanan BSrE yang berlangsung sampai saat ini, maka TTE pada aplikasi e-Office belum bisa digunakan sampai dengan pukul 15.00 WIB. Demikian pemberitahuan ini, atas ketidaknyamanannya disampaikan terima kasih.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitleInfoNotulen">Informasi Notulen</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="closeModalButton"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="" id="informasiholder"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalReload' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="titleReload">Informasi Kantor Pertanahan</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="" role="tabpanel" data-example-id="togglable-tabs" id="rekaptabs">
+                                <ul id="rekapTabs" class="nav nav-tabs hidden-print" role="tablist">
+                                    <li role="presentation" class="active">
+                                        <a href="#data_kanwil" role="tab" id="kanwil-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-users" title="List Kantor Wilayah"></i> Kantor Wilayah</a>
+                                    </li>
+                                    <li role="presentation" class="">
+                                        <a href="#data_kantah" role="tab" id="kantah-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-users" title="List Kantor Pertanahan"></i> Kantor Pertanahan</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="tab-content_data" class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="data_kanwil" aria-labelledby="kanwil-tab">
+                                    <div class="table-responsive" style="border:none;">
+                                        <div id="contentKanwil">
+                                            <form id="frmRekapKanwil"></form>
+                                            <table id="RekapKanwil" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:10px">#</th>
+                                                        <th>Kantor Wilayah</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="data_kantah" aria-labelledby="kantah-tab">
+                                    <div class="table-responsive" style="border:none;">
+                                        <div id="contentKantah">
+                                            <form id="frmRekapKantah"></form>
+                                            <table id="RekapKantah" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:10px">#</th>
+                                                        <th>Kantor Pertanahan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var load = "1";
+
+    function dataLabelDashboard() {
+        @*$.ajax({
+            url: '@Url.Action("JumlahSuratBelumDibuka", "Flow")',
+            success: function (response) {
+                $('#LabelJumlahSuratBelumDibuka2').html(response);
+            }
+        });*@
+
+        // UNTUK TU
+        $.ajax({
+            url: '@Url.Action("JumlahProsesSurat", "Flow")',
+            success: function (response) {
+                $('#LabelJumlahProses2').html(response);
+            }
+        });
+
+        // UNTUK TU
+        $.ajax({
+            url: '@Url.Action("JumlahProsesDokumen", "TandaTanganElektronik")',
+            success: function (response) {
+                $('#LabelJumlahProsesTTE2').html(response);
+            }
+        });
+
+        // UNTUK TU
+        $.ajax({
+            url: '@Url.Action("JumlahKonsepList", "NaskahDinas")',
+            success: function (response) {
+                $('#LabelJumlahKonsepList').html(response);
+            }
+        });
+
+        // UNTUK TU
+        $.ajax({
+            url: '@Url.Action("JumlahPersetujuanKonsep", "NaskahDinas")',
+            success: function (response) {
+                $('#LabelJumlahProsesList').html(response);
+            }
+        });
+
+        // UNTUK TU
+        $.ajax({
+            url: '@Url.Action("JumlahPersetujuanPDF", "TandaTanganElektronik")',
+            success: function (response) {
+                $('#LabelJumlahPersetujuanPDF').html(response);
+            }
+        });
+
+        // UNTUK NON TU
+        $.ajax({
+            url: '@Url.Action("JumlahPersetujuanKonsep", "NaskahDinas")',
+            success: function (response) {
+                $('#LabelJumlahPersetujuanKonsep').html(response);
+            }
+        });
+
+        // UNTUK NON TU
+        $.ajax({
+            url: '@Url.Action("JumlahNotulensi", "Notulen")',
+            success: function (response) {
+                    $('#LabelJumlahNotulen').html(response);
+            }
+        });
+
+        // UNTUK NON TU
+         $.ajax({
+            url: '@Url.Action("JumlahSuratOutbox", "Flow")',
+            success: function (response) {
+                    $('#LabelJumlahSuratOutbox2').html(response);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        //$('#bsre').modal('show');
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '80%',
+                height: '80 %',
+                'max-height': '80%'
+            });
+        });
+
+        $('#myModalReload').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '80%',
+                height: '80 %',
+                'max-height': '80%'
+            });
+        });
+
+        loadDataNotulen();
+
+        createTableRekapSurat();
+        createTableRekapSuratPPNPN();
+
+        dataLabelDashboard()
+
+        function setDashboardInterval() {
+            dataLabelDashboard()
+        }
+
+        $(document).ready(function () {
+            setInterval(setDashboardInterval,300000);
+        });
+    });
+
+        function getDataSatker(tipe) {
+            //load = "1";
+            //if (tipe == "ASN") {
+            //    dtableRekapSurat.ajax.reload(null, true);
+            //} else if (tipe == "PPNPN") {
+            //    dtableRekapSuratPPNPN.ajax.reload(null, true);
+            //}
+        }
+
+    var formatangka = function (data, type, row) {
+        return "".concat(data).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    };
+
+    var loadDataNotulen = function () {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetNotulenTop4", "Notulen")',
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#notulenplaceholder').html('');
+                }
+                else {
+                    $('#notulenplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    var dtableRekapSurat;
+    var createTableRekapSurat = function () {
+        dtableRekapSurat = $('#myTableRekapSurat').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarRekapSurat", "Monitoring")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmRekapSurat').serializeArray(); data.form = ftp; ftp.push({ name: "tipe", value: "ASN" }, { name: "load", value: load }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NIP" },
+                { "data": "NamaPegawai" },
+                {
+                    "data": "Foto",
+                    "className": "centertaligncolumn",
+                    "width": "10%",
+                    render: function (data) {
+                        if (data == 'foto.jpg') {
+                            return '<img width="40" height="50" src="' + '../resources/images/foto.png" style="border: 1px solid #EAEAEA" />';
+                        }
+                        else {
+                            return '<img width="40" height="50" src="' + 'https://simpeg.atrbpn.go.id/app/client/bpn/uploads/siap/foto/' + data + '" />';
+                        }
+                    }
+                },
+                { "data": "Jabatan" },
+                { "data": "JumlahSurat", "className": "numeric", render: formatangka },
+                { "data": "JumlahInbox", "className": "numeric", render: formatangka },
+                { "data": "JumlahTerkirim", "className": "numeric", render: formatangka },
+                { "data": "JumlahSelesai", "className": "numeric", render: formatangka }
+            ]
+        });
+    };
+
+    var dtableRekapSuratPPNPN;
+    var createTableRekapSuratPPNPN = function () {
+        dtableRekapSuratPPNPN = $('#myTableRekapSuratPPNPN').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarRekapSurat", "Monitoring")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmRekapSuratPPNPN').serializeArray(); data.form = ftp; ftp.push({ name: "tipe", value: "PPNPN" }, { name: "load", value: load }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NIP" },
+                { "data": "NamaPegawai" },
+                {
+                    "data": null,
+                    "className": "centertaligncolumn",
+                    "width": "10%",
+                    render: function (data) {
+                        return '<a href="#zoom"><img width="40" height="50" src="' + '@Url.Action("getPhotoPPNPN", "Konten")?id=' + data.NIP + '" onclick="openZoom(\'' + data.NIP + '\')" /></a>';
+                    }
+                },
+                { "data": "Jabatan" },
+                { "data": "JumlahSurat", "className": "numeric", render: formatangka },
+                { "data": "JumlahInbox", "className": "numeric", render: formatangka },
+                { "data": "JumlahTerkirim", "className": "numeric", render: formatangka },
+                { "data": "JumlahSelesai", "className": "numeric", render: formatangka }
+            ]
+        });
+    };
+
+    function openZoom(nip) {
+        $("#imgZoom").html('<img src="' + '@Url.Action("getPhotoPPNPN", "Konten")?id=' + nip + '" />');
+        $("#zoom").show();
+    }
+
+    function init_gauge(dname, maxval, val) {
+        var e = echarts.init(document.getElementById(dname));
+        //var bagi = tipe == '1' ? 1000000 : tipe == '2' ? 10000 : 1000;
+        var bagi = 1;
+        e.setOption({
+            tooltip: {
+                formatter: function (a) { return "Jumlah : " + a.data.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+            },
+            series: [{
+                name: dname,
+                type: "gauge",
+                center: ["50%", "45%"],
+                //startAngle: 140,
+                //endAngle: -140,
+                min: 0,
+                max: maxval,
+                decimals: 2,
+                precision: 0,
+                splitNumber: 7,
+                axisLine: {
+                    show: !0,
+                    lineStyle: {
+                        color: [
+                            [.2857143, "#e63d00"],
+                            [.5714286, "#ffd24d"],
+                            [.8571429, "#70dbdb"],
+                            [1, "#73e600"]
+                        ],
+                        width: 30
+                    }
+                },
+                axisLabel: {
+                    show: !0,
+                    formatter: function (a) {
+                        //return (a / bagi).toFixed(1);
+                        //return (a).toFixed(1);
+                        return Math.round(a);
+                    },
+                    textStyle: {
+                        color: "#333"
+                    }
+                },
+                axisTick: {
+                    splitNumber: 4,
+                    lineStyle: {
+                        color: "auto"
+                    }
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: "auto"
+                    }
+                },
+                title: {
+                    show: 0,
+                },
+                detail: {
+                    show: !0,
+                    backgroundColor: "rgba(0,0,0,0)",
+                    borderWidth: 0,
+                    borderColor: "#ccc",
+                    width: 100,
+                    height: 40,
+                    offsetCenter: ["0%", 20],
+                    formatter: function (a) {
+                        return a.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                    },
+                    textStyle: {
+                        color: "auto",
+                        fontSize: 12
+                    }
+                },
+                data: [{
+                    value: val,
+                    name: dname
+                }]
+            }]
+        })
+        }
+
+    init_gauge("TotalProgress", @Model.chartGaugeSatker.TotalSuratSatker, @Model.chartGaugeSatker.JumlahSelesaiSatker);
+    init_gauge("ProgressSaya", @Model.chartGaugePersonal.TotalSuratPersonal, @Model.chartGaugePersonal.JumlahSelesaiPersonal);
+</script>
+

@@ -1,0 +1,345 @@
+﻿@model Surat.Models.Entities.Pengaduan
+
+<div class="row">
+    <div class="col-md-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_content">
+                <div class="row">
+
+                    <div class="demo col-sm-12 col-xs-12 mail_view">
+                        <div class="inbox-body">
+                            <div class="col-md-12 col-xs-12" style="text-align:center; background-color:beige; font-family: 'Varela Round', sans-serif; margin-bottom:10px;">
+                                <h4>INFORMASI</h4>
+                            </div>
+
+                            <div class="mail_heading row">
+                                <div class="col-md-12 col-xs-12">
+                                    <div class="compose-btn">
+                                        <button id="BtnCetakInbox" title="" data-placement="top" data-toggle="tooltip" type="button" data-original-title="Cetak" class="btn  btn-sm tooltips"><i class="fa fa-print"></i> </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-xs-12">
+                                    <h4>
+                                        @Model.JudulAduan - 
+                                        @if (@Model.StatusArsip == 1)
+                                        {
+                                            <span style="color:#249c2f; padding-left:5px;"><i class="fa fa-check"></i> Selesai</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#6779e3; padding-left:5px;"><i class="fa fa-pencil-square-o"></i> Aktif</span>
+                                        }
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <form class="form-horizontal form-label-left" style="padding-top:10px;">
+                                @Html.HiddenFor(m => m.AduanId, new { @id = "AduanId" })
+                                <div class="row">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Nomor Laporan</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NomorLaporan, new { @class = "form-control", @id = "nomorlaporan", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Laporan</label>
+                                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                                <div class='input-group date' id='tglAduan' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.TanggalAduan, new { @class = "form-control", @id = "tanggallaporan", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Kejadian</label>
+                                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                                <div class='input-group date' id='tglKejadian' style="margin-bottom: 0px;">
+                                                    @Html.TextBoxFor(model => model.TanggalKejadian, new { @class = "form-control", @id = "tanggalkejadian", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Lokasi Kejadian</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.LokasiKejadian, new { @class = "form-control", @id = "lokasikejadian", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Melapor Melalui</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.LaporMelalui, new { @class = "form-control", @id = "lapormelalui", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Kategori</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.Kategori, new { @class = "form-control", @id = "lapormelalui", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Isi Laporan</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextAreaFor(model => model.Uraian, new { @class = "form-control", @id = "uraian", @rows = 5, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">NIK Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NIKPengadu, new { @class = "form-control", @id = "nikpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Nama Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.NamaPengadu, new { @class = "form-control", @id = "namapengadu", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Telepon Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.TeleponPengadu, new { @class = "form-control", @id = "nomorteleponpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Email Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.EmailPengadu, new { @class = "form-control", @id = "emailpelapor", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Pekerjaan Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextBoxFor(model => model.PekerjaanPengadu, new { @class = "form-control", @id = "pekerjaanpengadu", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Alamat Pelapor</label>
+                                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                                @Html.TextAreaFor(model => model.AlamatPengadu, new { @class = "form-control", @id = "alamatpelapor", @rows = 5, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="attachment">
+                                <p>
+                                    <span><i class="fa fa-paperclip"></i> @Model.JumlahLampiran file </span>
+                                </p>
+                                <ul id="dataplaceholder"></ul>
+                            </div>
+
+
+                            <div class="col-md-10 col-sm-10 col-xs-12" style="padding-top:10px;">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 class="mytitleform">PERJALANAN PENGADUAN</h2>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="text-align:left;">Filter data berdasarkan Unit Kerja:</label>
+                                        @Html.DropDownListFor(model => model.UnitKerjaIdHistoriSurat, new SelectList(@Model.ListUnitKerjaHistoriSurat, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaHistoriPengaduan", @onchange = "UnitKerjaHistoriPengaduanChanged()" })
+                                    </div>
+                                    <div class="x_content">
+                                        <ul class="list-unstyled timeline" id="historiaduanplaceholder"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/printThis.js")'></script>
+
+<script type="text/javascript">
+    var objpdf = null;
+    $('#myModalDocViewer').on('shown.bs.modal', function () {
+        $(this).find('.modal-dialog').css({
+            width: 'auto',
+            height: '95 %',
+            'max-height': '100%'
+        });
+    });
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        loadLampiranPengaduan();
+
+        loadSuratPengaduan();
+
+        $.unblockUI();
+    });
+
+    function loadLampiranPengaduan() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        var id = $('#AduanId').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarLampiranAduan", "Pengaduan")',
+            data: { aduanid: id },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    var BukaFileLampiran = function (id, namafile, unitkerjaid) {
+        if (id !== null && id !== '') {
+
+            var fileExt = '.' + namafile.toLowerCase().split('.').pop();
+
+            if (fileExt == ".pdf") {
+                // Display PDF
+                var objurl = '@Url.Action("GetFilePengaduan", "Pengaduan")?id=' + id + '&unitkerjaid=' + unitkerjaid;
+                objpdf = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DocViewer", "Konten")',
+                    success: function (data) {
+                        $('#myModalContent').html(data);
+                        $('#myModalDocViewer').modal(options);
+                        $('#myModalDocViewer').modal('show');
+                        $.unblockUI();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $.unblockUI();
+                    }
+                });
+            }
+            else if (fileExt == ".jpg" || fileExt == ".png") {
+                // Display Image
+                var objurl = '@Url.Action("GetFilePengaduanWithExt", "Pengaduan")?id=' + id + '&unitkerjaid=' + unitkerjaid + '&extension=' + fileExt;
+                objfile = objurl;
+
+                var options = { "backdrop": "static", keyboard: true };
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ImageViewer", "Konten")',
+                    success: function (data) {
+                        $('#myModalContent').html(data);
+                        $('#myModalDocViewer').modal(options);
+                        $('#myModalDocViewer').modal('show');
+                        $.unblockUI();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $.unblockUI();
+                    }
+                });
+            }
+            else if (fileExt == ".doc" || fileExt == ".docx") {
+                // Download Word
+                var params = "id=" + id + '&unitkerjaid=' + unitkerjaid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFilePengaduanWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+            else if (fileExt == ".xls" || fileExt == ".xlsx") {
+                // Download Excel
+                var params = "id=" + id + '&unitkerjaid=' + unitkerjaid + "&extension=" + fileExt;
+                var request = new XMLHttpRequest();
+                request.responseType = "blob";
+                request.open("GET", "GetFilePengaduanWithExt" + "?" + params);
+                request.onload = function () {
+                    var url = window.URL.createObjectURL(this.response);
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.href = url;
+                    a.download = this.response.name || namafile
+                    a.click();
+                }
+                request.send();
+            }
+        }
+    }
+
+    function UnitKerjaHistoriPengaduanChanged() {
+        loadSuratPengaduan();
+    };
+
+    function loadSuratPengaduan() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+        var id = $('#AduanId').val();
+        var unitkerjaidhistoriaduan = $('#cmbUnitKerjaHistoriPengaduan').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarAduanHistory", "Pengaduan")',
+            data: { aduanid: id, unitkerjaid: unitkerjaidhistoriaduan },
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#historiaduanplaceholder').html('');
+                }
+                else {
+                    $('#historiaduanplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#BtnCetakInbox").on("click", function (e) {
+        $('.demo').printThis({
+            debug: false,
+            importCSS: false,
+            importStyle: false,
+            printContainer: true,
+            pageTitle: "Pencetakan Surat",
+            header: "<h1>Pencetakan Surat</h1>",
+            removeInline: false,
+            footer: null,
+            formValues: true,
+            canvas: false,
+            doctypeString: '<!DOCTYPE html>',
+            removeScripts: false,
+            copyTagClasses: false,
+            base: false
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+</script>

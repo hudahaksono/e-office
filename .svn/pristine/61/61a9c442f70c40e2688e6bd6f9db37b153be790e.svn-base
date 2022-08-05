@@ -1,0 +1,264 @@
+﻿@model Surat.Models.Entities.SifatSurat
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Sifat Surat
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    <h4><i class="fa fa-search"></i>&nbsp;&nbsp;Pencarian Data</h4>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Sifat Surat : </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(model => model.CariSifatSurat, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                <button id="search-btn" type="submit" class="btn btn-success">Cari</button>
+                                <button id="reset-btn" type="reset" class="btn btn-warning">Reset</button>
+                                <button id="BtnTambahSifatSurat" type="button" class="btn btn-primary">Tambah</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="x_panel">
+
+                <div class="">
+
+                    <table id="myTableSifatSurat" class="table table-striped table-bordered dt-responsive infinite-scroll">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">#</th>
+                                <th>Sifat Surat</th>
+                                <th>Urutan</th>
+                                <th>Prioritas</th>
+                                <th style="text-align:center;">Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataplaceholder"></tbody>
+                    </table>
+                </div>
+                @Html.Partial("_Loading")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='SifatSuratEditorModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'>
+
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel" style="padding:20px">
+                        <div class="x_title">
+                            <h2 id="popuptitle">Tambah data Sifat Surat</h2>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+
+                            <div class="x_panel">
+                                <form class="form-horizontal form-label-left" id="frmEditSifatSurat" role="form">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Sifat Surat</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.NamaSifatSurat, new { @class = "form-control", @id = "inputsifatsurat" })
+                                        </div>
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Urutan</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Urutan, new { @class = "form-control", @id = "inputurutansifat" })
+                                        </div>
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Prioritas</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Prioritas, new { @class = "form-control", @id = "inputprioritassifat" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                            <button type="submit" class="btn btn-success" id="btnsimpandataasalsurat">SIMPAN</button>
+                                            <button type="button" class="btn btn-warning" data-dismiss="modal">BATAL</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    //$('#SifatSuratEditorModal').on('shown.bs.modal', function () {
+    //    $(this).find('.modal-dialog').css({
+    //        width: 'auto',
+    //        height: '95 %',
+    //        'max-height': '100%'
+    //    });
+    //});
+
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    var loadData = function () {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariData');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSifatSurat", "Admin")',
+            data: $('#frmCariData').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#frmCariData").submit(function (e) {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariData');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSifatSurat", "Admin")',
+            data: $('#frmCariData').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#BtnTambahSifatSurat").on("click", function (e) {
+        $('#frmEditSifatSurat')[0].reset();
+
+        $('#SifatSuratEditorModal').modal('show');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmEditSifatSurat").submit(function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var frmdata = new FormData(this);
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InsertSifatSurat", "Admin")',
+            data: frmdata,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+
+                    loadData();
+
+                    $('#frmEditSifatSurat')[0].reset();
+                    location.reload(); 
+                    //$('#SifatSuratEditorModal').modal('hide');
+                }
+                else {
+                }
+                showinfo(data.Pesan);
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        loadData();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+
+
+    moreRowsUrl = '@Url.Action("DaftarSifatSurat", "Admin")';
+    $(window).scroll(scrollHandler);
+
+</script>

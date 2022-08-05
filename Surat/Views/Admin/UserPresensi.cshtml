@@ -1,0 +1,485 @@
+﻿@model Surat.Models.Entities.FindUserLogin
+@{
+    var lstnull = new List<SelectListItem>();
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style type="text/css">
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 34px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    /* include generated hidden field here */
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(46px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 24px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    .swal-wide {
+        width: 800px !important;
+    }
+
+    .start {
+        filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+        filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        filter: gray; /* IE6-9 */
+        -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
+
+        .start:hover {
+            filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+            filter: grayscale(0%);
+            -moz-filter: grayscale(0%);
+            -ms-filter: grayscale(0%);
+            -o-filter: grayscale(0%);
+            filter: none; /* IE6-9 */
+            zoom: 1; /* needed to trigger "hasLayout" in IE if no width or height is set */
+            -webkit-filter: grayscale(0%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+        }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Mobile Presensi
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="padding:15px">
+                <div class="x_title">
+                    <div class="form-group pull-right top_search" style="width:250px">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="nip" placeholder="Masukkan NIP/NIK" data-html="true" data-toggle="tooltip" data-placement="left" title="Masukkan NIP ASN<br>atau NIK PPNPN" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btnCari" onclick="cariData()"><i class="fa fa-search"></i></button>
+                            </span>
+                            @Html.HiddenFor(m => m.PegawaiId, new { @id = "PegawaiId" })
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariData" method="post">
+                        <div id="tab-content" class="tab-content">
+                            <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="cariakun-tab">
+                                <div id="Starting" class="text-center" style="margin-top:30px;margin-bottom:30px;">
+                                    <img src='@Url.Content("~/resources/images/img-01.png")' alt="IMG" class="start">
+                                </div>
+                                <div id="UserDetailASN">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA SIMPEG</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("namalengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Email</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("email", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">No.HP</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("nomorhp", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Jabatan</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("namajabatan", new { @class = "form-control", @rows = 3, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Satker</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("namasatker", new { @class = "form-control", @rows = 4, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PRESENSI</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12" style="text-align:center;">
+                                            <style>
+                                                .foto {
+                                                    padding: 2px;
+                                                    border-radius: 25px;
+                                                    margin: 5px;
+                                                    vertical-align: middle;
+                                                    height: 250px;
+                                                    width: 250px;
+                                                }
+                                            </style>
+                                            <img src='@Url.Content("~/resources/images/avatar.png")' id="imgPresensi" alt="" class="foto" />
+
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <div class="col-md-4 col-xs-12 pull-right">
+                                                <span class="btn btn-primary" onclick="btnBersihkan()" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-trash" style="font-size:20pt"></span><br />Hapus Foto Presensi
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="UserDetailPPNPN">
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PPNPN</div>
+                                                @Html.Hidden("ppnpn_kantorid")
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nik</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_nik", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Nama</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_namalengkap", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Email</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_email", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">No.HP</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextBox("ppnpn_nomorhp", "", new { @class = "form-control", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc; text-align:left;">Kantor Terdaftar</label>
+                                            <div class="col-md-10 col-sm-10 col-xs-12">
+                                                @Html.TextArea("ppnpn_kantornama", new { @class = "form-control", @rows = 4, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="col-md-12" style="background-color:cornsilk;">
+                                                <div class="mytitleform2" style="text-align:center;font-weight:600;">DATA PRESENSI</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-12" style="text-align:center;">
+                                            <style>
+                                                .foto {
+                                                    padding: 2px;
+                                                    border-radius: 25px;
+                                                    margin: 5px;
+                                                    vertical-align: middle;
+                                                    height: 250px;
+                                                    width: 250px;
+                                                }
+                                            </style>
+                                            <img src='@Url.Content("~/resources/images/avatar.png")' id="imgPresensiPPNPN" alt="" class="foto" />
+
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <div class="col-md-4 col-xs-12 pull-right">
+                                                <span class="btn btn-primary" onclick="btnBersihkan()" style="cursor:pointer;width:100%;margin-bottom:5px;">
+                                                    <span class="fa fa-trash" style="font-size:20pt"></span><br />Hapus Foto Presensi
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    var tipeuser = '';
+
+    $(document).ready(function () {
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        //getList();
+
+        $("div#Starting").show();
+        $("div#UserDetailASN").hide();
+        $("div#UserDetailPPNPN").hide();
+        $('#nip').tooltip({ trigger: 'manual' }).tooltip('show');
+    });
+
+    $('#nip').keyup(function (e) {
+        if (e.keyCode == 13) {
+            cariData();
+        } else {
+            if ($(this).val() != "") {
+                $(this).tooltip('hide');
+            } else {
+                $(this).tooltip('show');
+            }
+        }
+    });
+
+    function cariData() {
+        var val = $('#nip').val().trim();
+        $('#nip').val(val);
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            url: '@Url.Action("GetTipeUserPresensi", "Admin")',
+            type: "POST",
+            data: { nr: $('#nip').val() },
+            success: function (rst) {
+                if (rst.Status) {
+                    tipeuser = rst.ReturnValue;
+                    loadIsi();
+                } else {
+                    swal("Informasi", rst.Pesan, "info");
+                }
+                $.unblockUI();
+            },
+            error: function () { $.unblockUI(); }
+        });
+    }
+
+    $("#showlist").change(function () {
+        if ($("#showlist").is(":checked")) {
+            $("#lblTitle").html("Pencarian List Akun");
+            $('.nav-tabs li:eq(0) a').hide();
+            $('.nav-tabs li:eq(1) a').tab('show');
+            $('.nav-tabs li:eq(1) a').show();
+        } else {
+            $("#lblTitle").html("Pencarian Data Akun");
+            $('.nav-tabs li:eq(1) a').hide();
+            $('.nav-tabs li:eq(0) a').tab('show');
+            $('.nav-tabs li:eq(0) a').show();
+        }
+    });
+
+    function loadIsi() {
+        if ($('#nip').val() != "") {
+            if (tipeuser == 'ASN') {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetPegawaiSimpegDetail", "Admin")',
+                    data: { pegawaiid: $('#nip').val() },
+                    success: function (rst, textStatus, XMLHttpRequest) {
+                        if (rst == "noresult") {
+                            swal("Peringatan", "NIP yang anda masukkan tidak terdaftar", "warning")
+                            $('#nip').val($('#PegawaiId').val());
+                            if ($('#nip').val() != "") {
+                                $('#nip').tooltip('hide');
+                            } else {
+                                $('#nip').tooltip('show');
+                                $("div#Starting").show();
+                                $("div#UserDetailASN").hide();
+                                $("div#UserDetailPPNPN").hide();
+                            }
+                        } else {
+                            $('#PegawaiId').val(rst.PegawaiId);
+                            $('#namalengkap').val(rst.NamaLengkap);
+                            $('#namasatker').val(rst.NamaSatker);
+                            $('#namajabatan').val(rst.NamaJabatan);
+                            $('#email').val(rst.Email);
+                            $('#nomorhp').val(rst.NomorHP);
+
+                            $.ajax({
+                                url: '@Url.Action("GetImagePersesi", "Admin")',
+                                type: "POST",
+                                dataType: "JSON",
+                                data: { nip: rst.PegawaiId },
+                                success: function (res, textStatus, jqXHR) {
+                                    $("#imgPresensi").attr("src", res);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                            });
+
+                            $("div#Starting").hide();
+                            $("div#UserDetailASN").show();
+                            $("div#UserDetailPPNPN").hide();
+                        }
+                        $.unblockUI();
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(XMLHttpRequest, textStatus, errorThrown);
+                        $.unblockUI();
+                    }
+                });
+            }
+            else {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetPPNPNDetail", "Admin")',
+                    data: { nik: $('#nip').val() },
+                    success: function (rst, textStatus, XMLHttpRequest) {
+                        if (rst == "noresult") {
+                            swal("Peringatan", "NIK yang anda masukkan tidak terdaftar", "warning")
+                            $('#nip').val($('#PegawaiId').val());
+                            if ($('#nip').val() != "") {
+                                $('#nip').tooltip('hide');
+                            } else {
+                                $('#nip').tooltip('show');
+                                $("div#Starting").show();
+                                $("div#UserDetailASN").hide();
+                                $("div#UserDetailPPNPN").hide();
+                            }
+                        } else {
+                            $('#PegawaiId').val(rst.NIK);
+                            $('#ppnpn_nik').val(rst.NIK);
+                            $('#ppnpn_namalengkap').val(rst.Nama);
+                            $('#ppnpn_email').val(rst.Email);
+                            $('#ppnpn_nomorhp').val(rst.NomorTelepon);
+                            $('#ppnpn_kantorid').val(rst.KantorId);
+                            $('#ppnpn_kantornama').val(rst.KantorNama);
+
+                            $.ajax({
+                                url: '@Url.Action("GetImagePersesi", "Admin")',
+                                type: "POST",
+                                dataType: "JSON",
+                                data: { nip: rst.PegawaiId },
+                                success: function (res, textStatus, jqXHR) {
+                                    $("#imgPresensiPPNPN").attr("src", res);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                            });
+
+                            $("div#Starting").hide();
+                            $("div#UserDetailASN").hide();
+                            $("div#UserDetailPPNPN").show();
+                        }
+                        $.unblockUI();
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(XMLHttpRequest, textStatus, errorThrown);
+                        $.unblockUI();
+                    }
+                });
+            }
+        }
+    }
+    function btnBersihkan() {
+        var vcheck_nip = $('#PegawaiId').val();
+
+        if (vcheck_nip == '' || vcheck_nip == null) {
+            swal('Peringatan', 'NIP/NIK tidak ditemukan', "warning");
+            return false;
+        }
+        swal({
+            title: "Menghapus Foto Presensi",
+            text: "Yakin menghapus foto presensi saat ini ?",
+            type: "warning",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            showLoaderOnConfirm: true
+        },
+            function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: '@Url.Action("HapusFotoPresensi", "Admin")',
+                        type: "POST",
+                        data: { pid: vcheck_nip },
+                        success: function (res, textStatus, jqXHR) {
+                            if (res.Status) {
+                                loadIsi();
+                                swal("Informasi", res.Pesan, "success");
+                            }
+                            else {
+                                swal("Peringatan", res.Pesan, "warning");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) { swal("Error", errorThrown,"warning");}
+                    });
+                }
+            });
+    }
+</script>

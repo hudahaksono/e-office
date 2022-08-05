@@ -1,0 +1,55 @@
+﻿@model Dictionary<int, Surat.Models.Entities.KlasifikasiArsip>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin;">@lst.Value.RNumber</td>
+        <td class="tdnormal">@lst.Value.KodeKlasifikasi</td>
+        <td class="tdnormal">@lst.Value.JenisArsip</td>
+        <td class="tdnormal">@lst.Value.Keterangan</td>
+        <td style="text-align:center; max-width:5px; cursor: pointer;" onclick="hapusKlasifikasiArsip('@lst.Value.KodeKlasifikasi', '@lst.Value.JenisArsip');"><i class="fa fa-trash"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var hapusKlasifikasiArsip = function (kodeklasifikasi, jenisarsip) {
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data Klasifikasi Arsip : " + jenisarsip + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("kodeklasifikasi", kodeklasifikasi);
+                $.ajax({
+                    url: '@Url.Action("HapusKlasifikasiArsip", "Admin")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data.Status) {
+                            loadData();
+                            showinfo('Data berhasil dihapus');
+                        }
+                        else {
+                            showalert("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    }
+</script>

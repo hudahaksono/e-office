@@ -1,0 +1,249 @@
+﻿@model IEnumerable<Surat.Models.Entities.TipeSurat>
+<style>
+    #TableListPusat_filter, #TableListPusat_info{
+        display: none
+    }
+
+    #TableListPusat_wrapper{
+        overflow: hidden
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="table-responsive">
+        <div class="addData" style="margin-bottom:10px;">
+            <button type="button" class="btn btn-success" onclick="addData()"> <i class="fa fa-plus-square"></i> Tambah Data</button>
+        </div>
+        <table id="TableListPusat" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+            <thead>
+                <tr>
+                    <th style="text-align:center; width: 3%;">#</th>
+                    <th style="text-align:center; width: 13%;">Kode</th>
+                    <th style="text-align:center; width: 13%;">Jenis Naskah Dinas</th>
+                    <th style="text-align:center;">Format Nomor</th>
+                    <th style="text-align:center; width: 8%;">Editor</th>
+                    <th style="text-align:center; width: 8%;">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count() > 0)
+                {
+                    int Count = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="text-align:center">@Count</td>
+                            <td>
+                                @if (item.NamaTipeSurat.Contains("|"))
+                                {
+                                    <text>
+                                        @item.NamaTipeSurat.Split('|')[0]
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        @item.NamaTipeSurat;
+                                    </text>
+                                }
+                            </td>
+                            <td>
+                                @if (item.NamaTipeSurat.Contains("|"))
+                                {
+                                    <text>
+                                        @item.NamaTipeSurat.Split('|')[1]
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        @item.NamaTipeSurat;
+                                    </text>
+                                }
+                            </td>
+                            <td>@Server.UrlDecode(item.FormatNomor)</td>
+                            @if (item.ValueTipeSurat == "1") { 
+                                 <td style="text-align:center"><input type="checkbox" checked onchange="chekcedEditor(this,'@item.NamaTipeSurat')"></td>
+                            } else { 
+                                <td style="text-align:center"><input type="checkbox" onchange="chekcedEditor(this,'@item.NamaTipeSurat')"></td>
+                            }                           
+                            <td style="text-align:center"><span style="cursor:pointer" onclick="HapusFormatNomor('@item.NamaTipeSurat','@item.FormatNomor')"><i class="fa fa-trash-o"></i> Hapus</span></td>
+                        </tr>
+                        Count++;
+                    }
+                } else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align:center">tidak ada data...</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id='tambahData' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content" style="padding:10px 20px;padding-bottom:20px;">
+            <button type="button" class="btn btn-danger pull-right" onclick='$("#tambahData").modal("hide")'> X </button>
+            <button type="button" class="btn btn-primary pull-right" onclick="SimpanFormat()">Simpan</button>
+            <h2>
+                Tambah Data Penomoran
+            </h2>
+            <hr />
+            <div class="prosesLoading" style="background-color: rgb(7, 19, 135);margin-bottom:10px;padding:5px;color:white;text-align:center;display:none">
+                menyimpan....
+            </div>
+            <div class="prosesSuccess" style="background-color: rgb(3, 77, 3);margin-bottom:10px;padding:5px;color:white;text-align:center;display:none">
+                data berhasil ditambahkan
+            </div>
+            <div class="prosesFail" style="background-color: rgb(149, 52, 6);margin-bottom:10px;padding:5px;color:white;text-align:center;display:none">
+                data Gagal ditambahkan
+            </div>
+            <div class="form-group">
+                <label for="NamaTipeSurat">Nama Tipe Surat :</label>
+                <input type="text" name="NamaTipeSurat" id="NamaTipeSurat" class="form-control" value="" />
+            </div>
+            <hr />
+            <div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input  id="KodeJenis" type="text" class="form-control inputBox" placeholder="Kode Tipe Surat">
+                        <div class="input-group-addon formatNomorInput" data-format="inputBox">Tambah</div>
+                    </div>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="/"> / </button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="-"> - </button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Nomor>">Nomor</button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Kode>">Kode</button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Penandatangan>">Penandatangan</button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Arsip>">Arsip</button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Bulan>">Bulan</button>
+                    <button type="button" class="btn btn-info formatNomorInput" data-format="<Tahun>">Tahun</button>
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <label for="FormatNomor">Format Nomor :</label>
+                <input type="text" name="FormatNomor" id="FormatNomor" class="form-control" value="" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var isUpdate = false;
+    function addData() {
+        $("#tambahData").modal('show')
+        $("#tambahData .prosesLoading").hide()
+        $("#tambahData .prosesSuccess").hide()
+        $("#tambahData .prosesFail").hide()
+        isUpdate = false
+    }
+
+    $(".formatNomorInput").click(function () {
+        let format = $(this).attr('data-format')
+        if (format == "inputBox") {
+            format = $(this).siblings(".inputBox").val();
+        }
+        let formatExt = $("#FormatNomor").val()
+        if (formatExt) {
+            format = formatExt + format
+        }
+        $("#FormatNomor").val(format)
+    })
+
+    function SimpanFormat() {
+        var NamaTipeSurat = $("#NamaTipeSurat").val()
+        var FormatNomor = $("#FormatNomor").val()
+        var KodeJenis = $("#KodeJenis").val()
+        if (NamaTipeSurat && FormatNomor) {
+            var frmdata = new FormData();
+            frmdata.append("action","Insert")
+            frmdata.append("namaTipeSurat", NamaTipeSurat)
+            frmdata.append("kodeJenis", KodeJenis)
+            frmdata.append("formatNomor", encodeURI(FormatNomor))
+            $("#tambahData .prosesLoading").show()
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("FormatNomor", "NaskahDinas")',
+                data: frmdata,
+                processData: false,
+                contentType: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    $("#tambahData .prosesLoading").hide()
+                    if (data.status) {
+                        isUpdate = true
+                        $("#tambahData .prosesSuccess").show()
+                    }
+                    else {
+                        $("#tambahData .prosesFail").show()
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $("#tambahData .prosesLoading").hide()
+                    $("#tambahData .prosesFail").show()
+                }
+            })
+        }
+    }
+
+    $('#tambahData').on('hidden.bs.modal', function () {
+        if (isUpdate) {
+            settings('formatPenomoran')
+        }
+    });
+
+    function chekcedEditor(elm, param) {
+        let ischekced = $(elm).is(":checked")
+        let sendparameter = (ischekced) ? "1" : "0"
+        var frmdata = new FormData();
+        frmdata.append("param", sendparameter)
+        frmdata.append("tipe", param)
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SetAktifEditor", "NaskahDinas")',
+            data: frmdata,
+            processData: false,
+            contentType: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    swal("Informasi", "Editor Naskah Dinsa berhasil diubah", "success")
+                } else {
+                    swal("Peringatan", data.Pesan, "warning")
+                    $(elm).prop('checked', false)
+                }
+               
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                swal("Peringatan", "Terjadi Kesalahan", "warning")
+                $(elm).prop('checked', false)
+            }
+        })
+    }
+
+    function HapusFormatNomor(nama,format) {
+        if (NamaTipeSurat && FormatNomor) {
+            var frmdata = new FormData();
+            frmdata.append("action", "Delete")
+            frmdata.append("namaTipeSurat", nama)
+            frmdata.append("formatNomor", format)
+             $.ajax({
+                type: "POST",
+                url: '@Url.Action("FormatNomor", "NaskahDinas")',
+                data: frmdata,
+                processData: false,
+                contentType: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.status) {
+                        settings('formatPenomoran')
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+
+                }
+            })
+        }
+    }
+</script>

@@ -1,0 +1,83 @@
+﻿@model Dictionary<int, Surat.Models.Entities.UnitKerja>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin">@lst.Value.RNumber</td>
+        <td class="tdnormal">@lst.Value.UnitKerjaId</td>
+        <td class="tdnormal">@lst.Value.NamaUnitKerja</td>
+        <td class="tdnormal">@lst.Value.Kode</td>
+        @*<td style="text-align:center;cursor: pointer;">@lst.Value.Tampil</td>*@
+        @if (@lst.Value.Tampil == 1)
+        {
+            <td style="color:#249c2f; text-align:center; cursor: pointer;" onclick="editUpdateStatusUnitKerja('@lst.Value.UnitKerjaId','0');"><i class="fa fa-check"></i></td>
+        }
+        else
+        {
+            <td style="color:#ce3535; text-align:center; cursor: pointer;" onclick="editUpdateStatusUnitKerja('@lst.Value.UnitKerjaId','1');"><i class="fa fa-close"></i></td>
+        }
+        <td style="text-align:center;cursor: pointer;" onclick="editUnitKerja('@lst.Value.UnitKerjaId','@lst.Value.NamaUnitKerja');"><i class="fa fa-pencil"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editUpdateStatusUnitKerja = function (id, statustampil) {
+        
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdateStatusUnitKerja", "Admin")',
+            data: { unitkerjaid: id, tampil: statustampil },
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+
+                    loadData();
+
+                }
+                else {
+                }
+                showinfo(data.Pesan);
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    }
+
+    var editUnitKerja = function (id, namaunitkerja) {
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#popuptitle').html('Edit data Unit Kerja : <b class="title_left">' + namaunitkerja + '</b>');
+
+        $.ajax({
+            url: '@Url.Action("GetUnitKerjaById", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { unitkerjaid: id },
+            success: function (data) {
+                $('#frmEditUnitKerja')[0].reset();
+
+                $('#SelectedUnitKerjaId').val(data[0].UnitKerjaId);
+
+                $('#editunitkerjaid').val(data[0].UnitKerjaId);
+                $('#editnamaunitkerja').val(data[0].NamaUnitKerja);
+                $('#editkodeunitkerja').val(data[0].Kode);
+                $('#editindukunitkerja').val(data[0].Induk);
+
+                //$("#editsaktertampil").prop("checked", false);
+                $("#editsaktertampil").prop('checked', true).trigger("click"); // state Unchecked
+
+                if (parseInt(data[0].Tampil) == 1) {
+                    $("#editsaktertampil").prop('checked', false).trigger("click"); // state Checked
+                }
+
+                $.unblockUI();
+            }
+        });
+
+        $('#EditorModal').modal('show');
+    }
+</script>

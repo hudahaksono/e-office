@@ -1,0 +1,374 @@
+﻿@*@model IEnumerable<Surat.Models.Entities.KopSurat>*@
+@{ 
+    var lstUnitKerja = new List<SelectListItem>();
+    foreach (var unit in ViewBag.ListUnitkerja)
+    {
+        lstUnitKerja.Add(new SelectListItem { Text = unit.NamaUnitKerja, Value = unit.UnitKerjaId });
+    }
+}
+<style>
+    .mainview {
+        height: 80vh;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+    .mainview .ItemList{
+        max-height: 90vh;
+        overflow-x:hidden;
+        overflow-y:auto;
+    }
+    .btnGroupPanel {
+        position: absolute;
+        right: 15px;
+        padding: 6px 10px;
+        background-color: cornflowerblue;
+        color: white;
+        width: 10%;
+        text-align: center;
+    }
+    .btnGroupPanel .btnActionGroup {
+        position: absolute;
+        right: 0;
+        top:31px;
+        padding-top:6px;
+        width: 100%;        
+        width: 100%;        
+        background-color: rgb(163, 163, 163);
+        border-bottom-left-radius:10%;
+        border-bottom-right-radius:10%;
+    }
+    .btnGroupPanel .btnActionGroup .actionBtn{
+        padding: 6px 10px;
+    }
+    .btnGroupPanel .btnActionGroup .actionBtn:hover{
+         background-color: rgb(25, 25, 25);
+         border-radius:10%;
+    }
+    .Slot {
+        background-color: lightgrey;
+        color: black;
+        cursor: pointer;
+        margin: 5px;
+    }
+
+    .cfblue {
+        background-color: cornflowerblue;
+        color: white;
+    }
+
+    .Slot h2 {
+        font-size:1.2em;
+        margin:0;
+        padding: 7px 10px;
+        width: 90%;
+        height:31px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .Slot h2:hover {
+        background-color:cornflowerblue;
+        color:white;
+    }
+    .Slot .hiddenSlot{
+        padding: 10px 5px;
+        display:none;
+        overflow:hidden;
+        background-color:white;
+        padding-right: 10%
+    }
+    .isnull, .editing {
+        background-color: rgb(247, 131, 141);
+    }
+    #addDataContent .form-control {
+        transition: background-color .5s;
+    }
+
+    #KopViewBar {
+        background-color: rgb(89, 129, 203);
+        color: white;
+        min-height: 40px;
+    }
+    #KopViewBar h5 {
+        margin:0;
+        margin-top:5px;
+        padding: 10px 10px;       
+    }
+    .btnDelete {
+        padding: 10px 10px;
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="panelControl" style="margin-bottom:10px;">
+        <button type="button" class="btn btn-success" onclick="addKop()"> <i class="fa fa-plus-square"></i> Buat Kop Baru</button>
+    </div>
+    <div class="row mainview">
+        <div class="col-sm-12 col-md-6 col-lg-6 ItemList" id="ListElm">
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 Preview">
+            <div id="KopViewBar">
+                <h5>Klik Kop Untuk Melihat</h5>
+            </div>
+            <div id="kopHolder">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='addDataModal' class='modal'>
+    <div class="modal-dialog" style="min-width:70vw;padding-top:40px;padding-left:10vw">
+        <div class="modal-content">
+            <div id='addDataContent' style="padding:10px">
+                <h2 class="text-center">Buat Kop Adhoc Baru</h2>
+                <hr />
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputSatker" class="col-sm-2 control-label">Satuan Kerja<span style="color:red">*</span> :</label>
+                        <div class="col-sm-10">
+                            @Html.DropDownList("kopUnitkerja", lstUnitKerja, new { @class = "select2_single form-control notnull", @required = "required", @style = "width:100%" })
+                            @*<select class="select2_single form-control" style="width:100%" required>
+                                <option value="">Pilih....</option>
+                            </select>*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputL1" class="col-sm-2 control-label">Baris Pertama<span style="color:red">*</span> :</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control notnull" id="inputL1" placeholder="Baris Pertama..." required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputL2" class="col-sm-2 control-label">Baris Kedua :</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputL2" placeholder="Baris Kedua...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="alamat" class="col-sm-2 control-label">Alamat<span style="color:red">*</span> :</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control notnull" id="alamat" placeholder="Alamat Pada Kop...." required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="noTlp" class="col-sm-2 control-label">Nomor Telepon :</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="noTlp" placeholder="Nomor Telepon Pada Kop....">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="emailKantor" class="col-sm-2 control-label">Email :</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" id="emailKantor" placeholder="Email Pada Kop....">
+                        </div>
+                    </div>
+                    <p id="ketKirim" class="text-center">&nbsp;</p>
+                    <hr />
+                    <button onclick="simpanKop()" type="button" class="btn btn-primary btn-block"><i class="fa fa-save"></i> &nbsp; Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script>
+    $(document).ready(function () {
+        $('.select2_single').select2({ width: 'resolve' });
+        listBuilder()
+    })
+    function listBuilder() {
+        $.ajax({
+             type: "POST",
+            url: '@Url.Action("getListAdhoc", "NaskahDinas")',
+            processData: false,
+            contentType: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    $("#ListElm").html('');
+                    for (let Data of data.Data) {
+                        $("#ListElm").append(`
+                             <div class="Slot" data-kopid="${Data.UnitKerjaId}">
+                                <div class="btnGroupPanel">
+                                    <span class="indikator"><i class="fa fa-caret-down"></i></span>
+                                    <div class="btnActionGroup" style="display:none;">
+                                        <p class="actionBtn" onclick="btnAct('edit','${Data.UnitKerjaId}',this)"><i class="fa fa-pencil"></i></p>
+                                        <p class="actionBtn" onclick="btnAct('delete','${Data.UnitKerjaId}',this)"><i class="fa fa-trash"></i></p>
+                                    </div>
+                                </div>
+
+                                <h2>${Data.UnitKerjaName}</h2>
+                                <div class="hiddenSlot">
+                                    <p>Baris Pertama : <span contenteditable="false">${Data.NamaKantor_L1}</span></p>
+                                    <p>Baris Kedua : <span contenteditable="false">${(Data.NamaKantor_L2) ? Data.NamaKantor_L2 : "-"}</span></p>
+                                    <p>Alamat : <span contenteditable="false">${(Data.Alamat) ? Data.Alamat : "-"}</span></p>
+                                    <p>Telepon : <span contenteditable="false">${(Data.Telepon) ? Data.Telepon : "-"}</span></p>
+                                    <p>Email : <span contenteditable="false">${(Data.Email) ? Data.Email : "-"}</span></p>
+                                </div>
+                            </div>
+                        `)
+                    }
+                } else {
+
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log(textStatus)
+            }
+        })
+    }
+
+    function addKop() {
+        $("#addDataModal").modal('show')
+    }
+
+    function simpanKop() {
+        let KopUnitkerja = $("#kopUnitkerja").val();
+        let InputL1 = $("#inputL1").val();
+        let InputL2 = $("#inputL2").val();
+        let Alamat = $("#alamat").val();
+        let NoTlp = $("#noTlp").val();
+        let EmailKantor = $("#emailKantor").val();
+
+        if (KopUnitkerja && InputL1 && Alamat) {
+            let frmdata = new FormData();
+            frmdata.append("UnitKerjaId", KopUnitkerja)
+            frmdata.append("NamaKantor_L1", InputL1)
+            frmdata.append("NamaKantor_L2", InputL2)
+            frmdata.append("Alamat", Alamat)
+            frmdata.append("Telepon", NoTlp)
+            frmdata.append("Email", EmailKantor)
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("simpanKopAdhoc", "NaskahDinas")',
+                data: frmdata,
+                processData: false,
+                contentType: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $("#addDataContent input").each(function () {
+                            $(this).val('');
+                        })
+                        $("#ketKirim").html(data.Pesan)
+                        listBuilder()
+                    } else {
+                        $("#ketKirim").html(data.Pesan)
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(textStatus)
+                }
+            })
+        } else {
+            $(".notnull").each(function () {
+                if (!$(this).val()) {
+                    let thiselm = $(this)
+                    thiselm.addClass("isnull")
+                    setTimeout(function () { thiselm.removeClass("isnull")},2000)
+                }
+            })
+        }
+    }
+
+    let onView = ""
+    $("#ListElm").delegate(".Slot h2", "click", function () {
+        let thiselm = $(this).parent();
+        $(".hiddenSlot").slideUp()
+        $(".btnGroupPanel").find(".indikator").html(`<i class="fa fa-caret-down"></i>`)
+        $(".btnActionGroup").slideUp()
+        $(".Slot h2").removeClass("cfblue")
+
+        if (onEdit) {
+            $(".Slot").each(function () {
+                $(this).find(".hiddenSlot").children("p").each(function () {
+                    $(this).children("span").attr("contenteditable", false)
+                    $(this).children("span").removeClass("editing")
+                    $(".actionBtn").css("background-color", "transparent ")
+                    onEdit = false;
+                })
+            })
+        }
+
+        if (thiselm.children(".hiddenSlot").is(":hidden")) {
+            thiselm.children(".hiddenSlot").slideDown()
+            thiselm.children(".btnGroupPanel").find(".indikator").html(`<i class="fa fa-caret-up"></i>`)
+            thiselm.find(".btnActionGroup").slideDown()
+            $(this).addClass("cfblue")
+        } else {
+            thiselm.children(".hiddenSlot").slideUp()
+            thiselm.children(".btnGroupPanel").find(".indikator").html(`<i class="fa fa-caret-down"></i>`)
+            thiselm.find(".btnActionGroup").slideUp()
+            $(this).removeClass("cfblue")
+        }
+
+        let kopid = thiselm.attr('data-kopid')
+        let thistitle = thiselm.children('h2').text()
+        if (onView != kopid) {
+            onView = kopid
+            viewKop(kopid)
+            $("#KopViewBar h5").html(thistitle)
+        }
+    })
+
+    function viewKop(ukid) {
+        var objurl = '@Url.Action("ViewPdf_KopSurat", "NaskahDinas")?ukid=' + ukid;
+        objpdf = objurl;
+        if ($("#kopHolder").height() < 500) $("#kopHolder").height(500);
+        PDFObject.embed(objpdf, $("#kopHolder"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+    }
+
+    let onEdit = false;
+    function btnAct(param, id, elment) {
+        if (param == "edit") {
+            let target = $("#ListElm").find(`.Slot[data-kopid='${id}']`)
+            if (onEdit) {
+                target.find(".hiddenSlot").children("p").each(function () {
+                    $(this).children("span").attr("contenteditable", false)
+                    $(this).children("span").removeClass("editing")
+                })
+                $(elment).css("background-color", "transparent ")
+                onEdit = false;
+            } else {
+                target.find(".hiddenSlot").children("p").each(function () {
+                    $(this).children("span").attr("contenteditable", true)
+                    $(this).children("span").addClass("editing")
+                })
+                $(elment).css("background-color", "rgb(25, 25, 25)")
+                onEdit = true;
+            }
+        } else if (param == "delete") {
+
+            swal({
+                title: "Konfirmasi",
+                text: "Apakah anda yakin menghapus kop ini?",
+                type: "info",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                showLoaderOnConfirm: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            url: '@Url.Action("hapusKop", "NaskahDinas")?ukid='+ id,
+                            type: "GET",
+                            processData: false,
+                            contentType: false,
+                            success: function (data, textStatus, jqXHR) {
+                                if (data && data.Status) {
+                                    swal("Informasi", "Kop berhasil dihapus", "success")
+                                    listBuilder()
+                                }
+                                else {
+                                    swal("Peringatan", data.Pesan, "warning")
+                                }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                        });
+                    }
+                }
+            );            
+        }
+    }
+</script>

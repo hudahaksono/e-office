@@ -1,0 +1,89 @@
+﻿@font-face {
+    font-family: 'Proxima Nova Cn Rg';
+    src: url("../fonts/ProximaNovaCond-Reg.otf") format("opentype");
+}
+
+.back-to-top {
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+}
+
+.centertaligncolumn {
+    text-align: center;
+}
+
+.rightaligncolumn {
+    text-align: right;
+}
+
+.normal {
+    font-weight: normal;
+}
+
+.normalSilver {
+    font-weight: normal;
+    color: silver;
+}
+
+.normalYellow {
+    font-weight: normal;
+    color: orange;
+}
+
+.normalRed {
+    font-weight: normal;
+    color: #ff0000;
+}
+
+.fontbolder {
+    font-weight: bold !important;
+}
+
+.fontbolderSilver {
+    font-weight: bold !important;
+    color: silver;
+}
+
+.fontbolderYellow {
+    font-weight: bold !important;
+    color: orange;
+}
+
+.fontbolderRed {
+    font-weight: bold !important;
+    color: #ff0000;
+}
+
+.title_left {
+    font-family: 'Proxima Nova Cn Rg', sans-serif;
+}
+
+.myLabelContent { font-family: 'Ubuntu', sans-serif; font-weight: bold; color: #1abb9c; }
+
+.myLabelContentRight { font-family: 'Ubuntu', sans-serif; font-weight: bold; color: #1abb9c; text-align: right; }
+
+.myLabelContentLeft {
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: bold;
+    color: #1abb9c;
+    text-align: left;
+}
+
+.autosize {
+    resize: none;
+    overflow: hidden;
+}
+
+.required::after {
+    content: " *";
+    font-weight: bold;
+    color: red;
+}
+
+.textleft {
+    text-align:left !important;
+    max-width: 200px;
+}

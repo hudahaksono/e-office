@@ -1,0 +1,377 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Web.Security;
+
+namespace Surat.Models.Entities
+{
+    public class Provinsi
+    {
+        [Key]
+        public string ProvinsiId { get; set; }
+        public string NamaProvinsi { get; set; }
+    }
+
+    public class Kabupaten
+    {
+        [Key]
+        public string KabupatenId { get; set; }
+        public string NamaKabupaten { get; set; }
+    }
+
+    public class Kecamatan
+    {
+        [Key]
+        public string KecamatanId { get; set; }
+        public string NamaKecamatan { get; set; }
+    }
+
+    public class Desa
+    {
+        [Key]
+        public string DesaId { get; set; }
+        public string NamaDesa { get; set; }
+    }
+
+    public class TipeSurat
+    {
+        public string NamaTipeSurat { get; set; }
+        public string KodeTipeSurat { get; set; }
+        public string ValueTipeSurat { get; set; }
+        public string FormatNomor { get; set; }
+        public string Kewenangan { get; set; }
+    }
+
+    public class SifatSurat
+    {
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+        public string CariSifatSurat { get; set; }
+        public string NamaSifatSurat { get; set; }
+        public int Urutan  { get; set; }
+        public int Prioritas  { get; set; }
+    }
+
+    public class PerintahDisposisi
+    {
+        public string NamaPerintahDisposisi { get; set; }
+    }
+
+    public class KodeKlasifikasi
+    {
+        public string Kode { get; set; }
+        public string Nama { get; set; }
+    }
+
+    public class Seksi
+    {
+        public string SeksiId { get; set; }
+        public string NamaSeksi { get; set; }
+        public decimal Nomenklatur { get; set; }
+    }
+
+    public class QueryResult
+    {
+        public string A { get; set; }
+    }
+
+    public class FindAsalSurat
+    {
+        public string CariNamaAsalSurat { get; set; }
+        public string NamaAsalSurat { get; set; }
+    }
+
+    public class ListAsalSurat
+    {
+        public string NamaAsalSurat { get; set; }
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+    }
+
+    public class AsalSurat
+    {
+        [Key]
+        public string value { get; set; }
+        public string data { get; set; }
+    }
+
+    public class FindKlasifikasiArsip
+    {
+        public string CariKodeKlasifikasi { get; set; }
+        public string CariJenisArsip { get; set; }
+        public string CariKeterangan { get; set; }
+        public string KodeKlasifikasi { get; set; }
+        public string JenisArsip { get; set; }
+        public string Keterangan { get; set; }
+    }
+
+    public class KlasifikasiArsip
+    {
+        public string KodeKlasifikasi { get; set; }
+        public string JenisArsip { get; set; }
+        public string Keterangan { get; set; }
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+    }
+
+    public class FindKonterSurat
+    {
+        public string CariTipeSurat { get; set; }
+        public decimal? CariTahun { get; set; }
+        public string KonterSuratId { get; set; }
+        public string KantorId { get; set; }
+        public string TipeSurat { get; set; }
+        public decimal? Tahun { get; set; }
+        public decimal? NilaiKonter { get; set; }
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+    }
+
+    public class KonterSurat
+    {
+        public string KonterSuratId { get; set; }
+        public string KantorId { get; set; }
+        public string TipeSurat { get; set; }
+        public decimal? Tahun { get; set; }
+        public decimal? NilaiKonter { get; set; }
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+    }
+
+
+    //////////////////////////////// KEARSIPAN ////////////////////////////////
+    
+    #region kearsipan
+
+    public class MasterArsip
+    {
+        public int Id { get; set; }
+        public string NomorSK { get; set; }
+        public string KodeKlasifikasi { get; set; }
+        public string JenisArsip { get; set; }
+        public string Tahun { get; set; }
+        public string JumlahBerkas { get; set; }
+        public string Perkembangan { get; set; }
+        public string Gedung { get; set; }
+        public string Lantai { get; set; }
+        public string Rak { get; set; }
+        public string NomorBoks { get; set; }
+        public string Keterangan { get; set; }
+        public string StatusHapus { get; set; }
+        public string TanggalInput { get; set; }
+        public string UserInput { get; set; }
+        public string UnitKerjaId { get; set; }
+        public string TanggalHapus { get; set; }
+        public string UserHapus { get; set; }
+        public string Kodearsip { get; set; }
+        public string GolonganArsip { get; set; }
+        public string KodeUnik { get; set; }
+        public string SortType { get; set; }
+        public decimal? Total { get; set; }
+        public string MetaData { get; set; }
+        public string ValueJenisArsip { get; set; }
+        public int NoUrut { get; set; }
+        public int StatusBerkas { get; set; }
+        public string NamaFile { get; set; }
+        public int CT { get; set; }
+        public List<MasterArsip> ListMasterArsipAll { get; set; }
+        public List<MasterArsipDetail> ListKeteranganDetailArsip { get; set; }
+        public List<GolonganMasterArsip> ListGolonganMasterArsip { get; set; }
+        public List<GolonganMasterArsip> ListGolonganMasterArsip2 { get; set; }
+        public List<GolonganKlasifikasi> ListGolonganKlasifikasi { get; set; }
+        public List<KlasifikasiMasterArsip> ListKlasifikasiMasterArsip { get; set; }
+        public List<DokumenTTE> ListDokumenTTE { get; set; }
+        public List<CariDokumenTTE> ListCariDokumenTTE { get; set; }
+        public List<GolonganKlasifikasiDigital> ListGolonganKlasifikasiDigital { get; set; }
+        public List<LampiranArsip> ListLampiranArsip { get; set; }
+    }
+    public class MasterArsipDetail
+    {
+        public int Id { get; set; }
+        public string NomorSK { get; set; }
+        public int NomorUrut { get; set; }
+        public string JenisArsip { get; set; }
+        public string Tahun { get; set; }
+        public string JumlahBerkas { get; set; }
+        public string Perkembangan { get; set; }
+        public string Keterangan { get; set; }
+        public string StatusHapus { get; set; }
+        public string TanggalInput { get; set; }
+        public string UserInput { get; set; }
+        public string TanggalHapus { get; set; }
+        public string UserHapus { get; set; }
+        public string Kodearsip { get; set; }
+        public string KodeUnik { get; set; }
+        public string StatusBerkas { get; set; }
+        public string SortType { get; set; }
+        public decimal? Total { get; set; }
+        public string MetaData { get; set; }
+
+        public int CT { get; set; }
+
+        public List<MasterArsip> ListMasterArsip { get; set; }
+        public List<GolonganMasterArsip> ListGolonganMasterArsip { get; set; }
+        public List<GolonganKlasifikasi> ListGolonganKlasifikasi { get; set; }
+        public List<KlasifikasiMasterArsip> ListKlasifikasiMasterArsip { get; set; }
+        public List<DokumenTTE> ListDokumenTTE { get; set; }
+        public List<CariDokumenTTE> ListCariDokumenTTE { get; set; }
+        public List<GolonganKlasifikasiDigital> ListGolonganKlasifikasiDigital { get; set; }
+    }
+    public class LampiranArsip
+    {
+        public int Id { get; set; }
+        public string LampiranArsipId { get; set; }
+        public int IdMasterArsipDetail { get; set; }
+        public string FolderFile { get; set; }
+        public string NamaFile { get; set; }
+        public string ProfileId { get; set; }
+        public string KantorId { get; set; }
+        public string UnitKerjaId { get; set; }
+        public string TanggalUpload { get; set; }
+        public string UserInput { get; set; }
+        public string StatusHapus { get; set; }
+        public string UserHapus { get; set; }
+        public string TanggalHapus { get; set; }
+        public byte[] ObjectFile { get; set; }
+        public decimal? RNumber { get; set; }
+        public int? JumlahLampiran { get; set; }
+    }
+    public class SessionLampiranArsip
+    {
+        public decimal? RNumber { get; set; }
+        public string LampiranArsipId { get; set; }
+        public string NamaFile { get; set; }
+        public string UserId { get; set; }
+        public byte[] ObjectFile { get; set; }
+        public string Ext { get; set; }
+    }
+    public class FileArsip
+    {
+        public decimal? RNumber { get; set; }
+        public decimal? Total { get; set; }
+        public string FilesId { get; set; }
+        public string Tipe { get; set; }
+        public string PengenalFile { get; set; }
+        public string TanggalDibuat { get; set; }
+        public string Keterangan { get; set; }
+        public string SifatFile { get; set; }
+        public string UnitKerjaId { get; set; }
+        public string KantorId { get; set; }
+        public string Path { get; set; }
+        public byte[] ObjectFile { get; set; }
+    }
+    public class GolonganMasterArsip
+    {
+        public int Id { get; set; }
+        public string NamaGolongan { get; set; }
+        public string KeteranganGolongan { get; set; }
+        public string UserInput { get; set; }
+        public string UserHapus { get; set; }
+        public string TglHapus { get; set; }
+        public string StatusHapus { get; set; }
+        public string ValueJenisArsip { get; set; }
+        public string NamaJenis { get; set; }
+        public decimal? Total { get; internal set; }
+        public List<GolonganMasterArsip> ListGolonganMasterArsip { get; set; }
+
+    }
+    public class KlasifikasiMasterArsip
+    {
+        public int Id { get; set; }
+        public string KodeKlasifikasi { get; set; }
+        public string JenisArsip { get; set; }
+        public string Keterangan { get; set; }
+        public string Kategori { get; set; }
+        public string ListArsip { get; set; }
+        public string KeteranganLokasi { get; set; }
+        public string KodeUnik { get; set; }
+        public string KantorId { get; set; }
+        public string UserHapus { get; set; }
+        public string UserInput { get; set; }
+        public string TanggalHapus { get; set; }
+        public string StatusHapus { get; set; }
+        public decimal? Total { get; internal set; }
+        public List<KlasifikasiMasterArsip> ListKlasifikasiMasterArsip { get; set; }
+        public List<GolonganKlasifikasi> ListGolonganKlasifikasi2 { get; set; }
+        public string CaptionAktif { get; set; }
+        public string CaptionInaktif { get; set; }
+        public string StatusAktif { get; set; }
+        public string StatusInaktif { get; set; }
+        public string HasilAkhir { get; set; }
+        public string MetaData { get; set; }
+
+
+    }
+    public class GolonganKlasifikasi
+    {
+        public int Id { get; set; }
+        public string NomorSurat { get; set; }
+        public string TanggalDibuat { get; set; }
+        public string TanggalTTE { get; set; }
+        public string SifatSurat { get; set; }
+        public string Perihal { get; set; }
+        public string KodeKlasifikasi { get; set; }
+        public string MasaAktif { get; set; }
+        public string CaptionAktif { get; set; }
+        public string MasaInaktif { get; set; }
+        public string CaptionInaktif { get; set; }
+        public string HasilAkhir { get; set; }
+        public string NamaJenisArsip { get; set; }
+        public string Keterangan { get; set; }
+        public string StatusRetensi { get; set; }
+        public string StatusAktif { get; set; }
+        public string StatusInaktif { get; set; }
+        public string UserHapus { get; set; }
+        public string UserInput { get; set; }
+        public string TanggalHapus { get; set; }
+        public string StatusHapus { get; set; }
+        public int KantorId { get; set; }
+        public string KodeUnik { get; set; }
+        public decimal? Total { get; internal set; }
+        public string KodeArsip { get; set; }
+        public string DokumenElektronikid { get; set; }
+        public string ProfileId { get; set; }
+        public List<GolonganKlasifikasi> ListGolonganKlasifikasi { get; set; }
+
+        public List<KlasifikasiMasterArsip> ListKlasifikasiMasterArsip2 { get; set; }
+
+    }
+    public class GolonganKlasifikasiDigital
+    {
+        public int Id { get; set; }
+        public string NomorSurat { get; set; }
+        public string TanggalDibuat { get; set; }
+        public string TanggalTTE { get; set; }
+        public string SifatSurat { get; set; }
+        public string Perihal { get; set; }
+        public string KodeKlasifikasi { get; set; }
+        public string MasaAktif { get; set; }
+        public string CaptionAktif { get; set; }
+        public string MasaInaktif { get; set; }
+        public string CaptionInaktif { get; set; }
+        public string HasilAkhir { get; set; }
+        public string NamaJenisArsip { get; set; }
+        public string Keterangan { get; set; }
+        public string StatusRetensi { get; set; }
+        public string StatusAktif { get; set; }
+        public string StatusInaktif { get; set; }
+        public string UserHapus { get; set; }
+        public string TanggalHapus { get; set; }
+        public string StatusHapus { get; set; }
+        public int KantorId { get; set; }
+        public string KodeUnik { get; set; }
+        public decimal? Total { get; internal set; }
+        public string TanggalRetensiAktif { get; set; }
+        public string TanggalRetensiInaktif { get; set; }
+        public string KodeArsip { get; set; }
+        public string DokumenElektronikid { get; set; }
+        public string ProfileId { get; set; }
+
+        public List<GolonganKlasifikasiDigital> ListGolonganKlasifikasiDigital { get; set; }
+        public List<KlasifikasiMasterArsip> ListKlasifikasiMasterArsip2 { get; set; }
+
+    }
+
+    #endregion
+
+}

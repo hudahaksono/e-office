@@ -1,0 +1,207 @@
+﻿@model Dictionary<int, Surat.Models.Entities.ProfilPengguna>
+@{
+    var nip = ViewData["nip"].ToString();
+    var dnip = ViewData["dnip"].ToString();
+    var uname = ViewData["uname"].ToString();
+    var nl = ViewData["namalengkap"].ToString();
+    var jabatan = ViewData["jabatan"].ToString();
+    var satker = ViewData["satker"].ToString();
+    List<Surat.Models.Entities.Kantor> kantorids = (List<Surat.Models.Entities.Kantor>)ViewData["kantorids"];
+    var kantorid = ViewData["kantorid"].ToString();
+}
+<style>
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item {
+        font-size: 15px;
+    }
+
+    .list-group-item-primary.active:hover {
+        border-color: #ddd;
+        color: #31708f;
+        background-color: #d9edf7;
+    }
+
+    .list-group-item-primary.active {
+        border-color: #ddd;
+        color: #31708f;
+        background-color: #fff;
+    }
+
+    .table-user-information > tbody > tr {
+        border-top: 1px solid rgb(221, 221, 221);
+    }
+
+        .table-user-information > tbody > tr:first-child {
+            border-top: 0;
+        }
+
+        .table-user-information > tbody > tr > td {
+            border-top: 0;
+        }
+</style>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <table class="table table-user-information">
+            <tbody>
+                <tr class="text-info">
+                    <td class="blockquote-reverse">NIP</td>
+                    <td><strong>@dnip</strong></td>
+                </tr>
+                <tr class="text-info">
+                    <td class="blockquote-reverse">NAMA LENGKAP</td>
+                    <td><strong>@nl</strong></td>
+                </tr>
+                <tr class="text-info">
+                    <td class="blockquote-reverse">NAMA PENGGUNA</td>
+                    <td><strong>@uname</strong></td>
+                </tr>
+                <tr class="text-info">
+                    <td class="blockquote-reverse">JABATAN</td>
+                    <td><strong>@jabatan</strong></td>
+                </tr>
+                <tr class="text-info">
+                    <td class="blockquote-reverse">SATKER</td>
+                    <td><strong>@satker</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        KANTOR :
+        @Html.DropDownList("ddlKantorId", new SelectList(kantorids, "KantorId", "NamaKantor"), new { @class = "select2_single form-control", @style = "width:100%;", @onchange = "changeKantor()" })
+    </div>
+</div>
+<ul id="listha" class="list-group checked-list-box">
+    @foreach (var role in Model)
+    {
+        var aktif = Convert.ToBoolean(role.Value.aktif);
+        <li class="list-group-item" data-checked="@(aktif ? "true" : "false")" data-tipeha="@(role.Value.profileid)" data-tpeselon="@(role.Value.eselon)" data-ket="@(role.Value.nama)">
+            @role.Value.nama
+        </li>
+    }
+</ul>
+<div class="form-group">
+    <div class="col-md-12 col-sm-12 col-xs-12 col-md-offset-0">
+        <button onclick="SimpanRA()" class="btn btn-primary">Simpan</button>
+    </div>
+</div>
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $('#ddlKantorId').val('@kantorid').change();
+        });
+
+        $("#listha li").each(function () {
+            if ($(this).data('checked') == undefined) return;
+            var $widget = $(this),
+                $checkbox = $('<input type="checkbox" class="hidden" />'),
+                color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                settings = {
+                    on: { icon: 'glyphicon glyphicon-check' },
+                    off: { icon: 'glyphicon glyphicon-unchecked' }
+                };
+            $widget.css('cursor', 'pointer')
+            $widget.append($checkbox);
+            $widget.on('click', function () {
+                $checkbox.prop('checked', !$checkbox.is(':checked'));
+                $checkbox.triggerHandler('change');
+                updateDisplay();
+            });
+            $checkbox.on('change', function () { updateDisplay(); });
+            function updateDisplay() {
+                var isChecked = $checkbox.is(':checked');
+                $widget.data('state', (isChecked) ? "on" : "off");
+                $widget.find('.state-icon').removeClass().addClass('state-icon ' + settings[$widget.data('state')].icon);
+                if (isChecked) { $widget.addClass(style + color + ' active'); }
+                else { $widget.removeClass(style + color + ' active'); }
+            }
+            function init() {
+                if ($widget.data('checked') == true) { $checkbox.prop('checked', !$checkbox.is(':checked')); }
+                updateDisplay();
+                if ($widget.find('.state-icon').length == 0) { $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>'); }
+            }
+            init();
+        });
+        SimpanRA = function () {
+            var data = {}, offpejabat = [], tpeselon = 0;
+            $("#listha li").each(function (idx, li) {
+                if ($(li).data("tipeha") && $(li).data("checked") != ($(li).data("state") == "on")) {
+                    tpeselon = parseInt($(li).data("tpeselon"));
+                    data[$(li).data("tipeha")] = { aktif: $(li).data("state"), pejabat: tpeselon > 0 && tpeselon < 6, ket: $(li).data("ket") };
+                    if ($(li).data("state") == "off" && (tpeselon > 0 && tpeselon < 6)) { offpejabat.push($(li).data("ket")); }
+                }
+            });
+            $("#dtra").val(JSON.stringify(data));
+            if (offpejabat.length > 0) {
+                var msg = "Anda yakin akan <i>menonaktifkan<b> " + '@nl' + "</i></b> sebagai :",
+                    options = { "backdrop": "static", keyboard: true };
+                msg += '<ol style="list-style-type:disc">';
+                offpejabat.forEach(function (el) { msg += "<li>".concat(el, "</li>"); });
+                msg += "</ol>";
+                $('#cnfct').html(msg);
+                $('#cnfwindow').modal(options);
+                $('#cnfwindow').modal('show');
+                return;
+            } else if (!$.isEmptyObject(data)) { PRA(); }
+        };
+        PRA = function () {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SimpanHakAkses", "Admin")',
+                data: { jdata: $("#dtra").val(), u: '@uname', nip: '@nip', nl: '@nl', dnip: '@dnip', kid: '@kantorid' },
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $("#dvlistha").html(data.LHA);
+                        showmsg('Informasi', 'Data berhasil disimpan');
+                    } else {
+                        showmsg('Perhatian', data.Message);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    showmsg('Informasi', 'Error menyimpan Hak Akses');
+                    $.unblockUI();
+                }
+            });
+        };
+    }(jQuery));
+
+    function changeKantor() {
+        var lastkid = '@kantorid';
+        var kantorid = $('#ddlKantorId').val();
+        if (kantorid != lastkid) {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CariDetailPegawai", "Admin")',
+                data: { nip: '@nip' },
+                success: function (rst, textStatus, XMLHttpRequest) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DaftarHakAkses", "Admin")',
+                        data: { uname: rst.namapengguna, dnip: rst.displaynip, nl: rst.namalengkap, nip: rst.idpegawai, jabatan: rst.namajabatan, satker: rst.namasatker, kantorid: kantorid, kantorids: rst.kantorids },
+                        success: function (data, textStatus, XMLHttpRequest) {
+                            $("#dvlistha").html(data.ListHA);
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            showmsg('Perhatian', 'Error menyimpan Hak Akses');
+                            $.unblockUI();
+                        }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(XMLHttpRequest, textStatus, errorThrown);
+                    $.unblockUI();
+                }
+            });
+        }
+    }
+</script>

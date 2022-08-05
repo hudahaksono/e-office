@@ -1,0 +1,538 @@
+﻿@model Surat.Models.Entities.PengantarSurat
+
+@{
+    var log = HttpContext.Current.User.Identity as Surat.Models.Entities.InternalUserIdentity;
+    var listUnitKerja = new List<SelectListItem>();
+    foreach (var unit in ViewBag.ListUnitkerja)
+    {
+        listUnitKerja.Add(new SelectListItem { Text = unit.NamaUnitKerja, Value = unit.UnitKerjaId });
+    }
+    var sl = new SelectList(ViewBag.ListPenandatangan, "ProfileId", "NamaProfile");
+    if (log.UnitKerjaId == "02010208" && Model.PengantarSuratId ==  null) { sl = new SelectList(ViewBag.ListPenandatangan, "ProfileId", "NamaProfile", "H2081000"); }
+}
+
+
+<div class="" id="dynamic_content">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Buat Surat Pengantar</h2>
+            <div class="pull-right">
+                <button type="button" class="btn btn-primary" onclick="SimpanPengantar()">Simpan dan Tampilkan <i class="fa fa-save"></i></button>
+                <button id="btnbuatbaru" type="button" class="btn btn-info" onclick="resetPengantar()">Buat Baru <i class="fa fa-recycle"></i></button>
+                @if (OtorisasiUser.IsProfile("PembuatSuratElektronik"))
+                {
+                    <button id="btnajukan" type="button" class="btn btn-success" onclick="ajukanPengantar()">Ajukan Pengantar <i class="fa fa-send"></i></button>
+                }
+                <button id="cancel-btn" type="button" class="btn btn-warning" onclick="window.location = '@Url.Action("PengantarSuratMasuk","Surat")'">Kembali</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-xs-12" id="mainrow" style="border-right: 2px solid #E6E9ED">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label" for="tanggalsurat">Tanggal Surat <span style="color:red">*</span></label>
+                                <div class='input-group date' style="margin-bottom: 0px;">
+                                    @{ string now = (string.IsNullOrEmpty(Model.TanggalSurat) ? DateTime.Now.ToString("dd/MM/YYYY") : Model.TanggalSurat); }
+                                    @Html.TextBox("tanggalsurat", now, new { @class = "form-control", @id = "tanggalsurat", @required = "required" })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <small>@Html.ValidationMessage("tanggalsurat", "", new { @class = "error" })</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="nomorsurat">Nomor Surat Pengantar <span style="color:red">*</span></label>
+                                <input class="form-control formisian" id="nomorsurat" name="NomorSurat" required="required" type="text" value="">
+                                @*@if (log.UnitKerjaId == "02010208")
+                                {
+                                    <div style="margin-top:5px">
+                                        <input type="checkbox" id="nomorOtomatis" checked /> Gunakan Nomor Terakhir
+                                    </div>
+                                }*@
+                                <small>@Html.ValidationMessage("nomorsurat", "Harap Masukan Nomor Surat", new { @class = "error" })</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label" for="tujuan">Tujuan Pengantar <span style="color:red">*</span></label>
+                                @Html.DropDownListFor(model => model.ProfileIdTujuan, new SelectList(ViewBag.ListUnitkerja, "UnitKerjaId", "NamaUnitKerja"), new { @class = "form-control", @id = "tujuan", @required = "required" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="penandantangan">Penandatangan <span style="color:red">*</span></label>
+                                @Html.DropDownListFor(model => model.Penandatangan, sl, new { @class = "form-control", @id = "penandantangan", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="" role="tabpanel" data-example-id="togglable-tabs" id="tabs">
+                        <ul id="actTabs" class="nav nav-tabs hidden-print" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#tab1" role="tab" id="step1-tab" data-toggle="tab" aria-expanded="true">Pencarian</a>
+                            </li>
+                            <li role="presentation" class="" id="tabStep2">
+                                <a href="#tab2" role="tab" id="step2-tab" data-toggle="tab" aria-expanded="false">Data disimpan</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="tab-content" class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="tab1" aria-labelledby="step1-tab">
+                            <div style="padding: 10px 5px">
+                                <h2>Filter Pencarian</h2>
+                                <div style="margin: -9px 0"><hr /></div>
+                                <div class="row" style="margin-bottom: 10px">
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <label for="tanggalpencarian">Tanggal Terima :</label>
+                                        <div class='input-group date' style="margin-bottom: 0px;">
+                                            @Html.TextBox("tanggalpencarian", "", new { @class = "form-control", @id = "tanggalpencarian", @required = "required" })
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <label for="pengentri">Petugas Entri Surat :</label>         
+                                        <select class="select2_multiple perintahdisposisi form-control input-md" id="pengentri" required>
+                                            <option value="Semua Pegawai" selected>Semua Pegawai</option>
+                                            @if (ViewBag.ListPetugasEntri.Count > 0)
+                                            {
+                                                foreach (var pg in ViewBag.ListPetugasEntri)
+                                                {
+                                                    <option value="@pg.Nama">@pg.Nama</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                        <label> </label>
+                                        <button type="button" id="srchbtn" class="btn btn-info btn-block" style="margin-top:5px;"><i class="fa fa-search"></i> Cari</button>
+                                    </div>
+                                </div>
+                                <table id="TableSrch" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:center; width: 13%;">Nomor Surat</th>
+                                            <th style="text-align:center; width: 13%;">Asal Surat</th>
+                                            <th style="text-align:center; width: 18%;">Tanggal Surat</th>
+                                            <th style="text-align:center;">Perihal</th>
+                                            <th style="text-align:center; width: 10%;"><button type="button" id="simpan" class="btn btn-primary">Simpan Semua</button></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @* search result *@
+                                        <tr>
+                                            <td colspan="5" style="text-align:center;">Data Kosong</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div id="loader" style="display:none; text-align:center;">
+                                    @Html.Partial("_Loading")
+                                </div>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="tab2" aria-labelledby="step2-tab">
+                            <div style="padding: 10px 5px" id="holdersave">
+                                <table id="TableSave" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:center; width: 13%;">Nomor Surat</th>
+                                            <th style="text-align:center; width: 13%;">Asal Surat</th>
+                                            <th style="text-align:center; width: 18%;">Tanggal Surat</th>
+                                            <th style="text-align:center;">Perihal</th>
+                                            <th style="text-align:center; width: 10%;">hapus</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @* save result *@
+                                    </tbody>
+                                </table>
+                                <button type="button" id="tombolbawah" class="btn btn-primary" style="display:none;" onclick="pdfview()">Tampilkan Dokumen</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12" >
+                    <div id="DokView">
+
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalCetak'></div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+<script>
+    var suratid = ""
+      $('#tanggalsurat, #tanggalpencarian').datetimepicker({
+        format: 'DD/MM/YYYY',
+        locale: 'id'
+    });
+    $('#allcb').change(function () {
+        $('tbody tr td input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+    });
+
+    const psid = `@Model.PengantarSuratId`
+    if (psid) {
+        pdfview(psid)
+        $("#nomorOtomatis").parent().hide()
+        $("#nomorsurat").val(`@Model.NomorSurat`)
+    } else {
+        $("#btnbuatbaru").hide()
+        $("#btnajukan").hide()
+        $("#mainrow").removeClass()
+        $("#mainrow").siblings().hide()
+    }
+
+    $(document).ready(function () {
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+        }
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('.select2_multiple.perintahdisposisi').select2MultiCheckboxes({
+            width: 'resolve',
+            templateSelection: function (selected, total, els) {
+                var el = els[0], selopts = el.selectedOptions;
+                if (selected && selected.find && el.selectedIndex > -1) {
+                    //return "Dipilih ".concat(selected.length, " dari ", total, " pilihan");
+                    return " " + selected;
+                }
+                return $(el).attr("placeholder") || this.placeholder;
+            }
+        });
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+        $('#loader #loading p').html("<b>Mencari Data</b>")
+    })
+
+
+        @if(ViewBag.ListSuratTersimpan.Count > 0)
+        {
+            foreach(var surat in ViewBag.ListSuratTersimpan)
+            {
+
+            <Text>
+
+            $("#TableSave tbody").append(`
+                        <tr data-suratid="@surat.SuratId">
+                            <td style="text-align:center; width: 13%; word-wrap: break-word;">@surat.NomorSurat</td>
+                            <td style="text-align:center; width: 13%;">@surat.PengirimSurat</td>
+                            <td style="text-align:center; width: 18%;">@surat.TanggalSurat</td>
+                            <td style="text-align:center;">@surat.Perihal</td>
+                            <td style="text-align:center; width: 10%;vertical-align: middle;"><button type="button" class="btn btn-primary" style="border-radius:10px" onclick="simpansurat(this)">Hapus</button></td>
+                        </tr>
+                `)
+            </Text>
+            }
+
+            <Text>
+            listSuratId()
+            const PengantarSuratid = `@Model.PengantarSuratId`
+            </Text>
+        } else
+        {
+            <Text>
+            const PengantarSuratid = ``
+            </Text>
+        }
+
+    $("#srchbtn").click(function () {
+        $("#TableSrch tbody").html("")
+        $("#loader").show()
+        let tanggal = $("#tanggalpencarian").val()
+
+        let pengentri = ""
+        let arrpengentri = $("#pengentri").val()
+        if (arrpengentri.includes('Semua Pegawai')) {
+            $("#pengentri option").each(function () {
+                if ($(this).attr('value') != "Semua Pegawai") {
+                    pengentri += (pengentri) ? `|${$(this).attr('value')}` : $(this).attr('value');
+                }                
+            })
+        } else {
+            $.each(arrpengentri, function (index, value) {
+                pengentri += (pengentri) ? `|${value}` : value
+            })
+
+        }
+        
+
+        let tujuan = $("#tujuan").val()
+
+        let data = new FormData
+        data.append('namapegawai',pengentri)
+        data.append('ukidPenerima', tujuan)
+        data.append('tanggal', tanggal)
+
+        $.ajax({
+            url: '@Url.Action("GetSuratByPengirim", "Surat")',
+            type: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (rsp) {
+                if (rsp.data.length > 0) {
+                    var surat = []
+                    if (suratid) {
+                        surat = suratid.split("|");
+                    }
+                    for (var data of rsp.data) {
+                        if (!surat.includes(data.SuratId)) {
+                            $("#TableSrch tbody").append(`
+                        <tr data-suratid="${data.SuratId}">
+                            <td style="text-align:center; width: 13%;">${data.NomorSurat}</td>
+                            <td style="text-align:center; width: 13%;">${data.PengirimSurat}</td>
+                            <td style="text-align:center; width: 18%;">${data.TanggalSurat}</td>
+                            <td style="text-align:center;">${data.Perihal}</td>
+                            <td style="text-align:center; width: 10%;vertical-align: middle;"><button type="button" class="btn btn-primary" style="border-radius:10px" onclick="simpansurat(this)">Simpan</button></td>
+                        </tr>
+                    `)
+                        }
+
+                    }
+
+                    if ($("#TableSrch tbody tr").length == 0) {
+                         $("#TableSrch tbody").append(`
+                            <tr>
+                                <td colspan="5" style="text-align:center;">Data Telah Disimpan</td>
+                            </tr>
+                        `)
+                    }
+
+                } else {
+                    $("#TableSrch tbody").append(`
+                        <tr>
+                            <td colspan="5" style="text-align:center;">Data Tidak Ditemukan</td>
+                        </tr>
+                    `)
+                }
+                $("#loader").hide()
+            },
+            fail: function (rsp) {
+                $("#TableSrch tbody").append(`
+                        <tr>
+                            <td colspan="5" style="text-align:center;">Gagal Menerima Data</td>
+                        </tr>
+                    `)
+                $("#loader").hide()
+            }
+        })
+    })
+
+    function simpansurat(el) {
+        var text = el.textContent
+        var td = $(el).parent()
+        if (text == "Simpan") {
+            el.textContent = "Hapus"
+            $("#TableSave tbody").append(td.parent())
+     Modelodel  } else if (text == "Hapus") {
+            td.parent().remove()
+        }
+        tombolbawah()
+        listSuratId()
+    }
+    $("#simpan").click(function () {
+        $("#TableSrch tbody tr").each(function () {
+            $(this).find("button").html("Hapus")
+            $("#TableSave tbody").append(this)
+        })
+
+        $("#TableSrch tbody").append(`
+                            <tr>
+                                <td colspan="5" style="text-align:center;">Data Telah Disimpan</td>
+                            </tr>
+                        `)
+
+        tombolbawah()
+        listSuratId()
+    })
+
+    function tombolbawah() {
+        var panjang = $("#TableSave tbody tr").length
+        if (panjang > 10) {
+            $("#tombolbawah").show()
+        } else {
+            $("#tombolbawah").hide()
+        }
+    }
+
+    function listSuratId() {
+        suratid = ""
+        var panjang = $("#TableSave tbody tr").length
+        $("#TableSave tbody tr").each(function (index) {
+            suratid += $(this).attr("data-suratid")
+            if (index != panjang - 1) {
+                suratid += "|"
+            }
+        })
+    }
+
+    function getData(tipe) {
+        let nomorSurat = $("#nomorsurat").val()
+        let tanggalSurat = $("#tanggalsurat").val()
+        let tujuanUkid = $("#tujuan").val()
+        let profileTtd = $("#penandantangan").val()
+        listSuratId()
+        //if (!nomorSurat) {
+        //    swal("Peringatan", "Nomor Surat Pengantar Kosong", "warning")
+        //    return false;
+        //}
+        if (!suratid) {
+            swal("Peringatan", "Tidak Ada Surat yang dipilih", "warning")
+            return false;
+        }
+
+        if (tipe == "urlparam") {
+            return `nomorSurat=${nomorSurat}&tanggalSurat=${tanggalSurat}&tujuanUkid=${tujuanUkid}&profileTtd=${profileTtd}&listSuratid=${suratid}`
+        } else {
+            let dataform = new FormData()
+            dataform.append("tanggalSurat", tanggalSurat)
+            dataform.append("ProfileIdTujuan", tujuanUkid)
+            dataform.append("Penandatangan", profileTtd)
+            dataform.append("LstSurat", suratid)
+            dataform.append("PengantarSuratid", PengantarSuratid)
+
+            if ($("#nomorOtomatis").is(":checked")) {
+                dataform.append("Gnumber", true)
+                dataform.append("NomorSurat", "")
+            } else {
+                dataform.append("Gnumber", false)
+                dataform.append("NomorSurat", nomorSurat)
+            }
+            return dataform;
+        }
+    }
+
+    function pdfview(id) {
+        var objurl = `@Url.Action("SuratPengantarPersuratan", "NaskahDinas")?psid=${id}`;
+
+        objpdf = objurl;
+
+        var options = { "backdrop": "static", keyboard: true };
+        if ($("#DokView").height() < 500) $("#DokView").height(500);
+        PDFObject.embed(objpdf, $("#DokView"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+    }
+
+    function SimpanPengantar() {
+        var data = getData()
+        if (data) {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SimpanSuratPengantar", "Surat")',
+                data: data,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.Status) {
+                        $.unblockUI();
+                        window.location.href = '@Url.Action("BuatPengantarSuratMasuk", "Surat")?pengantarsuratid=' + data.psid
+                    } else {
+                        $.unblockUI();
+                        swal("Peringatan", data.pesan, "warning")
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                    swal("Peringatan", data.pesan, "warning")
+                }
+                });
+        }
+    }
+
+    function resetPengantar() {
+        window.location.href = '@Url.Action("BuatPengantarSuratMasuk", "Surat")'
+    }
+
+
+    $("#nomorOtomatis").parent().click(function () {
+        var checkBoxes = $("#nomorOtomatis");
+        checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+        $("#nomorOtomatis").trigger("change")
+    })
+
+    if ($("#nomorOtomatis").is(":checked")) {
+        $("#nomorsurat").prop("disabled",true)
+    }
+
+    $("#nomorOtomatis").change(function () {
+        if ($("#nomorOtomatis").is(":checked")) {
+            $("#nomorsurat").prop("disabled", true)
+        } else {
+            $("#nomorsurat").prop("disabled", false)
+        }
+    })
+
+    function ajukanPengantar() {
+        if (psid) {
+            var frmdata = new FormData();
+            frmdata.append("NomorSurat", `@Model.NomorSurat`);
+            frmdata.append("TanggalSurat", $('#tanggalsurat').val());
+            frmdata.append("Perihal", `Surat Pengantar ke ${$("#tujuan option:selected").text()}`);
+            frmdata.append("IsiSurat", psid);
+            frmdata.append("PosisiTTE", "0");
+            frmdata.append("TipeSurat", "Pengantar Surat Masuk");
+            frmdata.append("listTTE", `${$("#penandantangan").val()},1`);
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("PengajuanTTEDraft", "NaskahDinas")',
+                data: frmdata,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        swal({
+                                title: "Informasi",
+                                text: " Proses TTE berhasil diajukan",
+                                type: "success",
+                                showCancelButton: true,
+                                closeOnConfirm: false,
+                                confirmButtonColor: "#5C9E3E",
+                                cancelButtonColor: "#0C98DC",
+                                confirmButtonText: "Buat Pengantar Lainnya?",
+                                cancelButtonText: "Kembali ke menu pengantar",
+                                showLoaderOnConfirm: true
+                        },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    window.location.href = '@Url.Action("BuatPengantarSuratMasuk", "Surat")';
+                                } else {
+                                    window.location.href = '@Url.Action("PengantarSuratMasuk", "Surat")';
+                                }
+                        });
+                    }
+                    else {
+                        swal("Peringatan", data.Pesan, "warning")
+                        $.unblockUI();
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+
+        }
+    }
+
+</script>

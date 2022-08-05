@@ -1,0 +1,28 @@
+﻿@model Dictionary<int, Surat.Models.Entities.SuratKembali>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+<tr>
+    <th class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.RNumber</th>
+    <td class="centertaligncolumn" style="width: 170px; font-weight: normal;">@lst.Value.TanggalKembali</td>
+    <td class="tdnormal">@lst.Value.NamaPengirim</td>
+    <td class="tdnormal">@lst.Value.Keterangan</td>
+    <td class="tdnormal">@lst.Value.NomorSurat</td>
+    <td class="tdnormal">@lst.Value.Perihal</td>
+    <td class="tdnormal">@lst.Value.AsalSurat</td>
+    <td style="text-align:center;cursor: pointer;" onclick="bukaInfoSurat('@lst.Value.SuratId','@lst.Value.NomorSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-eye-open"></i></td>
+    <td style="text-align:center;cursor: pointer;" onclick="kirimUlangSurat('@lst.Value.SuratId','@lst.Value.NomorSurat');"><i style="color:#b72a2a;" class="glyphicon glyphicon-share-alt"></i></td>
+</tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var bukaInfoSurat = function (s, n) {
+        window.location.href = '@Url.Action("ViewSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;
+    }
+
+    var kirimUlangSurat = function (s, n) {
+        window.location.href = '@Url.Action("KirimUlangSurat", "Flow")?suratid=' + s + '&nomorsurat=' + n;
+    }
+</script>

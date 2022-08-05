@@ -1,0 +1,145 @@
+﻿@model Surat.Models.Entities.Kuisioner
+
+
+
+<style>
+    pre {
+        margin: 45px 0 60px;
+    }
+
+    h1 {
+        margin: 60px 0 60px 0;
+    }
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    .error {
+        color: #c7254e;
+    }
+</style>
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+<script src='@Url.Content("~/resources/js/mcustom-scrollbar/jquery.mCustomScrollbar.concat.min.js")' type="text/javascript"></script>
+<script src='@Url.Content("~/resources/step-form-wizard/js/step-form-wizard.js")'></script>
+<link href='@Url.Content("~/resources/step-form-wizard/css/step-form-wizard-all.css")' rel="stylesheet" />
+
+<div class="container">
+    <div class="site-index">
+        <div class="body-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="wizard_example" action="@Url.Action("KirimJawaban", "Kuisioner")">
+                        <fieldset style="text-align: center;">
+                            <legend hidden>Feedback Fitur Naskah Dinas</legend>
+                            <h3 style="text-align:center">Evaluasi Fitur Naskah Dinas pada Aplikasi eOffice (Bukan Absensi atau Pengaduan)</h3>
+                            <img src="~/resources/images/evaluasi2.png" class="img-thumbnail" width="75%" height="100%">
+                        </fieldset>
+                        @foreach (var item in Model.ListPertanyaan)
+                        {
+            <fieldset>
+                <legend hidden>Pertanyaan Kuisioner</legend>
+                <div style="font-weight:bold;font-size:22px">
+                    @item.Nama_Pertanyaan
+                </div>
+                @if (!string.IsNullOrEmpty(item.Pilihan) && item.Status == "1")
+                {
+                    foreach (var pilih in item.Pilihan.Split('|'))
+                    {
+                        if (!string.IsNullOrEmpty(pilih))
+                        {
+<div style="font-weight:bold;font-size:16px" class="radio">
+    <label>
+        <input style="font-weight:bold" class="pertanyaan" type="radio" id="pilihan" name="@item.Pertanyaan_Id" value="@pilih" required />
+        @pilih
+    </label>
+</div> }
+}
+}
+else if (item.Status == "0")
+{
+<textarea class="form-control" name="@item.Pertanyaan_Id" placeholder="@item.Nama_Pertanyaan" rows="10" required></textarea>}
+            </fieldset>}
+                        <fieldset style="text-align: center;">
+                            <legend hidden>Selesai</legend>
+                            <img src="~/resources/images/selesaikuisioner.png" class="img-rounded" width="320">
+                            <noscript>
+                                <input class="nocsript-finish-btn sf-right nocsript-sf-btn" type="button" name="no-js-clicked" value="finish" />
+                            </noscript>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Pengingat*@
+<div id='ModalAlert' class='modal'>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div id=''>
+                <div class="modal-header" style="text-align:left;">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class='fa fa-times'></i> </button>
+                    <h2 class="modal-title" id=""><i class="fa fa-exclamation-triangle" style="color:red;"></i> &nbsp; Perhatian</h2>
+                </div>
+                <div class="modal-body">
+                    <a href="@Url.Action("PengisianKuisioner", "Kuisioner")">
+                        <img style="text-align:center" hight="100%" width="100%" src="~/resources/images/evaluasi2.png" />
+                    </a>
+
+                    @*<a href="@Url.Action("PengisianKuisioner", "Kuisioner")"><button type="button" class="btn btn-primary btn-lg btn-block"><i class="fa fa-calendar-check-o"></i> Mulai Kuisioner</button></a>*@
+                </div>
+                <br />
+                <div id="">
+                    <div class="x_panel" style="border:0px;">
+                        <div class="x_content form-horizontal">
+                            <div class="form-group text-center">
+                                <p style="text-align:center;font-size:14px">Fitur Naskah Dinas, masih dalam tahap pengembangan, apabila ada pertanyaan ataupun kendala anda dapat menghubungi Kepala Subbagian Persuratan<br /><b>(Biro Umum dan Layanan Pengadaan)</b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    $('#ModalAlert').modal('show');
+
+    $(document).ready(function () {
+        var form = $("#wizard_example");
+        form.validate();
+        sfw = $("#wizard_example").stepFormWizard({
+            height: 'auto',
+            onNext: function (data) {
+                var valid = form.valid();
+                return valid;
+            },
+            onFinish: function () {
+                var valid = form.valid();
+                // if use height: 'auto' call refresh metod after validation, because validation can change contentd
+                return valid;
+            }
+        });
+
+        $('#test').click(function () {
+            var hasil_input = $('input[id="pilihan"]:checked').val();
+            alert(hasil_input);
+        });
+
+    })
+    $(window).load(function () {
+        /* only if you want use mcustom scrollbar */
+        $(".sf-step").mCustomScrollbar({
+            theme: "dark-3",
+            scrollButtons: {
+                enable: true
+            }
+        });
+    });</script>

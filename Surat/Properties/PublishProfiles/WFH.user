@@ -1,0 +1,1210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>C:\inetpub\wwwroot\appsurat</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/App_global.asax.compiled">
+      <publishTime>07/23/2020 15:55:45</publishTime>
+    </File>
+    <File Include="bin/App_global.asax.dll">
+      <publishTime>07/23/2020 15:55:44</publishTime>
+    </File>
+    <File Include="bin/EntityFramework.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/itextsharp.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/itextsharp.xmlworker.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/itextsharp.xtra.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/MessagingToolkit.QRCode.dll">
+      <publishTime>06/26/2020 10:47:59</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.Client.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.Core.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.SystemWeb.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Exchange.WebServices.Auth.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Exchange.WebServices.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.IdentityModel.Extensions.dll">
+      <publishTime>08/31/2012 14:20:00</publishTime>
+    </File>
+    <File Include="bin/Microsoft.IdentityModel.JsonWebTokens.dll">
+      <publishTime>06/26/2020 10:12:18</publishTime>
+    </File>
+    <File Include="bin/Microsoft.IdentityModel.Logging.dll">
+      <publishTime>06/26/2020 10:12:15</publishTime>
+    </File>
+    <File Include="bin/Microsoft.IdentityModel.Tokens.dll">
+      <publishTime>06/26/2020 10:12:13</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.dll">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Host.SystemWeb.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.dll">
+      <publishTime>06/26/2020 10:12:14</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.Jwt.dll">
+      <publishTime>06/26/2020 10:12:15</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.OAuth.dll">
+      <publishTime>06/26/2020 10:12:12</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Infrastructure.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>06/26/2020 10:12:15</publishTime>
+    </File>
+    <File Include="bin/Oracle.ManagedDataAccess.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/Oracle.ManagedDataAccess.EntityFramework.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Owin.dll">
+      <publishTime>06/26/2020 10:12:15</publishTime>
+    </File>
+    <File Include="bin/Stimulsoft.Base.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/Stimulsoft.Report.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Stimulsoft.Report.Mvc.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/Surat.dll">
+      <publishTime>07/23/2020 15:55:41</publishTime>
+    </File>
+    <File Include="bin/Surat.pdb">
+      <publishTime>07/23/2020 15:55:41</publishTime>
+    </File>
+    <File Include="bin/System.IdentityModel.Tokens.Jwt.dll">
+      <publishTime>06/26/2020 10:12:14</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>06/26/2020 10:12:15</publishTime>
+    </File>
+    <File Include="bin/System.Web.Cors.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Helpers.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>06/26/2020 10:12:12</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.WebHost.dll">
+      <publishTime>06/26/2020 10:12:14</publishTime>
+    </File>
+    <File Include="bin/System.Web.Mvc.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.Razor.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Deployment.dll">
+      <publishTime>06/26/2020 10:11:54</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Razor.dll">
+      <publishTime>06/26/2020 10:11:55</publishTime>
+    </File>
+    <File Include="Contents/panduanzoommeetingdanzoho.pdf">
+      <publishTime>07/07/2020 13:41:37</publishTime>
+    </File>
+    <File Include="Contents/pdfviewer.html">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="Contents/UserManual.pdf">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="favicon.ico">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="PrecompiledApp.config">
+      <publishTime>07/23/2020 15:55:41</publishTime>
+    </File>
+    <File Include="Reports/checkbox.jpg">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="Reports/HelloWorld.mrt">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="Reports/logobpn.png">
+      <publishTime>06/26/2020 10:11:59</publishTime>
+    </File>
+    <File Include="resources/css/animate.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/bootstrap-datetimepicker.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/bootstrap.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/buttons.dataTables.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/custom.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/custom.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/dataTables.bootstrap.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/daterangepicker.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/font-awesome.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/icheck-bootstrap.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/jquery-ui.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/jquery.mCustomScrollbar.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/jquery.orgchart.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/login.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/mycss.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/nav-tabs.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/ol.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/peta.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/pnotify.buttons.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/pnotify.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/pnotify.nonblock.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/printcss.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/qrpage.css">
+      <publishTime>07/13/2020 10:24:58</publishTime>
+    </File>
+    <File Include="resources/css/select2.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/smart_wizard.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/smart_wizard_theme_dots.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/style-cetak.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/style.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/table.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/titlehead.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/css/viewer.min.css">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/flipper.css">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/fontawesome-webfont.eot">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/fontawesome-webfont.svg">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/fontawesome-webfont.ttf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/fontawesome-webfont.woff">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/fontawesome-webfont.woff2">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/FontAwesome.otf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/glyphicons-halflings-regular.eot">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/glyphicons-halflings-regular.svg">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/glyphicons-halflings-regular.ttf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/glyphicons-halflings-regular.woff">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/glyphicons-halflings-regular.woff2">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/ProximaNovaCond-Black.otf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/ProximaNovaCond-Bold.otf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/fonts/ProximaNovaCond-Reg.otf">
+      <publishTime>06/26/2020 10:12:02</publishTime>
+    </File>
+    <File Include="resources/images/2.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/3.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/4.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-check.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-comment.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-help.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-insert.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-key.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-newparagraph.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-noicon.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-note.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/annotation-paragraph.svg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/batik.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/benar.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/bgreen.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/checkbox.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/default-user.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-next%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-next-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-next-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-next.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-previous%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-previous-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-previous-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/findbarButton-previous.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/foto.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/grab.cur">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/grabbing.cur">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/loading-icon.gif">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/loading-small%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/loading-small.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/logo.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/logobpn.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/nomap.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/north.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/salah.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-documentProperties%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-documentProperties.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-firstPage%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-firstPage.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-handTool%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-handTool.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-lastPage%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-lastPage.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-rotateCcw%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-rotateCcw.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-rotateCw%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/secondaryToolbarButton-rotateCw.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/shadow.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/spin.gif">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/tanah.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/texture.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/tn64.jpg">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-bookmark%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-bookmark.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-download%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-download.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-menuArrows%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-menuArrows.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-openFile%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-openFile.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageDown%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageDown-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageDown-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageDown.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageUp%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageUp-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageUp-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-pageUp.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-presentationMode%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-presentationMode.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-print%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-print.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-search%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-search.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-secondaryToolbarToggle%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-secondaryToolbarToggle-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-secondaryToolbarToggle-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-secondaryToolbarToggle.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-sidebarToggle%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-sidebarToggle-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-sidebarToggle-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-sidebarToggle.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewAttachments%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewAttachments.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewOutline%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewOutline-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewOutline-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewOutline.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewThumbnail%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-viewThumbnail.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-zoomIn%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-zoomIn.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-zoomOut%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/toolbarButton-zoomOut.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-collapsed%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-collapsed-rtl%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-collapsed-rtl.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-collapsed.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-expanded%402x.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/images/treeitem-expanded.png">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/jquery.flipper-responsive.js">
+      <publishTime>06/26/2020 10:12:01</publishTime>
+    </File>
+    <File Include="resources/js/autocomplete/jquery.autocomplete.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/autocomplete/kategoripengadaan.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/bootstrap-datetimepicker.id.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/bootstrap-datetimepicker.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/bootstrap-progressbar.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/bootstrap.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/ckeditor.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/compatibility.min.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/custom.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/custom/custom.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/dataTables.bootstrap.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/datatables/buttons.flash.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/buttons.html5.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/buttons.print.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/dataTables.bootstrap.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/dataTables.buttons.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/dataTables.fixedHeader.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/dataTables.responsive.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/jquery.dataTables.min.js">
+      <publishTime>06/26/2020 10:12:05</publishTime>
+    </File>
+    <File Include="resources/js/datatables/jszip.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/pdfmake.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/responsive.bootstrap.min.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/datatables/vfs_fonts.js">
+      <publishTime>06/26/2020 10:12:06</publishTime>
+    </File>
+    <File Include="resources/js/daterangepicker.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/echarts-all.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/flot/curvedLines.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/date.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.orderBars.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.pie.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.resize.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.spline.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.stack.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.time.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/flot/jquery.flot.tooltip.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/green.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/html2canvas.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/id.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/infiniteScroll.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jquery-1.10.2.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery-ui.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jquery.backstretch.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.blockUI.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.confirm.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.dataTables.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.form.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jquery.inputmask.bundle.min.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/jquery.mCustomScrollbar.concat.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jquery.mockjax.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.nicescroll.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.orgchart.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/jquery.pjax.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jquery.signalR-2.2.3.min.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/jquery.smartWizard.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/jquery.ui.touch-punch.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/jquery.validate.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/jquery.validate.unobtrusive.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/jqueryautocomplete/jquery.autocomplete.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/jspdf.min.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/l10n.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/moment-with-locales.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/moment.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/moment.min.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/moris/morris.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/moris/raphael-min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/myjs.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/newecharts.min.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/nicescroll/jquery.nicescroll.min.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/nprogress.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/ol.js">
+      <publishTime>06/26/2020 10:12:04</publishTime>
+    </File>
+    <File Include="resources/js/pace.min.js">
+      <publishTime>06/26/2020 10:12:07</publishTime>
+    </File>
+    <File Include="resources/js/pdf.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/pdf.worker.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/pdfobject.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/peta.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/pnotify.buttons.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/pnotify.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/pnotify.nonblock.js">
+      <publishTime>06/26/2020 10:12:09</publishTime>
+    </File>
+    <File Include="resources/js/printThis.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/progressbar/bootstrap-progressbar.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/select2.full.min.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/js/select2.multi-checkboxes.min.js">
+      <publishTime>06/26/2020 10:12:05</publishTime>
+    </File>
+    <File Include="resources/js/shp.min.js">
+      <publishTime>06/26/2020 10:12:08</publishTime>
+    </File>
+    <File Include="resources/js/viewer.js">
+      <publishTime>06/26/2020 10:12:03</publishTime>
+    </File>
+    <File Include="resources/sweetalert/sweetalert-dev.js">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/sweetalert/sweetalert.css">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/sweetalert/sweetalert.min.js">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/switchery/switchery.css">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/switchery/switchery.js">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/switchery/switchery.min.css">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="resources/switchery/switchery.min.js">
+      <publishTime>06/26/2020 10:12:00</publishTime>
+    </File>
+    <File Include="Views/Account/AkunSaya.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Account/CountDownHTOnline.cshtml">
+      <publishTime>07/07/2020 13:41:36</publishTime>
+    </File>
+    <File Include="Views/Account/Denied.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Account/Index.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Account/ListKantor.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarAsalSurat.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarDelegasi.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarJabatan.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarKlasifikasiArsip.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarProfileFlow.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarProfilePerUnit.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarProfileTU.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarUnitKerja.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarUserAkses.cshtml">
+      <publishTime>07/23/2020 14:46:24</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarUserLogin.cshtml">
+      <publishTime>07/23/2020 14:46:33</publishTime>
+    </File>
+    <File Include="Views/Admin/DaftarUserPPNPN.cshtml">
+      <publishTime>07/15/2020 17:26:37</publishTime>
+    </File>
+    <File Include="Views/Admin/ExecuteSql.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/GantiPassword.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/HakAkses.cshtml">
+      <publishTime>07/16/2020 18:25:13</publishTime>
+    </File>
+    <File Include="Views/Admin/IndexUserAkses.cshtml">
+      <publishTime>07/23/2020 13:55:08</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiAsalSurat.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiDelegasi.cshtml">
+      <publishTime>07/23/2020 09:56:14</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiJabatan.cshtml">
+      <publishTime>07/23/2020 09:56:12</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiKlasifikasiArsip.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiKonterSurat.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiProfileTU.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/KonfigurasiUnitKerja.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/ListHakAkses.cshtml">
+      <publishTime>07/16/2020 18:40:37</publishTime>
+    </File>
+    <File Include="Views/Admin/SetAdminSatker.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/SettingEkspedisiSurat.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/SinkronisasiPegawai.cshtml">
+      <publishTime>07/20/2020 14:32:14</publishTime>
+    </File>
+    <File Include="Views/Admin/TestSendMail.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Admin/UserLogin.cshtml">
+      <publishTime>07/23/2020 14:46:49</publishTime>
+    </File>
+    <File Include="Views/Admin/UserPPNPN.cshtml">
+      <publishTime>07/22/2020 15:20:07</publishTime>
+    </File>
+    <File Include="Views/Cetak/LaporanSuratKeluar.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Cetak/LaporanSuratMasuk.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Error/Forbidden.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Error/InternalServerError.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Error/PageNotFound.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Flow/BuatSuratInisiatif.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/BuatSuratKeluar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/BuatSuratKeluarExternal.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/BuatSuratKeluarInternal.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/BuatSuratMasuk.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/CetakLembarDisposisi.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarLampiranSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarLampiranSuratKeluar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarLampiranSuratView.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarProsesSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSemuaSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratDisposisi.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratForEdit.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratHistory.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratInisiatif.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratKeluar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratKembali.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratMasuk.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratOutbox.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratPengantar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/DaftarSuratSP.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/EditSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/EntriDisposisiSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/EntriSuratInisiatif.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/EntriSuratKeluar.cshtml">
+      <publishTime>07/21/2020 13:19:54</publishTime>
+    </File>
+    <File Include="Views/Flow/EntriSuratMasuk.cshtml">
+      <publishTime>07/21/2020 13:53:08</publishTime>
+    </File>
+    <File Include="Views/Flow/InfoSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/KirimUlangSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/LembarDisposisi.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/ProsesSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SettingEkspedisiSurat.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratForEdit.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratInisiatif.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratKeluar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratKembali.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratMasuk.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratOutbox.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratPengantar.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/SuratPengantarBaru.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/TestOrgChart.cshtml">
+      <publishTime>06/26/2020 10:11:57</publishTime>
+    </File>
+    <File Include="Views/Flow/ViewSurat.cshtml">
+      <publishTime>07/21/2020 12:20:53</publishTime>
+    </File>
+    <File Include="Views/Flow/ViewSuratByTU.cshtml">
+      <publishTime>07/21/2020 12:21:48</publishTime>
+    </File>
+    <File Include="Views/Home/Index.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Konten/DocViewer.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Konten/DocViewerSP.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Konten/ImageViewer.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Konten/WordExcelViewer.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Meeting/DaftarListRapatOnline.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Meeting/DaftarRapatOnline.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Meeting/EntriDataDetailRapat.cshtml">
+      <publishTime>06/23/2020 12:27:48</publishTime>
+    </File>
+    <File Include="Views/Meeting/EntriDataPesertaRapat.cshtml">
+      <publishTime>06/22/2020 13:38:36</publishTime>
+    </File>
+    <File Include="Views/Meeting/EntriDataRapatOnline.cshtml">
+      <publishTime>07/15/2020 18:28:55</publishTime>
+    </File>
+    <File Include="Views/Meeting/ListRapatOnline.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Meeting/RapatOnline.cshtml">
+      <publishTime>06/26/2020 10:11:58</publishTime>
+    </File>
+    <File Include="Views/Meeting/ViewDataRapatOnline.cshtml">
+      <publishTime>06/29/2020 09:48:40</publishTime>
+    </File>
+    <File Include="Views/Monitoring/DalamProses.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/DaftarNotulen.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/EntriDataNotulen.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/EntriNotulen.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/GetNotulenTop4.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/Notulen.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Notulen/ViewNotulen.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Public/Index.cshtml">
+      <publishTime>07/13/2020 12:55:30</publishTime>
+    </File>
+    <File Include="Views/Shared/_Layout.cshtml">
+      <publishTime>07/23/2020 15:55:35</publishTime>
+    </File>
+    <File Include="Views/Shared/_Loading.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Test/TestPage.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Test/TestTemplate.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/Web.config">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Views/_ViewStart.cshtml">
+      <publishTime>06/26/2020 10:11:56</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>07/23/2020 14:53:31</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,84 @@
+﻿<link href='@Url.Content("~/resources/css/qrCodeScanner.css")' rel="stylesheet" />
+
+<script src='@Url.Content("~/resources/js/qr_packed.js")'></script>
+
+<div class="row" id="dynamic_content">
+    <div id="container" style="background: black;min-height: 700px;">
+        <h4>
+            Pendaftaran Peserta
+        </h4><hr />
+        <div class="form-group col-md-12 col-sm-12 col-xs-12" id="qr-manual">
+            <p>Kode Rapat</p>
+            <div class='input-group' style="max-width: 140px; margin: 0 auto;">
+                @Html.TextBox("txtKode", "", new { @class = "form-control", @maxlength = "6" })
+                <span class="input-group-addon" onclick="doTambahPeserta()" style="cursor:pointer;">
+                    <span class="fa fa-sign-in"></span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+            <a id="btn-scan-qr">
+                <p>Klik Untuk Membuka Pembaca Kode Rapat</p>
+                <img src="@Url.Content("~/resources/images/qr_icon.svg")" title="Klik Untuk Membuka Pembaca Kode Rapat"><br />
+            </a>
+
+            <canvas hidden="" id="qr-canvas"></canvas><br />
+            <button class="btn btn-default" onclick="closeReader()" style="display:none;" id="btnClose"><i class="fa fa-arrow-left"></i>&nbsp;Kembali</button>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12" id="divResult" hidden>
+        <div class="x_panel" style="padding:20px">
+            <div class="x_title">
+                <h2 id="popuptitle">Presensi Rapat</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="table-responsive" style="padding-right:10px; padding: 20px;">
+                        <div class="col-md-4 col-sm-4 col-xs-12" style="max-width:380px;">
+                            <div class="form-group">
+                                <img id="imgqrcode" style="width: 100%;" />
+                                <small>Tunjukkan QRCode untuk mengambil Seminar Kit, pada Rakernas 2022</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="txtNamaKegiatan">Nama Kegiatan</label>
+                                @Html.TextArea("txtNamaKegiatan", "", new { @class = "form-control autosize", @readonly = "readonly" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="txtTanggalKegiatan">Tanggal Kegiatan</label>
+                                @Html.TextArea("txtTanggalKegiatan", "", new { @class = "form-control autosize", @readonly = "readonly" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="txtKeteranganKegiatan">Keterangan Kegiatan</label>
+                                @Html.TextArea("txtKeteranganKegiatan", "", new { @class = "form-control autosize", @readonly = "readonly" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="txtNamaPeserta">Nama Peserta</label>
+                                @Html.TextArea("txtNamaPeserta", "", new { @class = "form-control autosize", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/qrCodeScanner.js")'></script>
+<script type="text/javascript">
+    var TambahUrl = '@Url.Action("TambahPeserta", "Meeting")',
+        CekRapatUrl = '@Url.Action("DetailRapat", "Meeting")';
+    var rapatonlineid = "";
+    var tipe = "daftar";
+
+    $(document).ready(function () {
+
+    });
+
+    $("#txtKodeRapat").keyup(function (event) {
+        if (event.keyCode == 13) {
+            doTambahPeserta();
+        }
+    });
+
+</script>

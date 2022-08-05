@@ -1,0 +1,80 @@
+﻿@model Surat.Models.Entities.BukaDokumen
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Aplikasi Persuratan - Dokumen Elektronik</title>
+    <link rel="shortcut icon" href="../../favicon.ico" />
+
+    <link href='@Url.Content("~/resources/css/bootstrap.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/font-awesome.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/css/custom.min.css")' rel="stylesheet" />
+    <link href='@Url.Content("~/resources/sweetalert/sweetalert.css")' rel="stylesheet" />
+
+    <script src='@Url.Content("~/resources/js/jquery-1.10.2.js")'></script>
+    <script src='@Url.Content("~/resources/js/bootstrap.min.js")'></script>
+    <script src='@Url.Content("~/resources/js/jquery.dataTables.min.js")'></script>
+    <script src='@Url.Content("~/resources/sweetalert/sweetalert.min.js")'></script>
+
+    <script type="text/javascript">
+        jQuery(function ($) {
+            var windowWidth = $(window).width();
+            var windowHeight = $(window).height();
+
+            $(window).resize(function () {
+                if (windowWidth != $(window).width() || windowHeight != $(window).height()) {
+                    location.reload();
+                    return;
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var form = document.createElement("form");
+            var el1 = document.createElement("input");
+            var el2 = document.createElement("input");
+
+            form.method = "POST";
+
+            var tgt = "@ViewBag.tgt";
+            if (tgt == "clean") {
+                form.action = "@Url.Action("LihatDokumen", "Public")";
+            } else {
+                form.action = "@Url.Action("Surat", "Public")";
+            }
+
+            console.log(event)
+
+            el1.value = "@ViewBag.id";
+            el1.name = "id";
+            form.appendChild(el1);
+
+            el2.value = "@ViewBag.kd";
+            el2.name = "q";
+            form.appendChild(el2);
+
+            form.style.display = "none"
+            document.body.appendChild(form)
+            form.submit();
+        });
+    </script>
+</head>
+<body>
+    <div id="page">
+        <div class="col-md-12 col-sm-12 col-xs-12 center" id="docLoading" style="font-weight:bolder; font-size:medium;">
+            Harap tunggu . . .  Mencari Dokumen . . .
+        </div>
+        <footer>
+            <div class="pull-right">
+                <a href="https://www.atrbpn.go.id">Kementerian Agraria Dan Tata Ruang / Badan Pertanahan Nasional </a>
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+    </div>
+</body>
+</html>

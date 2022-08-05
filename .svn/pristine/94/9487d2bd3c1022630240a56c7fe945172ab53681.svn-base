@@ -1,0 +1,78 @@
+﻿@model Dictionary<int, Surat.Models.Entities.MasterArsip>
+
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="font-weight: normal;" scope="row">@lst.Value.NoUrut</td>
+        <td class="tdnormal">@lst.Value.NomorSK</td>
+        <td class="tdnormal">@lst.Value.KodeKlasifikasi</td>
+        <td class="tdnormal">@lst.Value.JenisArsip</td>
+        <td class="tdnormal">@lst.Value.Tahun</td>
+        <td class="tdnormal">@lst.Value.JumlahBerkas</td>
+        <td class="tdnormal">@lst.Value.Perkembangan</td>
+        <td class="tdnormal">@lst.Value.Gedung</td>
+        <td class="tdnormal">@lst.Value.Lantai</td>
+        <td class="tdnormal">@lst.Value.Rak</td>
+        <td class="tdnormal">@lst.Value.NomorBoks</td>
+        <td class="tdnormal">@lst.Value.Keterangan</td>
+        @*<td class="centertaligncolumn  noExport"><i class='fa fa-eye' style='cursor: pointer; color:green;' title=' Lihat File Arsip' onclick="ViewArsip(@lst.Value.Id)"></i></td>*@
+        <td class="centertaligncolumn  noExport">
+            @if (lst.Value.StatusBerkas == 0)
+            {
+                <i class='fa fa-close' style='cursor: pointer; color:red;' title=' Tidak ada berkas'></i>}
+            else
+            {
+                <i class='fa fa-eye' style='cursor: pointer; color:green;' title=' Lihat File Arsip' onclick="ViewArsip(@lst.Value.Id)"></i>
+            }
+        </td>
+    </tr>
+    @*@lst.Value.StatusUpload*@
+}
+<% } %>
+
+
+<script type="text/javascript">
+
+    // merge / rowspan table
+    $('#myTableMasterArsip').margetable({
+
+        colindex: [{
+            index: 1
+        }, {
+            index: 0,
+            dependent: [1]
+        }, {
+            index: 2,
+            dependent: [1]
+        }]
+    });
+
+    // export excel
+    //$("#downloadexcel").click(function () {
+
+    //    var table2excel = new Table2Excel({
+    //        exclude: ".noExport"
+    //        //columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    //    });
+    //    table2excel.export(document.querySelectorAll('#myTableMasterArsip'))
+    //});
+    //var today = new Date();
+    //var dd = String(today.getDate()).padStart(2, '0');
+    //var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    //var yyyy = today.getFullYear();
+
+    //today = mm + '/' + dd + '/' + yyyy;
+
+    //$(document).ready(function () {
+    //    $('#downloadexcel').on('click', function (e) {
+    //        $("#myTableMasterArsip").table2excel({
+    //            exclude: ".noExport",
+    //            name: "Data",
+    //            filename: "DaftarArsip" + today
+    //        });
+    //    });
+    //});
+
+</script>

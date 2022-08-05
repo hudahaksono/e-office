@@ -1,0 +1,178 @@
+﻿@model Surat.Models.Entities.Notulen
+
+<script type="text/javascript">
+    $(function () {
+        $.validator.unobtrusive.parse(this);
+    });
+</script>
+
+<div class="">
+    <div class="page-title">
+        <div class="title_left" style="width:100%"><h2><span id="LabelTitle">Entri Data Notulen - <b>@Model.Judul</b></span></h2></div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="x_panel" style="padding-top:30px">
+
+        @Html.HiddenFor(m => m.NotulenId, new { @id = "NotulenId" })
+        @Html.HiddenFor(m => m.Judul, new { @id = "Judul" })
+        <div class="row">
+            <div class="col-md-12">
+                <div class="">
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="x_panel">
+                                <form class="form-horizontal form-label-left" id="frmBuatBaruNotulen" method="post">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Tanggal Surat</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(model => model.TanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Nomor Surat</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control", @id = "nomorsurat", @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Perihal Surat</label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextAreaFor(model => model.Perihal, new { @class = "form-control", @id = "perihal", @rows = 2, @readonly = "readonly", @style = "background-color:white; color:#000000; border-color:#ffffff; box-shadow: none !important; font-family: 'Varela Round', sans-serif; font-size: small;" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Tanggal <span style="color:red">*</span></label>
+                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                            <div class='input-group date' id='tglAcara' style="margin-bottom: 0px;">
+                                                @Html.TextBoxFor(model => model.Tanggal, new { @class = "form-control", @id = "tanggal", @required = "required" })
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.Tanggal, "Tanggal wajib diisi")
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Acara <span style="color:red">*</span></label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(model => model.Judul, new { @class = "form-control", @id = "judul", @required = "required" })
+                                            @Html.ValidationMessageFor(model => model.Judul, "Acara wajib diisi.")
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Tempat <span style="color:red">*</span></label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextBoxFor(model => model.Tempat, new { @class = "form-control", @id = "tempat", @required = "required" })
+                                            @Html.ValidationMessageFor(model => model.Tempat, "Tempat wajib diisi.")
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-2 col-sm-2 col-xs-12">Isi Notulen <span style="color:red">*</span></label>
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            @Html.TextAreaFor(m => m.IsiNotulen, new { @class = "form-control", @id = "isinotulen", @rows = 8 })
+                                            @Html.ValidationMessageFor(model => model.IsiNotulen, "Isi Notulen wajib diisi.")
+                                        </div>
+                                    </div>
+                                    @*<div class="ln_solid"></div>*@
+                                    <div class="form-group">
+                                        <div class="col-md-7 col-sm-7 col-xs-12 col-md-offset-2">
+                                            <button id="save-btn" type="submit" class="btn btn-primary">Simpan</button>
+                                            <button id="cancel-btn" type="button" class="btn btn-warning">Batal</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    $("#cancel-btn").click(function (e) {
+        window.location.href = '@Url.Action("Notulen", "Notulen")';
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmBuatBaruNotulen").submit(function (e) {
+        if ($("#frmBuatBaruNotulen").valid()) {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            //var isinotulen = CKEDITOR.instances['isinotulen'].getData();
+            //console.log(isinotulen);
+
+            var frm = this, frmdata = new FormData(this);
+            frmdata.append("notulenid", $('#NotulenId').val());
+            frmdata.append("isinotulen", $('#isinotulen').val());
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SimpanNotulen", "Notulen")',
+                data: frmdata,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $('#LabelTitle').html('Entri Data Notulen - <b>' + $('#judul').val() + '</b>');
+                        $('#NotulenId').val(data.ReturnValue);
+                        showmsg('Informasi', data.Pesan);
+                    }
+                    else {
+                        showmsg('Perhatian', data.Pesan);
+                    }
+                    $.unblockUI();
+                    window.location.href = '@Url.Action("Notulen", "Notulen")';
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+        else { console.log('Data input wajib belum Anda masukkan'); }
+        e.preventDefault();
+        return false;
+    });
+
+    $(document).ready(function () {
+        $.unblockUI();
+
+        //CKEDITOR.replace('isinotulen');
+
+        $('#tglAcara, #tanggal').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id',
+            maxDate: moment()
+        });
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+</script>

@@ -1,0 +1,155 @@
+﻿@model Dictionary<int, Surat.Models.Entities.LampiranSurat>
+
+@{
+    var niplogin = (User.Identity as Surat.Models.Entities.InternalUserIdentity).PegawaiId;
+    int n = 0;
+    string namaLampiran = "";
+}
+<p>
+    <span><i class="fa fa-paperclip"></i> @Model.Count() file </span>
+    <span class="btn btn-primary btn-file" id="TombolTambahFile"><i class="fa fa-plus"></i>&nbsp;&nbsp;Tambah<input type="file" name="UploadFromFile" id="txtUploadFile" class="btn btn-primary" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" /></span>
+</p>
+<ul>
+    @foreach (var lst in Model)
+    {
+        n++;
+        namaLampiran = string.Concat("Lampiran ", (n + 1000).ToString().Substring(1));
+        var nmFile = lst.Value.NamaFile.Split('.');
+        string fa = "fa-file-code-o";
+        if (nmFile.Length > 1)
+        {
+            switch (nmFile[nmFile.Length - 1].ToLower())
+            {
+                case "pdf":
+                    fa = "fa-file-pdf-o";
+                    break;
+                case "doc":
+                    fa = "fa-file-word-o";
+                    break;
+                case "docx":
+                    fa = "fa-file-word-o";
+                    break;
+                case "xls":
+                    fa = "fa-file-excel-o";
+                    break;
+                case "xlsx":
+                    fa = "fa-file-excel-o";
+                    break;
+                case "ppt":
+                    fa = "fa-file-powerpoint-o";
+                    break;
+                case "pptx":
+                    fa = "fa-file-powerpoint-o";
+                    break;
+                case "jpg":
+                    fa = "fa-file-image-o";
+                    break;
+                case "jpeg":
+                    fa = "fa-file-image-o";
+                    break;
+                case "png":
+                    fa = "fa-file-image-o";
+                    break;
+                case "bmp":
+                    fa = "fa-file-image-o";
+                    break;
+            }
+        }
+        <li>
+            <div style="font-family: 'Varela Round', sans-serif;">
+                <a style="color: #1abb9c;" href="#" onclick="BukaFileLampiran('@lst.Value.LampiranSuratId','@lst.Value.NamaFile','@lst.Value.KantorId');" title="@lst.Value.NamaFile"><i class="fa @fa"></i>&nbsp;@namaLampiran</a>
+            </div>
+            <div style="font-family: 'Varela Round', sans-serif;">
+                oleh:&nbsp;@lst.Value.NamaPegawai <br />
+                (@lst.Value.Tanggal)
+            </div>
+            @if (@niplogin == @lst.Value.Nip)
+            {
+                <div class="links" style="padding-left:10px;">
+                    <a href="#" style="color: #dd6136; font-size:smaller;" onclick="HapusFileLampiran('@lst.Value.LampiranSuratId', '@lst.Value.NamaFile');">Hapus</a>
+                </div>
+            }
+        </li>
+    }
+</ul>
+
+<script>
+
+
+    var dfFileDokumen = null;
+    $("#txtUploadFile").on("change", function (e) {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1;
+
+        var file = dfFileDokumen = input.get(0).files[0];
+
+        if (numFiles > 0) {
+
+            if (file.size > 20000 * 1024) { dfFileDokumen = null; showmsg('Peringatan', 'File maksimum 20Mb'); return false; }
+
+            // Save to LAMPIRANSURAT
+            var suratid = $('#SuratId').val();
+
+            var frm = new FormData();
+            frm.append("SuratId", suratid);
+            frm.append("namafile", dfFileDokumen.name);
+            frm.append("file", dfFileDokumen);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("InsertLampiranSurat", "Flow")',
+                data: frm,
+                contentType: false,
+                processData: false,
+                success: function (data, textStatus, XMLHttpRequest) {
+                    if (data.Status) {
+                        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+                        loadLampiranSurat();
+
+                        // Display File -----------------------------------------
+                        var tipefile = input.get(0).files[0].type;
+                        if (tipefile == 'application/pdf') {
+
+                            // Display PDF --------------------------------------
+                            var blob = new Blob([file], { type: "application/pdf;base64" }),
+                                objurl = window.URL.createObjectURL(blob);
+
+                            //console.log(blob);
+                            objpdf = objurl;
+                            var options = { "backdrop": "static", keyboard: true };
+                            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("DocViewer", "Konten")',
+                                success: function (data) {
+                                    $('#myModalContent').html(data);
+                                    $('#myModalDocViewer').modal(options);
+                                    $('#myModalDocViewer').modal('show');
+                                    //$.unblockUI();
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $.unblockUI();
+                                }
+                            });
+                            // Eof Display PDF ----------------------------------
+                        }
+                        else if (tipefile == 'image/jpeg' || tipefile == 'image/png') {
+                            // Display Image ------------------------------------
+                            // Eof Display Image --------------------------------
+                        }
+                        else {
+                            // Download File Word/Excel -------------------------
+                            // Eof Download File Word/Excel ---------------------
+                        }
+                        // Eof Display File -----------------------------------------
+                    }
+                    else {
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+    });
+</script>

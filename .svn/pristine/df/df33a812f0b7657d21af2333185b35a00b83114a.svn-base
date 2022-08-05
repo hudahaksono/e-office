@@ -1,0 +1,85 @@
+﻿@model Dictionary<int, Surat.Models.Entities.AduanInbox>
+
+@foreach (var lst in Model)
+{
+    <li>
+        <div class="block">
+            <div class="tags">
+                @if (@lst.Value.Redaksi == "Tembusan")
+                {
+                <a class="tag2">
+                    @if (@lst.Value.KetStatusTerkirim == "Pembuat Pengaduan")
+                    {
+                        <span>@lst.Value.TanggalKirim</span>
+                    }
+                    else
+                    {
+                        <span>@lst.Value.InfoTanggalBuka</span>
+                    }
+                </a>
+                }
+                else
+                {
+                <a class="tag">
+                    @if (@lst.Value.KetStatusTerkirim == "Pembuat Pengaduan")
+                    {
+                        <span>@lst.Value.TanggalKirim</span>
+                    }
+                    else
+                    {
+                        <span>@lst.Value.InfoTanggalBuka</span>
+                    }
+                </a>
+                }
+            </div>
+            <div class="block_content">
+                <h2 class="title">
+                    <a>@lst.Value.NamaProfilePenerima</a> <small>@lst.Value.NamaPenerima, <span style="color: #3c763d; font-weight: bold;">@lst.Value.Redaksi</span></small>
+                </h2>
+                <div class="byline">
+                    @if (@lst.Value.TanggalBuka != null)
+                    {
+                    <div>Tanggal dibuka: @lst.Value.TanggalBuka</div>
+                    }
+
+                    @if (@lst.Value.KetStatusTerkirim == "Sudah Diarsipkan/Selesai")
+                    {
+                        <div style="color: #3c763d; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div><i class="glyphicon glyphicon-check text-success" style="padding-left:7px;"></i>
+                    }
+                    else if (@lst.Value.KetStatusTerkirim == "Telah Terkirim")
+                    {
+                        <div style="color: #3c763d; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div>@*<i class="glyphicon glyphicon-ok text-success" style="padding-left:7px;"></i>*@
+                    }
+                    else if (@lst.Value.KetStatusTerkirim == "Belum Dibuka" || @lst.Value.KetStatusTerkirim == "Belum Terima Fisik")
+                    {
+                        <div style="color: gray; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div>
+                    }
+                    else if (@lst.Value.KetStatusTerkirim == "Pembuat Pengaduan")
+                    {
+                        <div style="color: #4e4e4e; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div>@*<i class="glyphicon glyphicon-ok text-success" style="padding-left:7px;"></i>*@
+                    }
+                    else if (@lst.Value.KetStatusTerkirim == "Dikembalikan")
+                    {
+                        <div style="color: #a94442; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div>@*<i class="glyphicon glyphicon-ok text-success" style="padding-left:7px;"></i>*@
+                    }
+                    else
+                    {
+                        <div style="color: #337ab7; font-family: 'Varela Round', sans-serif; font-size: 14px; font-weight: bold; padding-top:5px;">@lst.Value.KetStatusTerkirim</div>
+                    }
+                </div>
+                @if (@lst.Value.Keterangan != null)
+                {
+                    <div class="excerpt">
+                        <b>Catatan:</b> @lst.Value.Keterangan
+                    </div>
+                }
+                @if (@lst.Value.PerintahDisposisi != null)
+                {
+                    <div class="excerpt">
+                        <b>Disposisi:</b> @lst.Value.PerintahDisposisi
+                    </div>
+                }
+            </div>
+        </div>
+    </li>
+}

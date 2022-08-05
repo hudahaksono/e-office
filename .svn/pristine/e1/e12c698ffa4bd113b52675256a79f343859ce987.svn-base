@@ -1,0 +1,431 @@
+﻿@model Surat.Models.Entities.FindSurat
+
+@{
+    var lstKeteranganSurat = new List<SelectListItem>();
+    lstKeteranganSurat.Add(new SelectListItem { Text = "", Value = "" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Terbuka", Value = "Terbuka" });
+    lstKeteranganSurat.Add(new SelectListItem { Text = "Tertutup", Value = "Tertutup" });
+
+    var lstRedaksi = new List<SelectListItem>();
+    lstRedaksi.Add(new SelectListItem { Text = "", Value = "" });
+    lstRedaksi.Add(new SelectListItem { Text = "Asli", Value = "Asli" });
+    lstRedaksi.Add(new SelectListItem { Text = "Tembusan", Value = "Tembusan" });
+}
+
+<script src='@Url.Content("~/resources/js/infiniteScroll.js")'></script>
+
+<style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: white;
+        border-style: solid;
+        border-top-color: black;
+        border-top-width: 1px;
+        color: white;
+        margin: 10px 0px 0px 0px;
+        padding-top: 15px;
+        text-align: center;
+    }
+</style>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Buat Surat Pengantar
+            </h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="x_panel" style="padding-top:20px; border: solid 1px #ddd;">
+                <div class="x_content">
+                    <form class="form-horizontal form-label-left" id="frmCariSurat" method="post">
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tujuan Unit Kerja</label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownListFor(model => model.UnitKerjaIdTujuan, new SelectList(@Model.ListUnitKerja, "UnitKerjaId", "NamaUnitKerja"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbUnitKerjaTujuan", @onchange = "UnitKerjaChanged()" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tujuan Jabatan <span style="color:red">*</span></label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownListFor(model => model.PenerimaSurat, new SelectList(@Model.ListProfileTujuan, "NamaProfile", "NamaProfile"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbProfileTujuan" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal Input <span style="color:red">*</span></label>
+                                <div class="col-md-5 col-sm-5 col-xs-12">
+                                    <div class='input-group date' style="margin-bottom: 0px;">
+                                        @Html.TextBoxFor(model => model.TanggalInput, new { @class = "form-control", @id = "tanggalinput" })
+                                        <label class="input-group-addon" for="tanggalinput">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Sifat Surat</label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownListFor(model => model.SifatSurat, new SelectList(@Model.ListSifatSurat, "NamaSifatSurat", "NamaSifatSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbSifatSurat" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Keterangan Surat</label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownListFor(model => model.KeteranganSurat, lstKeteranganSurat, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbKeteranganSurat" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4 col-sm-4 col-xs-12">Redaksi</label>
+                                <div class="col-md-8 col-sm-8 col-xs-12">
+                                    @Html.DropDownListFor(model => model.Redaksi, lstRedaksi, new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbRedaksi" })
+                                </div>
+                            </div>
+
+
+
+                            @*<div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Dari Tanggal/Jam</label>
+                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                <div class='input-group date' style="margin-bottom: 0px;">
+                                    @Html.TextBoxFor(model => model.TanggalDari, new { @class = "form-control", @id = "tanggaldari" })
+                                    <label class="input-group-addon" for="tanggaldari">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Sampai Tanggal/Jam</label>
+                            <div class="col-md-5 col-sm-5 col-xs-12">
+                                <div class='input-group date' style="margin-bottom: 0px;">
+                                    @Html.TextBoxFor(model => model.TanggalSampai, new { @class = "form-control", @id = "tanggalsampai" })
+                                    <label class="input-group-addon" for="tanggalsampai">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>*@
+                        </div>
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
+                                    <button id="save-btn" type="submit" class="btn btn-success">Cari</button>
+                                    <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12"></div>
+                        @*<div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Jenis Surat</label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            @Html.DropDownListFor(model => model.TipeSurat, new SelectList(@Model.ListTipeSurat, "NamaTipeSurat", "NamaTipeSurat"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbTipeSurat" })
+                        </div>
+                    </div>*@
+                        @*<div class="ln_solid"></div>*@
+                    </form>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <section id="flip-scroll">
+                    <table id="myTableSuratMasuk" class="table table-striped table-bordered dt-responsive infinite-scroll" style="width:100%; background-color:white;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">#</th>
+                                <th><input type="checkbox" id="allcb" name="allcb" /></th>
+                                @*<th style="text-align:center;">Tanggal Surat</th>*@
+                                <th style="text-align:center;">Tanggal Input</th>
+                                <th>Nomor Surat</th>
+                                <th>Asal Surat</th>
+                                <th>Tujuan Surat</th>
+                                <th>Perihal</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataplaceholder"></tbody>
+                    </table>
+                </section>
+            </div>
+            @Html.Partial("_Loading")
+            <div class="footer">
+                <div class="form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12" style="display:inline-block;">
+                        <button id="btnbuatsuratpengantar" type="button" class="btn btn-success" style="margin-bottom: 10px;min-width:140px;">Buat Pengantar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+
+
+<script type="text/javascript">
+    var objpdf = null;
+
+    $(function () {
+        $("div#loading").hide();
+    });
+
+    (function (a) { a.createModal = function (b) { defaults = { title: "", message: "Your Message Goes Here!", closeButton: true, scrollable: false }; var b = a.extend({}, defaults, b); var c = (b.scrollable === true) ? 'style="max-height: 420px;overflow-y: auto;"' : ""; html = '<div class="modal fade" id="myModal">'; html += '<div class="modal-dialog">'; html += '<div class="modal-content">'; html += '<div class="modal-header">'; html += '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>'; if (b.title.length > 0) { html += '<h4 class="modal-title">' + b.title + "</h4>" } html += "</div>"; html += '<div class="modal-body" ' + c + ">"; html += b.message; html += "</div>"; html += '<div class="modal-footer">'; if (b.closeButton === true) { html += '<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>' } html += "</div>"; html += "</div>"; html += "</div>"; html += "</div>"; a("body").prepend(html); a("#myModal").modal().on("hidden.bs.modal", function () { a(this).remove() }) } })(jQuery);
+
+    function showmsg(judul, isi) {
+        $.createModal({
+            title: judul,
+            message: isi,
+            closeButton: true,
+            scrollable: false
+        });
+        return false;
+    };
+
+    function UnitKerjaChanged() {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var id = $('#cmbUnitKerjaTujuan').val();
+
+        $.ajax({
+            url: '@Url.Action("GetProfilesByUnitKerja", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { unitkerjaid: id },
+            success: function (data) {
+                $('#cmbProfileTujuan').html("");
+                $('#cmbProfileTujuan').append($('<option></option>').val("").html(""));
+                $.each(data, function (i, data) {
+                    $('#cmbProfileTujuan').append(
+                        $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                });
+
+                $.unblockUI();
+            }
+        });
+    };
+
+    @*function DoCetakLembarDisposisi(suratid) {
+        if (suratid !== null && suratid !== '')
+        {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+
+            var objurl = '@Url.Action("ViewPdf_LembarDisposisi", "Cetak")?suratid=' + suratid;
+
+            objpdf = objurl;
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DocViewer", "Konten")',
+                success: function (data) {
+                    $('#myModalContent').html(data);
+                    $('#myModalDocViewer').modal(options);
+                    $('#myModalDocViewer').modal('show');
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $.unblockUI();
+                }
+            });
+        }
+    };*@
+
+    var loadData = function () {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariSurat');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratSP", "Flow")',
+            data: $('#frmCariSurat').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+    };
+
+    $("#reset-btn").on("click", function (e) {
+        $('#frmCariSurat')[0].reset();
+        $('#cmbUnitKerjaTujuan').val('').trigger('change');
+        $('#cmbProfileTujuan').val('').trigger('change');
+        $('#cmbSifatSurat').val('').trigger('change');
+        $('#cmbKeteranganSurat').val('').trigger('change');
+        $('#cmbRedaksi').val('').trigger('change');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmCariSurat").submit(function (e) {
+        resetInfiniteScroll();
+        formToPost = $('#frmCariSurat');
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DaftarSuratSP", "Flow")',
+            data: $('#frmCariSurat').serialize(),
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data == 'noresults') {
+                    $('#dataplaceholder').html('');
+                    showmsg('Status', 'Tidak ada data yang ditemukan');
+                }
+                else {
+                    $('#dataplaceholder').html(data);
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#btnbuatsuratpengantar").click(function (e) {
+        resetInfiniteScroll();
+
+        var jsonArr = [];
+        $('#dataplaceholder').find('tr').each(function () {
+            var row = $(this);
+            //console.log(row);
+            if (row.find('input[type="checkbox"]').is(':checked')) {
+                jsonArr.push({ suratid: row.find('input[type="checkbox"]').val(), profileidtujuan: $('#cmbProfileTujuan').val(), namapenerima: $('#cmbProfileTujuan :selected').text(), tanggalinput: $('#tanggalinput').val() });
+                //jsonArr.push({ suratid: row.find('input[type="checkbox"]').val() });
+            }
+            //console.log(jsonArr);
+        });
+
+        if (jsonArr.length == 0) {
+            showalert('Tidak ada Surat yang dipilih.');
+            e.preventDefault();
+            return false;
+        }
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("BuatSuratPengantar", "Flow")',
+            data: JSON.stringify(jsonArr),
+            contentType: "application/json; charset=utf-8",
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    loadData();
+
+                    showinfo(data.Pesan);
+
+                    $.unblockUI();
+
+                    @*var id = data.ReturnValue;
+                    if (id !== null && id !== '') {
+                        //alert(id);
+                        var objurl = '@Url.Action("ViewPdf_SuratPengantar", "Cetak")?pengantarsuratid=' + id;
+
+                        objpdf = objurl;
+
+                        console.log(objpdf);
+
+                        var options = { "backdrop": "static", keyboard: true };
+                        //$.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("DocViewerSP", "Konten")',
+                            success: function (data) {
+                                $('#myModalCetak').html(data);
+                                $('#myModalDocViewer').modal(options);
+                                $('#myModalDocViewer').modal('show');
+                                //$.unblockUI();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                //$.unblockUI();
+                            }
+                        });
+                    }*@
+                }
+
+                if (!data.Status) {
+                    showalert(data.Pesan);
+                    $.unblockUI();
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { }
+        });
+    });
+
+    $(document).ready(function () {
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#tanggalinput').datetimepicker({
+            format: 'DD/MM/YYYY',
+            locale: 'id'
+        });
+        //$('#tanggaldari, #tanggalsampai').datetimepicker({
+        //    format: 'DD/MM/YYYY HH:mm',
+        //    locale: 'id',
+        //    maxDate: moment()
+        //});
+
+        $('#allcb').change(function () {
+            $('tbody tr td input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+        });
+
+        loadData();
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+        // scroll body to 0px on click
+        $('#back-to-top').click(function () {
+            $('#back-to-top').tooltip('hide');
+            $('body,html').animate({
+                scrollTop: 0
+            }, 800);
+            return false;
+        });
+
+        $('#back-to-top').tooltip('show');
+    });
+
+
+    moreRowsUrl = '@Url.Action("DaftarSuratSP", "Flow")';
+    $(window).scroll(scrollHandler);
+
+</script>

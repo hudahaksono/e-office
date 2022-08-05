@@ -1,0 +1,210 @@
+﻿@model Surat.Models.Entities.KopSurat
+
+@{
+    var lstFontSize = new List<SelectListItem>();
+    lstFontSize.Add(new SelectListItem { Text = "9", Value = "9" });
+    lstFontSize.Add(new SelectListItem { Text = "10", Value = "10" });
+    lstFontSize.Add(new SelectListItem { Text = "11", Value = "11" });
+    lstFontSize.Add(new SelectListItem { Text = "12", Value = "12" });
+
+}
+
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="x_panel" style="padding:20px">
+        <div class="x_title">
+            <h2>
+                Kop Surat - @Model.UnitKerjaName
+            </h2>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="row">
+                @Html.HiddenFor(m => m.NamaKantor_L1, new { id = "o_NamaKantor_L1" })
+                @Html.HiddenFor(m => m.NamaKantor_L2, new { id = "o_NamaKantor_L2" })
+                @Html.HiddenFor(m => m.Alamat, new { id = "o_Alamat" })
+                @Html.HiddenFor(m => m.Telepon, new { id = "o_Telepon" })
+                @Html.HiddenFor(m => m.Email, new { id = "o_Email" })
+                @Html.HiddenFor(m => m.FontSize, new { id = "o_FontSize" })
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <div class="x_panel" style="padding-top:20px; border: solid 1px #ddd;">
+                            <div class="x_content">
+                                <form class="form-horizontal form-label-left" id="frmKopSurat" method="post">
+                                    
+                                    <div class="col-md-4 col-xs-12">
+                                        @if (string.IsNullOrEmpty(Model.UnitKerjaId))
+                                        {
+                                            var lstUnitKerja = new List<SelectListItem>();
+                                            foreach (var item in ViewBag.ListUnitkerja)
+                                            {
+                                                lstUnitKerja.Add(new SelectListItem { Text = item.NamaUnitKerja, Value = item.UnitKerjaId });
+                                            }
+                                            <div class="form-group">
+                                                <label class="control-label" for="NamaKantor_L1">Nama Kantor Baris 1 <span style="color:red">*</span></label>
+                                                @Html.DropDownListFor(model => model.UnitKerjaId, lstUnitKerja, new { @class = "select2_single form-control input-md" })
+                                            </div>
+                                        }
+                                        else if (!string.IsNullOrEmpty(Model.UnitKerjaId))
+                                        {
+                                            @Html.HiddenFor(m => m.UnitKerjaId)
+                                        }
+                                        <div class="form-group">
+                                            <label class="control-label" for="NamaKantor_L1">Nama Kantor Baris 1 <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.NamaKantor_L1, new { @class = "form-control", @maxlength = "50" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="NamaKantor_L2">Nama Kantor Baris 2 <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.NamaKantor_L2, new { @class = "form-control", @maxlength = "50" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="Alamat">Alamat <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.Alamat, new { @class = "form-control", @maxlength = "100" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="Telepon">Telepon <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.Telepon, new { @class = "form-control", @maxlength = "100" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="Email">Email <span style="color:red">*</span></label>
+                                            @Html.TextBoxFor(model => model.Email, new { @class = "form-control", @maxlength = "100" })
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label" for="FontSize">Ukuran <span style="color:red">*</span></label>
+                                            @Html.DropDownListFor(model => model.FontSize, lstFontSize, new { @class = "select2_single form-control input-md" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 col-xs-12">
+                                        <div class="form-group">
+                                            <div class="pull-right">
+                                                <button id="simpanKop" type="submit" class="btn btn-success">Simpan</button>
+                                                <button onclick="showDesain()" type="button" class="btn btn-primary">Tampilkan</button>
+                                                <button id="kembalikan-btn" type="button" class="btn btn-warning">Reset</button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div id='kopDokumen'></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#kembalikan-btn").on("click", function (e) {
+        $('#frmKopSurat')[0].reset();
+        $('#NamaKantor_L1').val($('#o_NamaKantor_L1').val());
+        $('#NamaKantor_L2').val($('#o_NamaKantor_L2').val());
+        $('#Alamat').val($('#o_Alamat').val());
+        $('#Telepon').val($('#o_Telepon').val());
+        $('#Email').val($('#o_Email').val());
+        $('#FontSize').val($('#o_FontSize').val()).trigger('change');
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmKopSurat").submit(function (e) {
+        if ($('#NamaKantor_L1').val().length > 50) {
+            swal("Informasi", "Nama Kantor Baris 1 Max 50 Char", "info")
+            e.preventDefault();
+            return false;
+        }
+        var simpan = true;
+
+        if ($('#UnitKerjaId').val() == "") {
+            simpan = true;
+        }
+
+        if (simpan) {
+            var frmdata = new FormData();
+            frmdata.append("UnitKerjaId", $('#UnitKerjaId').val());
+            frmdata.append("NamaKantor_L1", $('#NamaKantor_L1').val());
+            frmdata.append("NamaKantor_L2", $('#NamaKantor_L2').val());
+            frmdata.append("Alamat", $('#Alamat').val());
+            frmdata.append("Telepon", $('#Telepon').val());
+            frmdata.append("Email", $('#Email').val());
+            frmdata.append("FontSize", $('#FontSize').val());
+            swal({
+                title: "Konfirmasi Proses Penyimpanan",
+                text: "Simpan Kop Surat",
+                type: "info",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal",
+                showLoaderOnConfirm: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("SimpanKopSurat", "Surat")',
+                            data: frmdata,
+                            contentType: false,
+                            processData: false,
+                            success: function (data, textStatus, XMLHttpRequest) {
+                                if (data.Status) {
+                                    $('#UnitKerjaId').val(data.Pesan);
+                                    $('#o_NamaKantor_L1').val($('#NamaKantor_L1').val());
+                                    $('#o_NamaKantor_L2').val($('#NamaKantor_L2').val());
+                                    $('#o_Alamat').val($('#Alamat').val());
+                                    $('#o_Telepon').val($('#Telepon').val());
+                                    $('#o_Email').val($('#Email').val());
+                                    $('#o_FontSize').val($('#FontSize').val())
+                                    swal("Informasi", "Perubahan Berhasil Disimpan", "success")
+                                    showDesain();
+                                    try {
+                                        $(`#${data.Pesan}`).html(`<span class="label label-success">Tersedia</span>`)
+                                        $(`#${data.Pesan}_1`).html(`<i class="fa fa-trash" style="cursor: pointer;" title="Hapus Kop" onclick="hapusKop('${data.Pesan}')">&nbsp;&nbsp;&nbsp;</i>
+                                        <b class="fa fa-pencil-square-o" title="Ubah Kop" style="cursor: pointer;" onclick="Tampilan('${data.Pesan}','')">&nbsp;&nbsp;&nbsp;</b>`)
+                                    } catch {
+                                        console.log('element tidak ditemukan')
+                                    }
+                                }
+                                else {
+                                    swal("Peringatan", data.Pesan, "warning")
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+                        });
+                    }
+                });
+        } else {
+            swal("Informasi", "Tidak ditemukan perubahan pada kop surat ini", "info")
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    function showDesain() {
+        var l1 = $('#NamaKantor_L1').val();
+        var l2 = $('#NamaKantor_L2').val();
+        var al = $('#Alamat').val();
+        var tl = $('#Telepon').val();
+        var em = $('#Email').val();
+        var fs = $('#FontSize').val();
+
+        if ('@Model.UnitKerjaId' != '') {
+            var objurl = '@Url.Action("ViewPdf_KopSurat", "NaskahDinas")?ukid=@Model.UnitKerjaId';
+
+            objpdf = objurl;
+
+            if ($("#kopDokumen").height() < 300) $("#kopDokumen").height(300);
+            PDFObject.embed(objpdf, $("#kopDokumen"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+        }
+
+
+    }
+
+    $(document).ready(function () {
+        showDesain();
+    });
+</script>

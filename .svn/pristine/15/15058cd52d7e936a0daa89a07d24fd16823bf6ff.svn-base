@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Surat.Models.Entities.KlasifikasiArsip>
+<style>
+    #TableKlasifikasi_filter, #TableKlasifikasi_info {
+        display: none
+    }
+
+    #TableKlasifikasi_wrapper {
+        overflow: hidden;
+    }
+</style>
+<div class="input-group">
+    @Html.TextBox("CariArsip", "", new { @class = "form-control", @id = "CariArsip", @placeholder = "Pencarian..." })
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+    </span>
+</div>
+<input type="text" name="total" id="total" value="@ViewBag.Total" hidden />
+<table id="TableKlasifikasi" class="table table-striped table-bordered dt-responsive" style="width:100%; background-color:white;">
+    <thead>
+        <tr>
+            <th style="text-align:center; width: 3%;">#</th>
+            <th style="text-align:center; width: 13%;">Kode Klasifikasi</th>
+            <th style="text-align:center; width: 20%;">Jenis Arsip</th>
+            <th style="text-align:center;">Keterangan</th>
+            <th style="text-align:center; width: 12%;">Pilih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var count = 0;}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="text-align:center;">@(count += 1)</td>
+                <td>@item.KodeKlasifikasi</td>
+                <td>@item.JenisArsip</td>
+                <td>@item.Keterangan</td>
+                <td style="text-align:center; vertical-align:middle; font-size:1.3em">
+                    <i class="fa fa-arrow-circle-left" style="cursor: pointer;" title="Gunakan Klasifikasi" data-klasifikasi="@item.KodeKlasifikasi"></i>&nbsp;&nbsp;&nbsp;
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $("#TableKlasifikasi").dataTable({
+        "ordering": false,
+        "lengthChange": false,
+    });
+    $('#CariArsip').on('keyup', function () {
+        var table = $('#TableKlasifikasi').DataTable();
+        table.search(this.value).draw();
+    });
+</script>

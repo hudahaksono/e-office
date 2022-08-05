@@ -1,0 +1,691 @@
+﻿using Surat.Models.Entities;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace Surat.Models
+{
+    public class InternalUser
+    {
+        //string pApplicationName = "Surat";
+
+        public List<OfficeMember> GetOffices(string userid, string tipe)
+        {
+            var officeList = new List<OfficeMember>();
+
+            using (var ctx = new BpnDbContext())
+            {
+                string sql = string.Empty;
+                if (tipe.Equals("PEGAWAI") || tipe.Equals("ASN"))
+                {
+                    sql = @"
+                    SELECT DISTINCT
+                      u.UserId, u.Username, NVL(VP.EMAIL,u.Email) AS EMAIL, u.Password, u.PasswordQuestion, u.Commentar,
+                      u.IsApproved, u.IsLockedOut, NVL(u.CreationDate,SYSDATE) CreationDate,
+                      NVL(u.LastLoginDate,SYSDATE) LastLoginDate,
+                      NVL(u.LastActivityDate,SYSDATE) LastActivityDate,
+                      NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate,
+                      NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, p.PegawaiId,
+                      p.NAMA NAMAPEGAWAI, NVL(KJ.KANTORID,KV.KANTORID) AS KANTORID, NVL(KJ.TIPEKANTORID,KV.TIPEKANTORID) AS TIPEKANTORID, NVL(KJ.NAMA,KV.NAMA) NAMAKANTOR, KJ.KODESATKER
+                    FROM
+                      USERS u
+                    INNER JOIN PEGAWAI p ON
+                      (p.VALIDSAMPAI IS NULL OR TRUNC(CAST(p.VALIDSAMPAI AS TIMESTAMP)) >= TRUNC(SYSDATE)) AND
+                      p.USERID = u.USERID
+                    INNER JOIN JABATANPEGAWAI pp ON
+                      (pp.VALIDSAMPAI IS NULL OR CAST(pp.VALIDSAMPAI AS TIMESTAMP) > SYSDATE) AND
+                      pp.PEGAWAIID = p.PEGAWAIID AND NVL(pp.STATUSHAPUS,'0') = '0'
+                    INNER JOIN JABATAN JB ON
+  	                  JB.PROFILEID = PP.PROFILEID AND NVL(JB.SEKSIID,'X') <> 'A800'
+                    INNER JOIN UNITKERJA UK ON
+  	                  UK.UNITKERJAID = JB.UNITKERJAID
+                    INNER JOIN KANTOR KJ ON
+                      KJ.KANTORID = UK.KANTORID
+                    LEFT JOIN simpeg_2702.v_pegawai_eoffice VP ON
+	                    VP.NIPBARU = p.PEGAWAIID
+                    LEFT JOIN KANTOR KV ON
+	                    KV.KODESATKER = VP.KODESATKER
+                    WHERE
+                      u.USERID = :param1 AND (u.VALIDSAMPAI IS NULL OR TRUNC(CAST(u.VALIDSAMPAI AS TIMESTAMP)) >= TRUNC(SYSDATE))
+                    ORDER BY
+                      NVL(KJ.TIPEKANTORID,KV.TIPEKANTORID), NVL(KJ.NAMA,KV.NAMA)"; // Arya :: 2020-07-22
+                    Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userid);
+                    object[] parameters = new object[1] { p1 };
+                    officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).ToList();
+                }
+                else if (tipe.Equals("PPNPN"))
+                {
+                    // Bila tidak ada di data Pegawai, cari di data PPNPN
+                    sql = @"
+                        SELECT DISTINCT
+                          U.USERID,
+                          U.USERNAME,
+                          U.EMAIL,
+                          U.PASSWORD,
+                          U.PASSWORDQUESTION,
+                          U.COMMENTAR,
+                          U.ISAPPROVED,
+                          U.ISLOCKEDOUT,
+                          NVL(U.CREATIONDATE,SYSDATE) AS CREATIONDATE,
+                          NVL(U.LASTLOGINDATE,SYSDATE) AS LASTLOGINDATE,
+                          NVL(U.LASTACTIVITYDATE,SYSDATE) AS LASTACTIVITYDATE,
+                          NVL(U.LASTPASSWORDCHANGEDDATE,SYSDATE) AS LASTPASSWORDCHANGEDDATE,
+                          NVL(U.LASTLOCKEDOUTDATE,SYSDATE) AS LASTLOCKEDOUTDATE,
+                          P.NIK AS PEGAWAIID,
+                          P.NAMA AS NAMAPEGAWAI,
+                          UK.KANTORID,
+                          K.TIPEKANTORID,
+                          K.NAMA AS NAMAKANTOR
+                        FROM USERPPNPN U
+                          INNER JOIN PPNPN P ON
+                            U.USERID = P.USERID
+                          INNER JOIN JABATANPEGAWAI PP ON
+                            (PP.VALIDSAMPAI IS NULL OR TRUNC(CAST(PP.VALIDSAMPAI AS TIMESTAMP)) >= TRUNC(SYSDATE)) AND
+                            NVL(PP.STATUSHAPUS,'0') = '0' AND
+                            P.NIK = PP.PEGAWAIID
+                          INNER JOIN JABATAN JB ON
+  	                        JB.PROFILEID = PP.PROFILEID AND
+  	                        NVL(JB.SEKSIID,'X') <> 'A800'
+                          INNER JOIN UNITKERJA UK ON
+  	                        UK.UNITKERJAID = JB.UNITKERJAID
+                          INNER JOIN KANTOR K ON
+                            UK.KANTORID = K.KANTORID
+                        WHERE
+                          U.USERID = :param1 AND
+                          (U.VALIDSAMPAI IS NULL OR TRUNC(CAST(U.VALIDSAMPAI AS TIMESTAMP)) >= TRUNC(SYSDATE))
+                        ORDER BY
+                          K.TIPEKANTORID, K.NAMA";
+                    Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userid);
+                    object[] parameters = new object[1] { p1 };
+                    officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).ToList();
+                }
+            }
+
+            return officeList;
+        }
+        /*
+        public List<OfficeMember> GetOffices(string userName)
+        {
+            var officeList = new List<OfficeMember>();
+
+            using (var ctx = new BpnDbContext())
+            {
+                string sql =
+                    "SELECT DISTINCT " +
+                    "    u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar, u.IsApproved, u.IsLockedOut, " +
+                    "    NVL(u.CreationDate,SYSDATE) CreationDate, NVL(u.LastLoginDate,SYSDATE) LastLoginDate, " +
+                    "    NVL(u.LastActivityDate,SYSDATE) LastActivityDate, NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate, NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, " +
+                    "    p.PegawaiId, p.NAMA NAMAPEGAWAI, k.KANTORID, k.tipekantorid, k.NAMA NAMAKANTOR " +
+                    "FROM " +
+                    "    USERS u, PEGAWAI p, jabatanpegawai pp, KANTOR k " +
+                    "WHERE " +
+                    "    (pp.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(pp.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND NVL(STATUSHAPUS,'0') = '0' " +
+                    "    AND (p.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(p.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) " +
+                    "    AND u.USERNAME = :param1 " +
+                    "    AND u.USERID = p.USERID " +
+                    "    AND p.PEGAWAIID = pp.PEGAWAIID " +
+                    "    AND pp.KANTORID = k.KANTORID " +
+                    "ORDER BY k.tipekantorid, k.nama";
+                
+                sql = @"
+                    SELECT DISTINCT
+                      u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar,
+                      u.IsApproved, u.IsLockedOut, NVL(u.CreationDate,SYSDATE) CreationDate,
+                      NVL(u.LastLoginDate,SYSDATE) LastLoginDate,
+                      NVL(u.LastActivityDate,SYSDATE) LastActivityDate,
+                      NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate,
+                      NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, p.PegawaiId,
+                      p.NAMA NAMAPEGAWAI, NVL(KV.KANTORID,KJ.KANTORID) AS KANTORID, NVL(KV.TIPEKANTORID,KJ.TIPEKANTORID) AS TIPEKANTORID, NVL(KV.NAMA,KJ.NAMA) NAMAKANTOR, KV.KODESATKER
+                    FROM
+                      USERS u
+                    INNER JOIN PEGAWAI p ON
+                      (p.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(p.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND
+                      p.USERID = u.USERID
+                    INNER JOIN jabatanpegawai pp ON
+                      (pp.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(pp.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND
+                      pp.PEGAWAIID = p.PEGAWAIID AND NVL(pp.STATUSHAPUS,'0') = '0'
+                    INNER JOIN KANTOR KJ ON
+	                    KJ.KANTORID = PP.KANTORID
+                    LEFT JOIN simpeg_2702.v_pegawai_eoffice VP ON
+	                    VP.NIPBARU = p.PEGAWAIID
+                    LEFT JOIN KANTOR KV ON
+	                    KV.KODESATKER = VP.KODESATKER
+                    WHERE
+                      u.USERNAME = :param1 AND (u.VALIDSAMPAI IS NULL OR CAST(u.VALIDSAMPAI AS TIMESTAMP) > SYSDATE)
+                    ORDER BY
+                      NVL(KV.TIPEKANTORID,KJ.TIPEKANTORID), NVL(KV.NAMA,KJ.NAMA)"; // Arya :: 2020-07-22
+                Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userName);
+                object[] parameters = new object[1] { p1 };
+                officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).ToList();
+                if (officeList.Count == 0)
+                {
+                    // Bila tidak ada di data Pegawai, cari di data PPNPN
+                    sql =
+                        "SELECT DISTINCT " +
+                        "    u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar, u.IsApproved, u.IsLockedOut, " +
+                        "    NVL(u.CreationDate,SYSDATE) CreationDate, NVL(u.LastLoginDate,SYSDATE) LastLoginDate, " +
+                        "    NVL(u.LastActivityDate,SYSDATE) LastActivityDate, NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate, NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, " +
+                        "    p.NIK PegawaiId, p.NAMA NAMAPEGAWAI, k.KANTORID, k.tipekantorid, k.NAMA NAMAKANTOR " +
+                        "FROM " +
+                        "    USERPPNPN u, PPNPN p, jabatanpegawai pp, KANTOR k " +
+                        "WHERE " +
+                        "    (pp.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(pp.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) " +
+                        "    AND u.USERNAME = :param1 " +
+                        "    AND u.USERID = p.USERID " +
+                        "    AND p.NIK = pp.PEGAWAIID " +
+                        "    AND pp.KANTORID = k.KANTORID  AND (u.VALIDSAMPAI IS NULL OR CAST(u.VALIDSAMPAI AS TIMESTAMP) > SYSDATE)" +
+                        "ORDER BY k.tipekantorid, k.nama";
+                    p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userName);
+                    parameters = new object[1] { p1 };
+                    officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).ToList();
+                }
+            }
+
+            return officeList;
+        }
+        */
+        public OfficeMember GetOffice(string userid,string kantorId)
+        {
+            var officeList = new OfficeMember();
+
+            using (var ctx = new BpnDbContext())
+            {
+                string sql = @"
+                    SELECT DISTINCT
+                      u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar,
+                      u.IsApproved, u.IsLockedOut, NVL(u.CreationDate,SYSDATE) CreationDate,
+                      NVL(u.LastLoginDate,SYSDATE) LastLoginDate,
+                      NVL(u.LastActivityDate,SYSDATE) LastActivityDate,
+                      NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate,
+                      NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, p.PegawaiId,
+                      p.NAMA NAMAPEGAWAI, NVL(KJ.KANTORID,KV.KANTORID) AS KANTORID, NVL(KJ.TIPEKANTORID,KV.TIPEKANTORID) AS TIPEKANTORID, NVL(KJ.NAMA,KV.NAMA) NAMAKANTOR, KJ.KODESATKER
+                    FROM
+                      USERS u
+                    INNER JOIN PEGAWAI p ON
+                      (p.VALIDSAMPAI IS NULL OR CAST(p.VALIDSAMPAI AS TIMESTAMP) > SYSDATE) AND
+                      p.USERID = u.USERID
+                    INNER JOIN jabatanpegawai pp ON
+                      (pp.VALIDSAMPAI IS NULL OR CAST(pp.VALIDSAMPAI AS TIMESTAMP) > SYSDATE) AND
+                      pp.PEGAWAIID = p.PEGAWAIID AND NVL(pp.STATUSHAPUS,'0') = '0'
+                    INNER JOIN JABATAN JB ON
+  	                  JB.PROFILEID = PP.PROFILEID AND NVL(JB.SEKSIID,'X') <> 'A800'
+                    INNER JOIN UNITKERJA UK ON
+  	                  UK.UNITKERJAID = JB.UNITKERJAID
+                    INNER JOIN KANTOR KJ ON
+                      KJ.KANTORID = UK.KANTORID
+                    LEFT JOIN simpeg_2702.v_pegawai_eoffice VP ON
+	                    VP.NIPBARU = p.PEGAWAIID
+                    LEFT JOIN KANTOR KV ON
+	                    KV.KODESATKER = VP.KODESATKER
+                    WHERE
+                      u.USERID = :param1 AND
+                      NVL(KJ.KANTORID,KV.KANTORID) = :param2 
+                    ORDER BY
+                      NVL(KJ.TIPEKANTORID,KV.TIPEKANTORID), NVL(KJ.NAMA,KV.NAMA)";
+                Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userid);
+                Oracle.ManagedDataAccess.Client.OracleParameter p2 = new Oracle.ManagedDataAccess.Client.OracleParameter("param2", kantorId);
+                object[] parameters = new object[2] { p1, p2 };
+                officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).FirstOrDefault();
+            }
+
+            return officeList;
+        }
+
+        /*
+        public OfficeMember GetOffice(string userName, string kantorId)
+        {
+            var officeList = new OfficeMember();
+
+            using (var ctx = new BpnDbContext())
+            {
+                string sql =
+                    "SELECT DISTINCT " +
+                    "    u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar, u.IsApproved, u.IsLockedOut, " +
+                    "    NVL(u.CreationDate, sysdate) CreationDate, u.LastLoginDate, u.LastActivityDate, u.LastPasswordChangedDate, NVL(u.LastLockedOutDate, sysdate) LastLockedOutDate, " +
+                    "    p.PegawaiId, p.NAMA NAMAPEGAWAI, k.KANTORID, k.tipekantorid, k.NAMA NAMAKANTOR " +
+                    "FROM " +
+                    "    USERS u, PEGAWAI p, jabatanpegawai pp, KANTOR k " +
+                    "WHERE " +
+                    "    (pp.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(pp.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND NVL(pp.STATUSHAPUS,'0') = '0' " +
+                    "    AND u.USERNAME = :param1 " +
+                    "    AND k.KANTORID = :param2 " +
+                    "    AND u.USERID = p.USERID " +
+                    "    AND p.PEGAWAIID = pp.PEGAWAIID " +
+                    "    AND pp.KANTORID = k.KANTORID " +
+                    "ORDER BY k.tipekantorid, k.nama";
+
+                sql = @"
+                    SELECT DISTINCT
+                      u.UserId, u.Username, u.Email, u.Password, u.PasswordQuestion, u.Commentar,
+                      u.IsApproved, u.IsLockedOut, NVL(u.CreationDate,SYSDATE) CreationDate,
+                      NVL(u.LastLoginDate,SYSDATE) LastLoginDate,
+                      NVL(u.LastActivityDate,SYSDATE) LastActivityDate,
+                      NVL(u.LastPasswordChangedDate,SYSDATE) LastPasswordChangedDate,
+                      NVL(u.LastLockedOutDate,SYSDATE) LastLockedOutDate, p.PegawaiId,
+                      p.NAMA NAMAPEGAWAI, NVL(KV.KANTORID,KJ.KANTORID) AS KANTORID, NVL(KV.TIPEKANTORID,KJ.TIPEKANTORID) AS TIPEKANTORID, NVL(KV.NAMA,KJ.NAMA) NAMAKANTOR, KV.KODESATKER
+                    FROM
+                      USERS u
+                    INNER JOIN PEGAWAI p ON
+                      (p.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(p.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND
+                      p.USERID = u.USERID
+                    INNER JOIN jabatanpegawai pp ON
+                      (pp.VALIDSAMPAI IS NULL OR TO_DATE(TRIM(pp.VALIDSAMPAI),'DD/MM/RRRR') > TO_DATE(TRIM(SYSDATE),'DD/MM/RRRR')) AND
+                      pp.PEGAWAIID = p.PEGAWAIID AND NVL(pp.STATUSHAPUS,'0') = '0'
+                    INNER JOIN KANTOR KJ ON
+	                    KJ.KANTORID = PP.KANTORID
+                    LEFT JOIN simpeg_2702.v_pegawai_eoffice VP ON
+	                    VP.NIPBARU = p.PEGAWAIID
+                    LEFT JOIN KANTOR KV ON
+	                    KV.KODESATKER = VP.KODESATKER
+                    WHERE
+                      u.USERNAME = :param1 AND
+                      pp.KANTORID = :param2 
+                    ORDER BY
+                      NVL(KV.TIPEKANTORID,KJ.TIPEKANTORID), NVL(KV.NAMA,KJ.NAMA)"; // Arya :: 2020-07-22
+                Oracle.ManagedDataAccess.Client.OracleParameter p1 = new Oracle.ManagedDataAccess.Client.OracleParameter("param1", userName);
+                Oracle.ManagedDataAccess.Client.OracleParameter p2 = new Oracle.ManagedDataAccess.Client.OracleParameter("param2", kantorId);
+                object[] parameters = new object[2] { p1, p2 };
+                officeList = ctx.OfficeMembershipData.SqlQuery(sql, parameters).FirstOrDefault();
+            }
+
+            return officeList;
+        }
+        */
+
+        public GetFotoPegawai GetFotoPegawai(string pegawaiid)
+        {
+            var list = new GetFotoPegawai();
+
+            string query =
+                "SELECT " +
+                "    pegawai.pegawaiid, pegawai.foto FOTOPEGAWAI " +
+                "FROM " +
+                "    pegawai " +
+                "WHERE " +
+                "    pegawai.pegawaiid = :PegawaiId ";
+
+            List<object> lstparams = new List<object>();
+            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("PegawaiId", pegawaiid));
+
+            var parameters = lstparams.ToArray();
+
+            using (var ctx = new BpnDbContext())
+            {
+                list = ctx.Database.SqlQuery<GetFotoPegawai>(query, parameters).FirstOrDefault();
+            }
+
+            return list;
+        }
+
+        public LogToken GetToken(string uid, string ip, string email)
+        {
+            var result = new LogToken();
+            string query = string.Empty;
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    decimal _durasi = string.IsNullOrEmpty(ConfigurationManager.AppSettings["DurasiToken"]) ? 86400 : decimal.Parse(ConfigurationManager.AppSettings["DurasiToken"]);
+                    query = @"SELECT COUNT(1) FROM TBLLOGTOKEN WHERE USERID = :param1 AND STATUS = 'A' AND PUBLICIP LIKE :param2";
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                    string _ip = new Codes.Functions().getIpHeader(ip);
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", string.Concat(_ip,"%")));
+                    var parameters = lstparams.ToArray();
+                    if (ctx.Database.SqlQuery<int>(query, parameters).FirstOrDefault() == 0)
+                    {
+                        query = @"
+                            SELECT LOGID AS ID, TOKEN, (DURASI-SYSDATE)*(24*60*60) AS DURASI
+                            FROM TBLLOGTOKEN WHERE USERID = :param1 AND PUBLICIP LIKE :param2 AND STATUS = 'W' AND DURASI > SYSDATE";
+                        result = ctx.Database.SqlQuery<LogToken>(query, parameters).FirstOrDefault();
+                        if (result == null)
+                        {
+                            result = new LogToken();
+                            query = "UPDATE TBLLOGTOKEN SET STATUS = 'D' WHERE STATUS = 'W' AND USERID = :param1 AND PUBLICIP LIKE :param2 ";
+                            ctx.Database.ExecuteSqlCommand(query, parameters);
+                            result.Durasi = _durasi;
+                            result.Token = new Codes.Functions().RndCode(6);
+                            result.Id = ctx.Database.SqlQuery<string>("SELECT RAWTOHEX(SYS_GUID()) FROM DUAL").FirstOrDefault();
+                            query = "INSERT INTO TBLLOGTOKEN (LOGID, USERID, PUBLICIP, TOKEN, KIRIMKE, DURASI, STATUS) VALUES (:param0, :param1, :param2, :param3, :param4, SYSDATE+:param5/(24*60*60), 'W')";
+                            lstparams.Clear();
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param0", result.Id));
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", ip));
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param3", result.Token));
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param4", email));
+                            lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param5", result.Durasi));
+                            parameters = lstparams.ToArray();
+                            ctx.Database.ExecuteSqlCommand(query, parameters);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                result = new LogToken();
+            }
+
+            return result;
+        }
+
+        public TransactionResult InsertLogEmail(string pAplikasi, string pTipedokumen, string pOperatorPengirim, string pEmailpengirim, string pEmailpenerima)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            using (var ctx = new BpnDbContext())
+            {
+                using (System.Data.Entity.DbContextTransaction tc = ctx.Database.BeginTransaction())
+                {
+                    List<object> lstparams = new List<object>();
+                    try
+                    {
+                        string sql =
+                            @"INSERT INTO EMAILLOG (APLIKASI, TIPEDOKUMEN, OPERATORPENGIRIM, EMAILPENGIRIM, EMAILPENERIMA, TANGGAL)
+                                VALUES (:pAplikasi, :pTipedokumen, :pOperatorPengirim, :pEmailpengirim, :pEmailpenerima, SYSDATE)";
+                        lstparams.Clear();
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("pAplikasi", pAplikasi));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("pTipedokumen", pTipedokumen));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("pOperatorPengirim", pOperatorPengirim));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("pEmailpengirim", pEmailpengirim));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("pEmailpenerima", pEmailpenerima));
+                        var parameters = lstparams.ToArray();
+                        ctx.Database.ExecuteSqlCommand(sql, parameters);
+                        result.Status = true;
+                        tc.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                        tc.Rollback();
+                    }
+                    finally
+                    {
+                        tc.Dispose();
+                        ctx.Dispose();
+                    }
+                }
+            }
+            return result;
+        }
+
+        public string GetToken(string uid, string ip)
+        {
+            var result = string.Empty;
+            string query = @"
+                    SELECT TOKEN
+                    FROM TBLLOGTOKEN WHERE USERID = :param1 AND PUBLICIP LIKE :param2 AND STATUS = 'W'";
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                    string _ip = new Codes.Functions().getIpHeader(ip);
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", string.Concat(_ip, "%")));
+                    var parameters = lstparams.ToArray();
+                    result = ctx.Database.SqlQuery<string>(query, parameters).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                result = string.Empty;
+            }
+
+            return result;
+        }
+
+        public decimal GetDurasi(string uid, string ip)
+        {
+            var result = 0;
+            string query = @"
+                    SELECT (DURASI-SYSDATE)*(24*60*60)
+                    FROM TBLLOGTOKEN WHERE USERID = :param1 AND PUBLICIP LIKE :param2 AND STATUS = 'W'";
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                    string _ip = new Codes.Functions().getIpHeader(ip);
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", string.Concat(_ip, "%")));
+                    var parameters = lstparams.ToArray();
+                    result = ctx.Database.SqlQuery<int>(query, parameters).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                result = 0;
+            }
+
+            return result;
+        }
+
+        public TransactionResult DaftarkanIP(string pUserId, string pIp, string pToken)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            using (var ctx = new BpnDbContext())
+            {
+                using (System.Data.Entity.DbContextTransaction tc = ctx.Database.BeginTransaction())
+                {
+                    List<object> lstparams = new List<object>();
+                    try
+                    {
+                        string sql =
+                            @"UPDATE TBLLOGTOKEN SET STATUS = 'A' WHERE USERID = :UserId AND PUBLICIP LIKE :Ip AND TOKEN = :Token AND STATUS = 'W'";
+                        lstparams.Clear();
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("UserId", pUserId));
+                        string _ip = new Codes.Functions().getIpHeader(pIp);
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("Ip", string.Concat(_ip, "%")));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("Token", pToken));
+                        var parameters = lstparams.ToArray();
+                        ctx.Database.ExecuteSqlCommand(sql, parameters);
+                        result.Status = true;
+                        tc.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                        tc.Rollback();
+                    }
+                    finally
+                    {
+                        tc.Dispose();
+                        ctx.Dispose();
+                    }
+                }
+            }
+            return result;
+        }
+
+        public string GetEmail(string uid)
+        {
+            var result = string.Empty;
+            string query = @"
+                SELECT EMAIL
+                FROM
+                  (SELECT RP.EMAIL
+                   FROM PEGAWAI PG INNER JOIN REGISTERUSERPERTANAHAN RP ON RP.NIP = PG.PEGAWAIID
+                   WHERE
+                     PG.USERID = :param1
+                   UNION ALL
+                   SELECT RP.EMAIL
+                   FROM PPNPN PG INNER JOIN PPNPN.REGISTERUSERPERTANAHAN RP ON RP.NIK = PG.NIK
+                   WHERE
+                     PG.USERID = :param2
+                   UNION ALL
+                   SELECT RP.EMAIL
+                   FROM PIHAK3 PG INNER JOIN MITRAKERJA.REGISTERUSERPERTANAHAN RP ON RP.NIK = PG.NIK
+                   WHERE
+                     PG.USERID = :param3 )";
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", uid));
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param3", uid));
+                    var parameters = lstparams.ToArray();
+                    result = ctx.Database.SqlQuery<string>(query, parameters).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                result = string.Empty;
+            }
+
+            return result;
+        }
+
+        public string GetNamaPengguna(string uid)
+        {
+            var result = string.Empty;
+            string query = @"
+                SELECT NAMA
+                FROM
+                  (SELECT DECODE(GELARDEPAN, '', '', GELARDEPAN || ' ') || DECODE(NAMA, '', '', NAMA) || DECODE(GELARBELAKANG, null, '', ', ' || GELARBELAKANG) AS NAMA
+                   FROM PEGAWAI
+                   WHERE
+                     USERID = :param1
+                   UNION ALL
+                   SELECT NAMA
+                   FROM PPNPN
+                   WHERE
+                     USERID = :param2
+                   UNION ALL
+                   SELECT NAMA
+                   FROM PIHAK3
+                   WHERE
+                     USERID = :param3 )";
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", uid));
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", uid));
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param3", uid));
+                    var parameters = lstparams.ToArray();
+                    result = ctx.Database.SqlQuery<string>(query, parameters).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                result = string.Empty;
+            }
+
+            return result;
+        }
+
+        public DataToken GetTokenData(string id)
+        {
+            var result = new DataToken();
+            string query = @"
+                SELECT
+	                TLT.LOGTIME,
+	                TLT.USERID,
+	                TLT.KIRIMKE AS EMAIL,
+	                DECODE(PG.PEGAWAIID,NULL,'PPNPN','PEGAWAI') AS TIPE,
+	                NVL(PG.PEGAWAIID,PN.NIK) AS PEGAWAIID,
+	                NVL(PG.NAMA,PN.NAMA) AS NAMAPEGAWAI,
+	                TLT.PUBLICIP,
+	                TLT.TOKEN
+                FROM TBLLOGTOKEN TLT
+                LEFT JOIN PEGAWAI PG ON
+	                PG.USERID = TLT.USERID
+                LEFT JOIN PPNPN PN ON
+	                PN.USERID = TLT.USERID
+                WHERE
+                  TLT.LOGID = :param1 AND
+                  TLT.STATUS = 'W'";
+            try
+            {
+                using (var ctx = new BpnDbContext())
+                {
+                    var lstparams = new List<object>();
+                    lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", id));
+                    var parameters = lstparams.ToArray();
+                    result = ctx.Database.SqlQuery<DataToken>(query, parameters).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                result = new DataToken();
+            }
+
+            return result;
+        }
+
+        public TransactionResult InsertLogPresensi(string pPegawaiId, string pKantorId, string pUnitKerjaId, string pLatitude, string pLongitude, string pUserId, string pWaktu)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            using (var ctx = new BpnDbContext())
+            {
+                using (System.Data.Entity.DbContextTransaction tc = ctx.Database.BeginTransaction())
+                {
+                    string skema = OtorisasiUser.NamaSkema;
+                    var lstparams = new List<object>();
+                    try
+                    {
+                        string sql = "SELECT SYSDATE FROM DUAL";
+                        var _serverTime = ctx.Database.SqlQuery<DateTime>(sql).FirstOrDefault();
+                        var _pass = Convert.ToInt32(_serverTime.ToString("HHmmss"));
+                        var _quot = _pass < 120000 ? "<" : ">=";
+                        sql = string.Format(@"
+                            MERGE INTO {0}.TBLLOGPRESENSI TLP
+                            USING KANTOR KT
+                            ON (KT.KANTORID = TLP.KANTORID)
+                            WHEN MATCHED THEN UPDATE SET TLP.STATUSHAPUS = '1', TLP.USERHAPUS = :param0, TLP.INFOHAPUS = 'Presensi Ulang'
+                            WHERE
+                               TLP.PEGAWAIID = :param1 AND
+                               TLP.KANTORID = :param2 AND
+                               TLP.UNITKERJAID = :param3 AND
+                               TRUNC(TLP.PRESENSITIMESTAMP) = TRUNC(SYSDATE) AND
+                               CAST(TO_CHAR(TLP.PRESENSITIMESTAMP + CASE KT.BAGIANWILAYAH WHEN 'Tengah' THEN 1/24 WHEN 'Timur' THEN 2/24 ELSE 0 END,'HH24') AS INTEGER) {1} 12 AND
+                               NVL(TLP.STATUSHAPUS,'0') = '0'", skema, _quot);
+                        lstparams.Clear();
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param0", pUserId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", pPegawaiId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", pKantorId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param3", pUnitKerjaId));
+                        ctx.Database.ExecuteSqlCommand(sql, lstparams.ToArray());
+                        sql = "SELECT TO_DATE(:param1,'DD/MM/RRRR hh24:mi:ss') - CASE BAGIANWILAYAH WHEN 'Tengah' THEN 1/24 WHEN 'Timur' THEN 2/24 ELSE 0 END FROM KANTOR WHERE KANTORID = :param2";
+                        lstparams.Clear();
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", pWaktu));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", pKantorId));
+                        var pWaktuPresensi = ctx.Database.SqlQuery<DateTime>(sql, lstparams.ToArray()).FirstOrDefault();
+                        sql = string.Format(
+                            @"INSERT INTO {0}.TBLLOGPRESENSI (TBLLOGPRESENSIID, PEGAWAIID, KANTORID, UNITKERJAID, PRESENSITIMESTAMP, LATITUDE, LONGITUDE)
+                                VALUES (RAWTOHEX(SYS_GUID()), :param1, :param2, :param3, :param4, NULLIF(:param5,''), NULLIF(:param6,''))", skema);
+                        lstparams.Clear();
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param1", pPegawaiId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param2", pKantorId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param3", pUnitKerjaId));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param4", pWaktuPresensi));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param5", pLatitude));
+                        lstparams.Add(new Oracle.ManagedDataAccess.Client.OracleParameter("param6", pLongitude));
+                        ctx.Database.ExecuteSqlCommand(sql, lstparams.ToArray());
+                        result.Status = true;
+                        tc.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Pesan = ex.Message;
+                        tc.Rollback();
+                    }
+                    finally
+                    {
+                        tc.Dispose();
+                        ctx.Dispose();
+                    }
+                }
+            }
+            return result;
+        }
+    }
+}

@@ -1,0 +1,478 @@
+﻿@model Surat.Models.Entities.Surat
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Cetak Lembar Disposisi
+            </h3>
+        </div>
+        <div class="title_right">
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="">
+                <div class="clearfix"></div>
+
+                <form class="form-horizontal form-label-left" id="frmCetakLembarDisposisi" method="post">
+
+                    <div class="x_panel" style="padding-top: 20px; padding-bottom: 10px; margin-bottom: 10px;">
+                        @Html.HiddenFor(m => m.SuratId, new { @id = "SuratId" })
+
+                        <div class="form-group">
+                            <label class="control-label col-lg-4 col-md-4 col-sm-4 col-xs-12">Nomor Agenda</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                                <div class="input-group">
+                                    @Html.TextBoxFor(model => model.NomorAgenda, new { @class = "form-control", @id = "nomoragenda" })
+                                    <span class="input-group-btn" style="padding-left:2px;">
+                                        <button id="btncarisurat" type="button" class="btn btn-primary" style="margin-right: -1px;"><i class="fa fa-search"></i>&nbsp;&nbsp;Cari</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @*<div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Nomor Agenda</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                @Html.TextBoxFor(model => model.NomorAgenda, new { @class = "form-control", @id = "nomoragenda" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
+                                <button id="btncarisurat" type="button" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;&nbsp;Cari</button>
+                            </div>
+                        </div>*@
+
+                        <div class="form-group" style="margin-top: -10px;">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12" style="color:#cccccc;">Nomor Surat</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                @Html.TextBoxFor(model => model.NomorSurat, new { @class = "form-control", @id = "nomorsurat", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12" style="color:#cccccc;">Asal Surat</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                @Html.TextBoxFor(model => model.PengirimSurat, new { @class = "form-control", @id = "pengirimsurat", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                            </div>
+                        </div>
+
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" style="color:#cccccc;">Tanggal Surat / Tanggal Terima</label>
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:0px;">
+                            @Html.TextBoxFor(model => model.InfoTanggalSurat, new { @class = "form-control", @id = "tanggalsurat", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-xs-12 form-group" style="padding-left:10px; padding-right:10px;">
+                            @Html.TextBoxFor(model => model.InfoTanggalProses, new { @class = "form-control", @id = "tanggalterima", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12">Disposisi Oleh</label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                @Html.DropDownListFor(model => model.ProfileIdDisposisi, new SelectList(@Model.ListProfileDisposisi, "ProfileId", "NamaProfile"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbProfileDisposisi" })
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top:0px;">
+                            <div class="col-md-12 col-xs-12">
+                                <div class="x_title">
+                                    <h2>Diteruskan Kepada</h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Jabatan <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.ProfileIdPenerima, new SelectList(@Model.ListProfileTujuan, "ProfileId", "NamaProfile"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbProfilePenerima", @onchange = "ProfileChanged()" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Pegawai <span style="color:red">*</span></label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        @Html.DropDownListFor(model => model.PegawaiIdTujuan, new SelectList(@Model.ListTujuanPegawai, "PegawaiId", "NamaLengkap"), "", new { @class = "select2_single form-control input-md", @style = "width:100%", @id = "cmbPegawaiPenerima" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-8 col-sm-8 col-xs-12 col-md-offset-4">
+                                        <button id="btnsimpanjabatandisposisi" type="button" class="btn btn-primary">Simpan</button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive" style="padding-top:6px; padding-right:10px; padding-left:10px;">
+                                    <table id="myTableTujuan" class="table table-striped table-bordered dt-responsive" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Jabatan</th>
+                                                <th>Pegawai</th>
+                                                <th>Hapus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="title_right">
+                        <div class="pull-right" style="padding-bottom:10px;">
+                            <button id="save-btn" type="submit" class="btn btn-success">Cetak</button>
+                            <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                        </div>
+
+                    </div>
+
+                </form>
+                <form id="frmDisposisi"></form>
+
+                @*<div class="x_panel" style="padding-top:0px;">
+                    <div class="row" style="margin-top:0px;padding-top:10px;border-radius:3px;border:none;" id="docviewpanel">
+                        <div class="col-md-12 col-sm-12 col-xs-12" id="docViewer" style="min-height:1px;display:none">...</div>
+                    </div>
+                </div>*@
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalDocViewer' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+<script src='@Url.Content("~/resources/js/pdfobject.min.js")'></script>
+
+
+<script type="text/javascript">
+
+    var objpdf = null;
+
+    $(document).ready(function () {
+        $.unblockUI();
+
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+        }
+
+        $('.select2_single').select2({ width: 'resolve' });
+
+        $('#myModalDocViewer').on('shown.bs.modal', function () {
+            $(this).find('.modal-dialog').css({
+                width: '98%',
+                height: '98 %',
+                'max-height': '98%'
+            });
+        });
+
+        createPagingDisposisiSurat();
+    });
+
+    @*function JabatanDisposisiChanged() {
+        var profileId = $('#cmbProfileDisposisi').val();
+
+        $.ajax({
+            url: '@Url.Action("GetProfileTujuanByProfileId", "Flow")', // perbaiki ! bukan lagi dari table profileflow
+            type: "GET",
+            dataType: "JSON",
+            data: { profileid: profileId },
+            success: function (data) {
+                $('#cmbProfilePenerima').html("");
+                $('#cmbProfilePenerima').append($('<option></option>').val("").html(""));
+                $.each(data, function (i, data) {
+                    $('#cmbProfilePenerima').append(
+                        $('<option></option>').val(data.ProfileId).html(data.NamaProfile));
+                });
+            }
+        });
+    };*@
+
+    function ProfileChanged() {
+        var profileId = $('#cmbProfilePenerima').val();
+
+        $.ajax({
+            url: '@Url.Action("GetPegawaiByProfileId", "Flow")',
+            type: "GET",
+            dataType: "JSON",
+            data: { profileid: profileId },
+            success: function (data) {
+                $('#cmbPegawaiPenerima').html("");
+                $('#cmbPegawaiPenerima').append($('<option></option>').val("").html(""));
+                $.each(data, function (i, data) {
+                    $('#cmbPegawaiPenerima').append(
+                        $('<option></option>').val(data.PegawaiId).html(data.NamaLengkap));
+                });
+            }
+        });
+    };
+
+    var dtableDisposisiSurat;
+    var createPagingDisposisiSurat = function () {
+        dtableDisposisiSurat = $('#myTableTujuan').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("ListDisposisiSurat", "Flow")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmDisposisi').serializeArray(); data.form = ftp; ftp.push({ name: "draw", value: data.draw }, { name: "start", value: data.start }, { name: "length", value: data.length }, { name: "suratid", value: $('#SuratId').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NamaJabatan" },
+                { "data": "NamaPegawai" },
+                {
+                    "data": "Hapus",
+                    "className": "centertaligncolumn",
+                    "width": "5%",
+                    render: function (data, type, row) {
+                        return '<b class="editor-active fa fa-trash" style="cursor: pointer;"></b>';
+                    }
+                }
+            ]
+        });
+    };
+
+    $("#btnsimpanjabatandisposisi").on("click", function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var frm = new FormData();
+        frm.append("SuratId", $('#SuratId').val());
+        frm.append("ProfileId", $('#cmbProfilePenerima').val());
+        frm.append("Nip", $('#cmbPegawaiPenerima').val());
+        frm.append("NamaJabatan", $('#cmbProfilePenerima :selected').text());
+        frm.append("NamaPegawai", $('#cmbPegawaiPenerima :selected').text());
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("InsertDisposisiSurat", "Flow")',
+            data: frm,
+            contentType: false,
+            processData: false,
+            success: function (data, textStatus, XMLHttpRequest) {
+                if (data.Status) {
+                    //$('#cmbProfilePenerima').val('');
+                    $('#cmbProfilePenerima').val('').trigger('change');
+                    $('#cmbPegawaiPenerima').val('').trigger('change');
+                    dtableDisposisiSurat.ajax.reload(null, true);
+                }
+                else {
+                }
+                $.unblockUI();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    $('#myTableTujuan tbody').delegate('tr b', 'click', function (e) {
+        e.preventDefault();
+        var data = dtableDisposisiSurat.row($(this).closest('tr')).data();
+
+        swal({
+            title: "Konfirmasi Hapus Data",
+            text: "Yakin Anda mau menghapus data disposisi surat ke : " + data.NamaJabatan + " ?",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal"
+        },
+        function (isConfirm) {
+            if (isConfirm) {
+                $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                var frm = new FormData();
+                frm.append("id", data.DisposisiSuratId);
+                $.ajax({
+                    url: '@Url.Action("HapusDisposisiSuratById", "Flow")',
+                    type: "POST",
+                    data: frm,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.Status) {
+                            dtableDisposisiSurat.ajax.reload(null, true);
+                            showinfo('Data berhasil dihapus');
+                        }
+                        else {
+                            showalert("Error", data.Pesan);
+                        }
+                        $.unblockUI();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) { showmsg("Error", errorThrown); $.unblockUI(); }
+                });
+            }
+        });
+    });
+
+    $("#reset-btn").on("click", function (e) {
+        ResetForms();
+        return false;
+    });
+
+    $("#btncarisurat").on("click", function (e) {
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        var noagenda = $('#nomoragenda').val();
+
+        // Cari Surat
+        $.ajax({
+            url: '@Url.Action("GetSuratByNomorAgenda", "Flow")',
+            type: "GET",
+            dataType: "JSON",
+            data: { nomoragenda: noagenda },
+            success: function (data) {
+                $.unblockUI();
+                //console.log('data.SuratId: ' + data.SuratId);
+                //console.log('data.PengirimSurat: ' + data.PengirimSurat);
+                $('#SuratId').val(data.SuratId);
+                $('#nomorsurat').val(data.NomorSurat);
+                //$('#nomoragenda').val(data.NomorAgenda);
+                $('#pengirimsurat').val(data.PengirimSurat);
+                $('#tanggalsurat').val(data.InfoTanggalSurat);
+                $('#tanggalterima').val(data.TanggalTerima);
+                //showinfo('Data Surat tersebut ada dalam database. Silahkan tambah data Disposisi untuk melanjutkan.');
+
+                dtableDisposisiSurat.ajax.reload(null, true);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.unblockUI();
+                $('#frmCetakLembarDisposisi')[0].reset();
+                $('#SuratId').val('');
+                showalert('Data Agenda No. ' + noagenda + ' tidak ditemukan');
+            }
+        });
+
+        e.preventDefault();
+        return false;
+    });
+
+    function ResetForms() {
+        $('#frmCetakLembarDisposisi')[0].reset();
+        $('#cmbProfileDisposisi').val('').trigger('change');
+        $('#cmbProfilePenerima').val('').trigger('change');
+        $('#cmbPegawaiPenerima').val('').trigger('change');
+    };
+
+    $("#frmCetakLembarDisposisi").submit(function (e) {
+        var suratid = $('#SuratId').val();
+
+        if (suratid !== null && suratid !== '') {
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>', baseZ: 2000 });
+
+            var pejabatdisposisi = $('#cmbProfileDisposisi').val();
+
+            //console.log('pejabatdisposisi: ' + pejabatdisposisi);
+
+            if (pejabatdisposisi !== null && pejabatdisposisi !== '') {
+                if (pejabatdisposisi == "H0000003") {
+                    var objurl = '@Url.Action("ViewPdf_LembarDisposisi_Setjen", "Cetak")?suratid=' + suratid + '&pejabatdisposisi=' + pejabatdisposisi;
+
+                    objpdf = objurl;
+
+                    var options = { "backdrop": "static", keyboard: true };
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DocViewer", "Konten")',
+                        success: function (data) {
+                            $('#myModalContent').html(data);
+                            $('#myModalDocViewer').modal(options);
+                            $('#myModalDocViewer').modal('show');
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $.unblockUI();
+                        }
+                    });
+                }
+                else if (pejabatdisposisi == "H0000001" || pejabatdisposisi == "H0000002") {
+                    var objurl = '@Url.Action("ViewPdf_LembarDisposisi_Menteri", "Cetak")?suratid=' + suratid + '&pejabatdisposisi=' + pejabatdisposisi;
+
+                    objpdf = objurl;
+
+                    var options = { "backdrop": "static", keyboard: true };
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DocViewer", "Konten")',
+                        success: function (data) {
+                            $('#myModalContent').html(data);
+                            $('#myModalDocViewer').modal(options);
+                            $('#myModalDocViewer').modal('show');
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $.unblockUI();
+                        }
+                    });
+                }
+                else {
+                    var objurl = '@Url.Action("ViewPdf_LembarDisposisi_Satker", "Cetak")?suratid=' + suratid + '&pejabatdisposisi=' + pejabatdisposisi;
+
+                    objpdf = objurl;
+
+                    var options = { "backdrop": "static", keyboard: true };
+                    $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("DocViewer", "Konten")',
+                        success: function (data) {
+                            $('#myModalContent').html(data);
+                            $('#myModalDocViewer').modal(options);
+                            $('#myModalDocViewer').modal('show');
+                            $.unblockUI();
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $.unblockUI();
+                        }
+                    });
+                }
+            }
+            else {
+                $.unblockUI();
+                showalert('Disposisi Oleh belum dipilih');
+            }
+
+            
+
+            @*if ($("#docViewer").height() < 500)
+                $("#docViewer").height(500);
+            PDFObject.embed(objurl, $("#docViewer"), { forcePDFJS: true, PDFJS_URL: '@Url.Content("~/Contents/pdfviewer.html")' });
+            $('#docViewer').css('display', 'inline-block');
+
+            $.unblockUI();*@
+        }
+
+        @*$.ajax({
+            url: '@Url.Action("GetReportSnapshot", "Cetak")',
+            type: "GET",
+            dataType: "JSON",
+            //data: { nomoragenda: $('#nomoragenda').val() },
+            success: function (data) {
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                //$.unblockUI();
+                //$('#SuratId').val('');
+                //showalert('Data yang dicari tidak ditemukan');
+            }
+        });*@
+
+        e.preventDefault();
+        return false;
+    });
+</script>

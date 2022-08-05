@@ -1,0 +1,59 @@
+﻿@model Dictionary<int, Surat.Models.Entities.UserLogin>
+
+<% if (Model.Count > 0) { %>
+@foreach (var lst in Model)
+{
+    <tr>
+        <td class="centertaligncolumn" style="min-width:5vmin">@lst.Value.RNumber</td>
+        <td class="tdnormal">@lst.Value.PegawaiId</td>
+        <td class="tdnormal">@lst.Value.NamaLengkap</td>
+        <td><img width="65" height="80" src="https://simpeg.atrbpn.go.id/app/client/bpn/uploads/siap/foto/@lst.Value.Foto" /></td>
+        <td class="tdnormal">@lst.Value.Jabatan</td>
+        <td class="tdnormal">@lst.Value.Satker</td>
+        <td style="text-align:center;cursor: pointer;" onclick="editUserLogin('@lst.Value.PegawaiId','@lst.Value.NamaLengkap');"><i class="fa fa-pencil"></i></td>
+    </tr>
+}
+<% } %>
+
+<script type="text/javascript">
+    var editUserLogin = function (pegawaiid, nama) {
+
+        $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+        $('#popuptitle').html('Edit data login ' + nama);
+
+        // Get User Login by NIP
+        $.ajax({
+            url: '@Url.Action("GetUserLoginByNip", "Admin")',
+            type: "GET",
+            dataType: "JSON",
+            data: { nip: pegawaiid },
+            success: function (data) {
+                //console.log('data[0].UserId: ' + data[0].UserId);
+                $('#frmEditUserLogin')[0].reset();
+
+                $('#UserId').val(data[0].UserId);
+                $('#PegawaiId').val(data[0].PegawaiId);
+
+                $('#editnip').val(data[0].PegawaiId);
+                $('#editnamapegawai').val(data[0].NamaLengkap);
+
+                if (data[0].UserId !== null && data[0].UserId !== '') {
+                    $('#editemail').val(data[0].Email);
+                    $('#editnomortelepon').val(data[0].NomorTelepon);
+                    $('#editusername').val(data[0].Username);
+                    $('#editpassword').val('********');
+                    $('#editconfirm').val('********');
+                }
+
+
+                dtableUserProfiles.ajax.reload(null, true);
+                //dtableUserRoles.ajax.reload(null, true);
+
+                $.unblockUI();
+            }
+        });
+
+        $('#UserLoginEditorModal').modal('show');
+    }
+</script>

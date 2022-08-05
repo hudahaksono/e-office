@@ -1,0 +1,3551 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using Newtonsoft.Json;
+using QRCoder;
+using Surat.Models;
+using Surat.Models.Entities;
+using iTextSharp.text;
+using Surat.Codes;
+using System.Text.RegularExpressions;
+using iTextSharp.text.pdf.security;
+using iTextSharp.text.pdf;
+using iTextSharp.tool.xml;
+using PDFEditor;
+
+namespace Surat.Controllers
+{
+    [AccessDeniedAuthorize]
+    public class SuratController : Controller
+    {
+        DataMasterModel dataMasterModel = new DataMasterModel();
+        PersuratanModel persuratanmodel = new PersuratanModel();
+        KontentModel kontentmodel = new KontentModel();
+        SuratModel mdl = new SuratModel();
+        Functions functions = new Functions();
+
+        #region Env
+
+        public ActionResult ListSP()
+        {
+            return View();
+        }
+
+        public ActionResult BuatSP()
+        {
+            var find = new FindSurat();
+            find.ListUnitKerja = dataMasterModel.GetListUnitKerja("", "", "", true);
+            return View(find);
+        }
+
+        public ActionResult ListDraft()
+        {
+            return View();
+        }
+
+        public ActionResult BuatSuratMasuk()
+        {
+            if (!OtorisasiUser.IsProfile("PembuatSuratMasuk"))
+            {
+                return View("Forbidden", "Error");
+            }
+            var persuratanmodel = new PersuratanModel();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var data = new Models.Entities.Surat();
+            data.ListSifatSurat = persuratanmodel.GetSifatSurat();
+            data.ListTipeSurat = persuratanmodel.GetTipeSurat();
+            data.ListUnitKerja = dataMasterModel.GetListUnitKerja("", "", "", true);
+            data.ListProfileTujuan = new List<Profile>();
+            data.ListTujuanPegawai = new List<Pegawai>();
+            data.ListProfiles = new List<Profile>();
+            ViewBag.UnitKerjaId = usr.UnitKerjaId;
+            return View(data);
+        }
+
+        public ActionResult BuatSuratKeluar()
+        {
+            var persuratanmodel = new PersuratanModel();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var data = new Models.Entities.Surat();
+            string reff = Request.Form["reff"];
+            if (!string.IsNullOrEmpty(reff))
+            {
+                data.Referensi = reff;
+            }
+            else
+            {
+                data.Referensi = "";
+            }
+            data.ListSifatSurat = persuratanmodel.GetSifatSurat();
+            data.ListTipeSurat = persuratanmodel.GetTipeSurat();
+            data.ListUnitKerja = dataMasterModel.GetListUnitKerja("", "", "", true);
+            data.ListProfileTujuan = new List<Profile>();
+            data.ListTujuanPegawai = new List<Pegawai>();
+            data.ListProfiles = new List<Profile>();
+            ViewBag.Massal = usr.KantorId.Equals("980FECFC746D8C80E0400B0A9214067D");
+            //try
+            //{
+            //    ViewBag.Massal = dataMasterModel.GetTipeKantor(usr.KantorId);
+            //} catch
+            //{
+            //    ViewBag.Massal = 0;
+            //}
+            return View(data);
+        }
+
+        public ActionResult BuatSuratInisiatif()
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+
+            ViewBag.UnitKerjaId = usr.UnitKerjaId;
+
+            var surat = new Models.Entities.Surat();
+            surat.ListUnitKerja = dataMasterModel.GetListUnitKerjaInisiatif(usr.PegawaiId);
+            surat.ListProfileTujuan = new List<Profile>();
+            surat.ListTujuanPegawai = new List<Pegawai>();
+            surat.ListProfiles = new List<Profile>();
+
+            return View(surat);
+        }
+
+        public ActionResult EditorNaskahDinas(string id)
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var data = new DraftSurat();
+            int tipekantorid = dataMasterModel.GetTipeKantor(usr.KantorId);
+            if (string.IsNullOrEmpty(id))
+            {
+                if (OtorisasiUser.PembuatDokumenElektronik())
+                {
+                    data.Tujuan = new List<string>();
+                    data.Tembusan = new List<string>();
+                    ViewBag.Judul = "Baru";
+                }
+                else
+                {
+                    return View("Index", "Home");
+                }
+            }
+            else
+            {
+                data = mdl.GetDraftSurat(id, usr.UnitKerjaId);
+                data.Perihal = Server.UrlDecode(data.Perihal);
+                data.IsiSurat = Server.UrlDecode(data.IsiSurat);
+                ViewBag.Judul = data.DraftCode;
+                data.Status = string.IsNullOrEmpty(data.Status) ? "P" : data.Status;
+            }
+            data.isTU = OtorisasiUser.isTU();
+            data.ListKodeKopSurat = new List<SelectListItem>();
+            var listProfile = new SuratModel().GetProfilesByUnitKerja(usr.UnitKerjaId);
+            data.ListProfile = new List<SelectListItem>();
+            foreach (var p in listProfile)
+            {
+                data.ListProfile.Add(new SelectListItem { Text = p.NamaProfile, Value = p.ProfileId });
+            }
+            if (tipekantorid == 1)
+            {
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = dataMasterModel.GetNamaUnitKerjaById(usr.UnitKerjaId), Value = usr.UnitKerjaId });
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = "Kementerian ATR/BPN", Value = "02" });
+            }
+            else if (tipekantorid == 2)
+            {
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = dataMasterModel.GetNamaUnitKerjaById(usr.UnitKerjaId), Value = usr.UnitKerjaId });
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = "Kementerian ATR/BPN", Value = "02" });
+            }
+            else
+            {
+                string induk = dataMasterModel.GetKantorIdIndukFromKantorId(usr.KantorId);
+                string unitinduk = dataMasterModel.GetUnitKerjaIdFromKantorId(induk);
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = dataMasterModel.GetNamaUnitKerjaById(usr.UnitKerjaId), Value = usr.UnitKerjaId });
+                data.ListKodeKopSurat.Add(new SelectListItem { Text = dataMasterModel.GetNamaUnitKerjaById(unitinduk), Value = unitinduk });
+            }
+            return View(data);
+        }
+
+        #endregion
+
+        public ActionResult DaftarSP(int? draw, int? start, int? length, CariSuratPengantar f)
+        {
+            var result = new List<PengantarSurat>();
+            decimal? total = 0;
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string sort = Request.Form["orderby"];
+            string dir = Request.Form["orderdir"];
+            string tipe = Request.Form["tipe"].ToString();
+            string sortby = string.Empty;
+            switch (sort){
+                case "1":
+                    sortby = "TDE.TANGGALDIBUAT " + dir;
+                    break;
+                case "2":
+                    sortby = "TDE.NOMORSURAT " + dir;
+                    break;
+                case "3":
+                    sortby = "TDE.TANGGALSURAT " + dir;
+                    break;
+                case "4":
+                    if(tipe == "sudah")
+                    {
+                        sortby = "TTE.TANGGAL " + dir;
+                    }
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(userid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+                f.UnitKerjaId = usr.UnitKerjaId;
+                result = mdl.GetSuratPengantar(tipe, sortby , f, from, to);
+                var hakAkses = new HakAksesModel();
+                bool isChecker = hakAkses.isPriv(usr.PegawaiId, unitkerjaid, "SP_CHECKER");
+                bool isApprover = hakAkses.isPriv(usr.PegawaiId, unitkerjaid, "SP_APPROVER");
+                if (isChecker || isApprover)
+                {
+                    foreach (var dt in result)
+                    {
+                        if(!string.IsNullOrEmpty(dt.Status) && dt.Status.Equals("P"))
+                        {
+                            if (isChecker)
+                            {
+                                dt.stCheck = "1";
+                            }
+                        }else if (!string.IsNullOrEmpty(dt.Status) && dt.Status.Equals("W"))
+                        {
+                            if (isApprover)
+                            {
+                                dt.stTTE = "1";
+                            }
+                        }
+                    }
+                }
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DaftarSurat(int? draw, int? start, int? length, FindSurat f)
+        {
+            var result = new List<Models.Entities.Surat>();
+            DateTime cM = DateTime.Today;
+            DateTime cS = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
+            if (!string.IsNullOrEmpty(Request.Form["cariMulai"]))
+            {
+                cM = Convert.ToDateTime(Request.Form["cariMulai"]);
+            }
+            if (!string.IsNullOrEmpty(Request.Form["cariSampai"]))
+            {
+                cS = Convert.ToDateTime(Request.Form["cariSampai"]);
+            }
+
+            decimal? total = 0;
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string pegawaiid = usr.PegawaiId;
+            string myProfiles = functions.MyProfiles(pegawaiid, kantorid);
+            string userid = usr.UserId;
+            string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+
+            if (!string.IsNullOrEmpty(userid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+
+                result = mdl.GetSuratForSP(f.UnitKerjaIdTujuan, f.ProfileIdTujuan, satkerid, cM, cS, from, to);
+                if(result.Count > 0)
+                {
+                    total = result[0].Total;
+                }
+
+
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DaftarDraft(int? draw, int? start, int? length, CariDraftSurat f)
+        {
+            var result = new List<ListDraft>();
+            decimal? total = 0;
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string sort = Request.Form["orderby"];
+            string dir = Request.Form["orderdir"];
+            string tipe = Request.Form["tipe"].ToString();
+            string sortby = string.Empty;
+            switch (sort)
+            {
+                case "1":
+                    sortby = "TDE.TANGGALDIBUAT " + dir;
+                    break;
+                case "2":
+                    sortby = "TDE.NOMORSURAT " + dir;
+                    break;
+                case "3":
+                    sortby = "TDE.TANGGALSURAT " + dir;
+                    break;
+                case "4":
+                    if (tipe == "sudah")
+                    {
+                        sortby = "TTE.TANGGAL " + dir;
+                    }
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(userid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+                f.UnitKerjaId = usr.UnitKerjaId;
+                result = mdl.GetListDraft(tipe, usr.UserId, sortby, f, from, to);
+                var hakAkses = new HakAksesModel();
+                foreach (var dt in result)
+                {
+                    dt.Perihal = Server.UrlDecode(dt.Perihal);
+                    if (!string.IsNullOrEmpty(dt.Status) && dt.Status.Equals("W") && OtorisasiUser.isTU())
+                    {
+                        dt.stCheck = "1";
+                    }
+                }
+                //bool isChecker = hakAkses.isPriv(usr.PegawaiId, unitkerjaid, "SP_CHECKER");
+                //bool isApprover = hakAkses.isPriv(usr.PegawaiId, unitkerjaid, "SP_APPROVER");
+                //if (isChecker || isApprover)
+                //{
+                //    foreach (var dt in result)
+                //    {
+                //        dt.Perihal = Server.UrlDecode(dt.Perihal);
+                //        if (!string.IsNullOrEmpty(dt.Status) && dt.Status.Equals("P"))
+                //        {
+                //            if (isChecker)
+                //            {
+                //                dt.stCheck = "1";
+                //            }
+                //        }
+                //        else if (!string.IsNullOrEmpty(dt.Status) && dt.Status.Equals("W"))
+                //        {
+                //            if (isApprover)
+                //            {
+                //                dt.stTTE = "1";
+                //            }
+                //        }
+                //    }
+                //}
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public ActionResult ViewPdf_SuratPengantar(string pengantarsuratid)
+        {
+            var result = new { Status = false, Message = "" };
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string pegawaiid = usr.PegawaiId;
+            string namapegawai = usr.NamaPegawai;
+
+            string myProfiles = functions.MyProfiles(pegawaiid, kantorid);
+
+            string profileid = myProfiles.Replace("'", "");
+
+            var listPegawai = dataMasterModel.GetPegawaiByProfileId(profileid);
+
+            string namapejabat = "";
+            string nippejabat = "";
+            string namajabatan = dataMasterModel.GetProfileNameFromId(profileid);
+            if (listPegawai.Count > 0)
+            {
+                namapejabat = listPegawai[0].NamaLengkap;
+                nippejabat = listPegawai[0].PegawaiId;
+            }
+
+            var kantor = dataMasterModel.GetKantor(kantorid);
+            var pengantarsurat = new PersuratanModel().GetSuratPengantar(pengantarsuratid, "", "", 1, 1)[0];
+            var listDetilPengantar = new PersuratanModel().GetDetilPengantar(pengantarsuratid);
+
+            string namakantor = kantor.NamaKantor.ToUpper();
+            string alamatkantor = kantor.Alamat.ToUpper();
+            string teleponkantor = kantor.Telepon;
+
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            var objPdf = new PdfUtil();
+
+            string path = Server.MapPath("~/Reports/myfile.pdf");
+            if (!Directory.Exists(Server.MapPath("~/Reports")))
+                Directory.CreateDirectory(Server.MapPath("~/Reports"));
+
+            var doc = new Document(PageSize.A4, 10, 10, 10, 10);
+            var ms = new MemoryStream();
+            var pw = PdfWriter.GetInstance(doc, ms);
+            doc.Open();
+
+
+            var chunk = new Chunk();
+            var table = new PdfPTable(1);
+            var tableSub = new PdfPTable(1);
+            var tableIn = new PdfPTable(1);
+            var cell = new PdfPCell();
+            var paragraph = new Paragraph();
+            var columnWidths = new float[] { 0f, 0f };
+
+            var fontnormal = new Font(Font.FontFamily.TIMES_ROMAN, 10f, Font.NORMAL);
+            var fontbold = new Font(Font.FontFamily.TIMES_ROMAN, 10f, Font.BOLD);
+            var phrase = new Phrase();
+
+            // KOP SURAT
+            var kopsurat = mdl.getKopDetail(unitkerjaid);
+            if (string.IsNullOrEmpty(kopsurat.UnitKerjaId))
+            {
+                TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                kopsurat.NamaKantor_L1 = (tipekantorid == 1) ? dataMasterModel.GetNamaUnitKerjaById(unitkerjaid).ToUpper() : kantor.NamaKantor.ToUpper();
+                kopsurat.NamaKantor_L2 = "";
+                kopsurat.Alamat = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                kopsurat.Telepon = kantor.Telepon;
+                kopsurat.Email = kantor.Email;
+                kopsurat.FontSize = 11;
+            }
+            table = new PdfPTable(2);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            // Cell LOGO
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.PaddingTop = -30f;
+            Image image = Image.GetInstance(Server.MapPath("~/Reports/logobpn.png"));
+            image.ScaleAbsolute(80, 78);
+            cell.AddElement(image);
+            table.AddCell(cell);
+
+            tableIn = new PdfPTable(1);
+            tableIn.WidthPercentage = 100;
+            tableIn.DefaultCell.Border = 0;
+
+            // Cell NAMA KANTOR
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -25f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("KEMENTERIAN AGRARIA DAN TATA RUANG/", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -8f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("BADAN PERTANAHAN NASIONAL", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L1, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L2, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+
+            columnWidths = new float[] { 100f, 540f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            string fullAlamat = string.Concat("<p>", kopsurat.Alamat);
+            if (!string.IsNullOrEmpty(kopsurat.Telepon))
+            {
+                fullAlamat += string.Concat(" Telepon: ", kopsurat.Telepon);
+            }
+            if (!string.IsNullOrEmpty(kopsurat.Email))
+            {
+                fullAlamat += string.Concat(" <i>email: ", kopsurat.Email, "</i>");
+            }
+            fullAlamat += "</p>";
+
+            foreach (IElement element in XMLWorkerHelper.ParseToElementList(fullAlamat, "p { font-family: Arial Narrow; font-size: " + kopsurat.FontSize + "px; text-align: center; }"))
+            {
+                table = new PdfPTable(1);
+                table.WidthPercentage = 100;
+                cell = new PdfPCell();
+                cell.Border = 0;
+                cell.Padding = 0f;
+                cell.AddElement(element);
+                table.AddCell(cell);
+                doc.Add(table);
+            }
+
+            doc.Add(objPdf.HorizontalLine());
+            doc.Add(objPdf.AddLineSeparator(10f));
+
+            // Nomor Surat Pengantar
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("NO.SURAT PENGANTAR", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.BOLD, true, ""));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(pengantarsurat.Nomor, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 150f, 10f, 480f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Waktu
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("TANGGAL", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.BOLD, true, ""));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(pengantarsurat.TanggalDari, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 150f, 10f, 480f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Tujuan Surat
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("KEPADA YTH", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.BOLD, true, ""));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(pengantarsurat.Tujuan, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 150f, 10f, 480f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+                       
+            // line separator
+            doc.Add(objPdf.AddLineSeparator(15f));
+                       
+            table = new PdfPTable(7);
+            table.WidthPercentage = 100;
+            table.AddCell(objPdf.CreateCell("NO", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("ASAL SURAT", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("PERIHAL", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("NO & TGL SURAT", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("SIFAT\nSURAT", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("ASLI/\nTEMBUSAN", Element.ALIGN_MIDDLE, Font.BOLD));
+            table.AddCell(objPdf.CreateCell("KET", Element.ALIGN_MIDDLE, Font.BOLD));
+            columnWidths = new float[] { 30f, 102f, 152f, 112f, 82f, 91f, 71f };
+            table.SetWidths(columnWidths);
+            doc.Add(table);
+
+            foreach (var item in listDetilPengantar)
+            {
+                table = new PdfPTable(7);
+                table.WidthPercentage = 100;
+                table.AddCell(objPdf.CreateCell(string.Format("{0:#,##0}", item.RNumber), Element.ALIGN_CENTER, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.Pengirim, Element.ALIGN_LEFT, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.Perihal, Element.ALIGN_LEFT, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.NomorSurat + "\n" + item.TanggalSurat, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.SifatSurat, Element.ALIGN_CENTER, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.Redaksi, Element.ALIGN_CENTER, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                table.AddCell(objPdf.CreateCell(item.KeteranganSurat, Element.ALIGN_CENTER, Element.ALIGN_TOP, 5f, 10f, Font.NORMAL));
+                columnWidths = new float[] { 30f, 102f, 152f, 112f, 82f, 91f, 71f };
+                table.SetWidths(columnWidths);
+                doc.Add(table);
+            }
+
+            // FOOTER
+
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("Diterima", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(pengantarsurat.TanggalTerima, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 100f, 10f, 530f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("Nama", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(pengantarsurat.NamaPenerima, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 100f, 10f, 530f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+            
+            table = new PdfPTable(2);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+            
+            // TTD PENERIMA
+            tableIn = new PdfPTable(1);
+            tableIn.WidthPercentage = 100;
+            tableIn.DefaultCell.Border = 0;
+
+            table.AddCell(tableIn);
+            
+            // TTD PENGIRIM
+            tableIn = new PdfPTable(1);
+            tableIn.WidthPercentage = 100;
+            tableIn.DefaultCell.Border = 0;
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.AddElement(objPdf.AddTitleSurat("Pengirim", Element.ALIGN_CENTER, 12f, iTextSharp.text.Font.NORMAL, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.AddElement(objPdf.AddTitleSurat(namajabatan + ",", Element.ALIGN_CENTER, 12f, iTextSharp.text.Font.NORMAL, 0f, 20f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.AddElement(objPdf.AddTitleSurat(namapejabat, Element.ALIGN_CENTER, 12f, iTextSharp.text.Font.NORMAL, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.AddElement(objPdf.AddTitleSurat("NIP. " + nippejabat, Element.ALIGN_CENTER, 12f, iTextSharp.text.Font.NORMAL, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+            
+            columnWidths = new float[] { 322f, 322f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+            doc.Close();
+            
+            byte[] byteArray = ms.ToArray();
+
+            var mss = new MemoryStream();
+
+            mss.Write(byteArray, 0, byteArray.Length);
+            mss.Position = 0;
+
+            var resultAddFooter = new PDFBuilder().Build(
+               streamPdf: mss,
+               template: PDFBuilder.Template.FOOTER,
+               pageTte: 0);
+
+            var docfile = new FileStreamResult(
+                resultAddFooter.Output,
+                MediaTypeNames.Application.Pdf);
+            docfile.FileDownloadName = string.Concat("SuratPengantar", ".pdf");
+
+            ViewBag.FileSP = docfile;
+
+            return docfile;
+        }
+
+        private string DigitalSignatureUrl()
+        {
+            return ConfigurationManager.AppSettings["DigitalSignatureUrl"].ToString();
+        }
+
+        private string UrlDokumenTTE()
+        {
+            return ConfigurationManager.AppSettings["UrlDokumenTTE"].ToString();
+        }
+
+        public ActionResult SettingKopSurat(string id)
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            id = (string.IsNullOrEmpty(id)) ? usr.UnitKerjaId : id;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var data = mdl.getKopDetail(id);
+                if (string.IsNullOrEmpty(data.UnitKerjaId))
+                {
+                    data.UnitKerjaId = id;
+                    TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                    string kantorid = usr.KantorId;
+                    var kantor = dataMasterModel.GetKantor(kantorid);
+                    string namakantor = kantor.NamaKantor.ToUpper();
+                    string namasatker = dataMasterModel.GetNamaUnitKerjaById(id).ToUpper();
+                    string alamatkantor = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                    string teleponkantor = kantor.Telepon;
+                    string email = kantor.Email;
+                    int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+                    if (tipekantorid == 1)
+                    {
+                        namakantor = namasatker;
+                    }
+                    data.UnitKerjaName = namasatker;
+                    data.NamaKantor_L1 = namakantor;
+                    data.NamaKantor_L2 = "";
+                    data.Alamat = alamatkantor;
+                    data.Telepon = teleponkantor;
+                    data.Email = email;
+                    data.FontSize = 11;
+                }
+
+                return PartialView("KopSetting", data);
+            }
+            else
+            {
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    Content = "noresults",
+                    ContentEncoding = Encoding.UTF8
+                };
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SimpanKopSurat(KopSurat data)
+        {
+            TransactionResult tr = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string UserId = usr.UserId;
+            data.UnitKerjaId = string.IsNullOrEmpty(data.UnitKerjaId) ? usr.UnitKerjaId : data.UnitKerjaId;
+
+            tr = mdl.SimpanKopSurat(data, UserId);
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult BuatSuratPengantar(string ud, string pd, DateTime cm, DateTime cs, string ids, string jt, string pt, string pc)
+        {
+            bool sukses = true;
+            string pesan = string.Empty;
+            string id = string.Empty;
+            string nomorsp = "";
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+
+            if (!string.IsNullOrEmpty(ud))
+            {
+                string userid = usr.UserId;
+                string kantorid = usr.KantorId;
+                string profileidtu = usr.ProfileIdTU;
+                string unitkerjaid = usr.UnitKerjaId;
+
+                string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+                try
+                {
+                    var suratids = new List<string>();
+                    if (!string.IsNullOrEmpty(ids))
+                    {
+                        string[] str = ids.Split(',');
+                        foreach(var s in str)
+                        {
+                            suratids.Add(s);
+                        }
+                    }
+                    
+                    TransactionResult tr = mdl.BuatSuratPengantar(ud, pd, cm, cs, suratids, jt, pc, pt, satkerid, unitkerjaid, userid, out nomorsp);
+
+                    if (!tr.Status)
+                    {
+                        throw new Exception(tr.Pesan);
+                    }
+
+                    pesan = tr.Pesan;
+                    id = tr.ReturnValue;
+                }
+                catch (Exception ex)
+                {
+                    sukses = false;
+                    pesan = ex.Message;
+                }
+            }
+            else
+            {
+                sukses = false;
+                pesan = "Data yang diproses tidak ditemukan.";
+            }
+
+            return Json(new { Status = sukses, Pesan = pesan, ReturnValue = id, NomorSP = nomorsp }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult PembuatanSurat(string id, string tp, string ps)
+        {
+            TransactionResult tr = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = User.Identity as InternalUserIdentity;
+
+            FileStreamResult surat = GenerateNotaDinasElektronik(id, usr);
+            var data = mdl.GetDraftSurat(id, usr.UnitKerjaId);
+
+            Response.AppendHeader("X-Frame-Options", "DENY");
+            Response.AppendHeader("Content-Security-Policy", "frame-ancestors 'none'");
+
+            string dokid = mdl.NewGuID();
+            tr = new TandaTanganElektronikModel().SimpanPengajuanDariDraft(data, dokid, usr.NamaPegawai, usr.KantorId, "DokumenTTE");
+            if (tr.Status)
+            {
+                var strSurat = surat.FileStream;
+                if (!string.IsNullOrEmpty(data.LampiranId))
+                {
+                    MemoryStream memoryStream = new MemoryStream();
+                    var reqmessage = new HttpRequestMessage();
+                    var content = new MultipartFormDataContent();
+                    string tipe = "FileLampiranTTE";
+                    content.Add(new StringContent(usr.KantorId), "kantorId");
+                    content.Add(new StringContent(tipe), "tipeDokumen");
+                    content.Add(new StringContent(data.LampiranId), "dokumenId");
+                    content.Add(new StringContent(".pdf"), "fileExtension");
+                    content.Add(new StringContent("0"), "versionNumber");
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+                    try
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            var reqresult = client.SendAsync(reqmessage).Result;
+                            if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                            {
+                                var strm = reqresult.Content.ReadAsStreamAsync().Result;
+                                //byte[] b = new byte[strm.Length];
+                                //strm.Read(b, 0, (int)strm.Length);
+                                //memoryStream = new MemoryStream(b);
+                                List<Stream> lst = new List<Stream>();
+                                lst.Add(strSurat);
+                                lst.Add(strm);
+                                strSurat = functions.MergeFiles(lst);
+                            }
+                            else
+                            {
+                                tr.Status = false;
+                                tr.Pesan = "Lampiran tidak ditemukan";
+                                return Json(tr, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        tr.Status = false;
+                        tr.Pesan = ex.Message;
+                        return Json(tr, JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(ps))
+                {
+                    tr = SimpanNaskahDinas(dokid, id, surat.FileStream, usr.KantorId, usr.UserId, usr.NamaPegawai);
+                    //var reqmessage = new HttpRequestMessage();
+                    //var content = new MultipartFormDataContent();
+                    //var tipe = "DokumenTTE";
+                    //content.Add(new StringContent(usr.KantorId), "kantorId");
+                    //content.Add(new StringContent(tipe), "tipeDokumen");
+                    //content.Add(new StringContent(dokid), "dokumenId");
+                    //content.Add(new StringContent(".pdf"), "fileExtension");
+                    //content.Add(new StringContent("0"), "versionNumber");
+                    //content.Add(new StreamContent(surat.FileStream), "file", string.Concat(id, ".pdf"));
+                    //reqmessage.Method = HttpMethod.Post;
+                    //reqmessage.Content = content;
+                    //reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings[mdl.apiUrl(mdl.GetServerDate())].ToString(), "Store"));
+
+                    //using (var client = new HttpClient())
+                    //{
+                    //    var reqresult = client.SendAsync(reqmessage).Result;
+                    //    if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                    //    {
+                    //        tr.Status = true;
+                    //        tr.Pesan = "Pembuatan Dokumen Berhasil";
+                    //    }
+                    //    else
+                    //    {
+                    //        mdl.HapusDokumen(dokid, usr.UserId, usr.NamaPegawai, string.Concat("Gagal Upload ", reqresult.ReasonPhrase.ToString()));
+
+                    //        tr.Status = false;
+                    //        tr.Pesan = reqresult.ReasonPhrase;
+                    //    }
+                    //}
+                }
+                else
+                {
+                    byte[] byt = new byte[strSurat.Length];
+                    Stream strm = strSurat;
+                    strm.Read(byt, 0, byt.Length);
+
+                    string pegawai = usr.NamaPegawai;
+                    string nip = usr.PegawaiId;
+                    string userid = usr.UserId;
+                    PenandatanganInfo info = new TandaTanganElektronikModel().getPenandatanganInfo(nip);
+                    if (info == null)
+                    {
+                        tr.Pesan = "Data NIP anda tidak terdaftar untuk TTE";
+                        return Json(tr, JsonRequestBehavior.AllowGet);
+                    }
+                    string nik = info.nik;
+                    string passphrase = ps;
+                    string ttdid = info.ttdid;
+
+                    try
+                    {
+                        if (string.IsNullOrEmpty(dokid))
+                        {
+                            tr.Pesan = "Dokumen tidak ditemukan";
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                        if (String.IsNullOrEmpty(pegawai))
+                        {
+                            tr.Pesan = "Penandatangan tidak ditemukan";
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                        if (String.IsNullOrEmpty(passphrase))
+                        {
+                            tr.Pesan = "Harap masukkan Passphrase";
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            passphrase = Server.UrlEncode(passphrase);
+                        }
+
+                        string tampilan = new TandaTanganElektronikModel().getTipeTTE(dokid, userid);
+                        tr = new TandaTanganElektronikController().ProcessSignNaskahDinas(new MemoryStream(byt), nik, usr.UnitKerjaId, passphrase, ttdid, usr.KantorId, dokid, 0, tampilan).Result;
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { Status = false, Pesan = ex.Message }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            return Json(tr, JsonRequestBehavior.AllowGet);
+
+            //try
+            //{
+            //    int versi = 0;
+            //    if (!string.IsNullOrEmpty(data.LampiranId))
+            //    {
+            //        var reqmessage = new HttpRequestMessage();
+            //        var content = new MultipartFormDataContent();
+            //        var tipe = "FileLampiranTTE";
+            //        content.Add(new StringContent(usr.KantorId), "kantorId");
+            //        content.Add(new StringContent(tipe), "tipeDokumen");
+            //        content.Add(new StringContent(data.LampiranId), "dokumenId");
+            //        content.Add(new StringContent(".pdf"), "fileExtension");
+            //        content.Add(new StringContent(versi.ToString()), "versionNumber");
+            //        reqmessage.Method = HttpMethod.Post;
+            //        reqmessage.Content = content;
+            //        reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+            //        try
+            //        {
+            //            using (var client = new HttpClient())
+            //            {
+            //                var reqresult = client.SendAsync(reqmessage).Result;
+            //                if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+            //                {
+            //                    var strm = await reqresult.Content.ReadAsStreamAsync();
+            //                    byte[] b = new byte[strm.Length];
+            //                    strm.Read(b, 0, (int)strm.Length);
+            //                    memoryStream = new MemoryStream(b);
+            //                }
+            //                else
+            //                {
+            //                    return Json(new { Status = false, Pesan = "Dokumen tidak ditemukan" }, JsonRequestBehavior.AllowGet);
+            //                }
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            return Json(new { Status = false, Pesan = ex.Message }, JsonRequestBehavior.AllowGet);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        tr = mdl.SimpanDraft(data, pNama, kantorid);
+            //        return Json(new { Status = tr.Status, Pesan = tr.Pesan }, JsonRequestBehavior.AllowGet);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return Json(new { Status = false, Pesan = ex.Message }, JsonRequestBehavior.AllowGet);
+            //}
+        }
+
+        public JsonResult GetTujuanSurat(string jn)
+        {
+            List<AsalSurat> result = mdl.GetTujuanSurat(jn);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetListSifatSurat()
+        {
+            var list = mdl.GetSifatSurat();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetListTipeSurat()
+        {
+            var list = mdl.GetTipeSurat();
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetPegawaiByJabatanNama(int? draw, int? start, int? length)
+        {
+            var result = new List<Pegawai>();
+            decimal? total = 0;
+
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string unitkerjaid = usr.UnitKerjaId;
+            string userid = usr.UserId;
+            string profileidtu = usr.ProfileIdTU;
+            string metadata = Request.Form["metadata"].ToString();
+            string namajabatan = Request.Form["namajabatan"].ToString();
+            string namapegawai = Request.Form["namapegawai"].ToString();
+            string tipe = Request.Form["tipe"].ToString();
+            if (tipe == "1")
+            {
+                userid = string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(unitkerjaid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+                result = mdl.GetPegawaiByJabatanNama(profileidtu, namajabatan, namapegawai, metadata, userid, from, to);
+
+                if (result.Count > 0)
+                {
+                    total = result[0].Total;
+                }
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult SimpanDraftNaskahDinas(DraftSurat data)
+        {
+            TransactionResult tr = new TransactionResult() { Status = false, Pesan = "" };
+
+            var userIdentity = User.Identity as InternalUserIdentity;
+            string kantorid = userIdentity.KantorId;
+            string pNama = userIdentity.NamaPegawai;
+            data.UserPembuat = userIdentity.UserId;
+            Response.AppendHeader("X-Frame-Options", "DENY");
+            Response.AppendHeader("Content-Security-Policy", "frame-ancestors 'none'");
+
+            if (string.IsNullOrEmpty(data.listTujuan))
+            {
+                return Json(new { Status = false, Pesan = "Tujuan Surat Kosong" }, JsonRequestBehavior.AllowGet);
+            }
+            if (string.IsNullOrEmpty(data.UserPembuat))
+            {
+                return Json(new { Status = false, Pesan = "Kode Pembuat Kosong" }, JsonRequestBehavior.AllowGet);
+            }
+            if (string.IsNullOrEmpty(data.KodeArsip))
+            {
+                return Json(new { Status = false, Pesan = "Kode Arsip Kosong" }, JsonRequestBehavior.AllowGet);
+            }
+            if (string.IsNullOrEmpty(data.TipeSurat))
+            {
+                return Json(new { Status = false, Pesan = "Tipe Surat Kosong" }, JsonRequestBehavior.AllowGet);
+            }
+            if (string.IsNullOrEmpty(data.SifatSurat))
+            {
+                return Json(new { Status = false, Pesan = "Sifat Surat Kosong" }, JsonRequestBehavior.AllowGet);
+            }
+
+
+            if (!string.IsNullOrEmpty(data.listTTE) && data.listTTE != "")
+            {
+                string[] str = data.listTTE.Split('|');
+                data.TTE = new List<UserTTE>();
+                UserTTE usertte = new UserTTE();
+                int urut = 1;
+                if (!string.IsNullOrEmpty(data.Pass))
+                {
+                    usertte.PenandatanganId = userIdentity.UserId;
+                    usertte.Tipe = "0";
+                    usertte.ProfileId = userIdentity.ProfileIdTU;
+                    usertte.Urut = urut;
+                    bool doParaf = true;
+                    foreach (var s in str)
+                    {
+                        string[] tte = s.Split(',');
+                        if (tte[0].ToString() == userIdentity.PegawaiId) { doParaf = false; }
+                    }
+                    if (doParaf)
+                    {
+                        data.TTE.Add(usertte);
+                        urut += 1;
+                    }
+                }
+                bool ttd = false;
+                foreach (var s in str)
+                {
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        string[] tte = s.Split(',');
+                        if (tte.Count() == 3)
+                        {
+                            usertte = new UserTTE();
+                            usertte.PenandatanganId = new TandaTanganElektronikModel().getUserId(tte[0].ToString());
+                            usertte.Tipe = tte[1].ToString();
+                            usertte.ProfileId = tte[2].ToString();
+                            usertte.Urut = urut;
+                            data.TTE.Add(usertte);
+                            urut += 1;
+                            if (tte[1].ToString() == "1")
+                            {
+                                ttd = true;
+                            }
+                        }
+                    }
+                }
+                if (data.TTE.Count() == 0)
+                {
+                    return Json(new { Status = false, Pesan = "List Penandatangan harus diisi" }, JsonRequestBehavior.AllowGet);
+                }
+                if (!ttd)
+                {
+
+                    return Json(new { Status = false, Pesan = "Penandatangan harus dipilih" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            data.Perihal = data.Perihal;
+            data.UnitKerjaId = string.IsNullOrEmpty(data.UnitKerjaId) ? userIdentity.UnitKerjaId : data.UnitKerjaId;
+            data.JumlahLampiran = "-";
+
+            try
+            {
+                if (Request.Files != null && Request.Files.Count > 0 && (string.IsNullOrEmpty(data.LampiranId) || data.islampiranChange) )
+                {
+                    int versi = 0;
+                    HttpPostedFileBase mfile = Request.Files[0];
+                    if (mfile != null)
+                    {
+                        if (mfile.ContentType != "application/pdf")
+                        {
+                            return Json(new { Status = false, Pesan = "Lampiran harus pdf" }, JsonRequestBehavior.AllowGet);
+                        }
+                        data.LampiranId = string.IsNullOrEmpty(data.LampiranId)? mdl.NewGuID() : data.LampiranId;
+
+                        var reqmessage = new HttpRequestMessage();
+                        var content = new MultipartFormDataContent();
+                        var tipe = "DokumenTTE";
+                        content.Add(new StringContent(kantorid), "kantorId");
+                        content.Add(new StringContent(tipe), "tipeDokumen");
+                        content.Add(new StringContent(data.LampiranId), "dokumenId");
+                        content.Add(new StringContent(".pdf"), "fileExtension");
+                        content.Add(new StringContent(versi.ToString()), "versionNumber");
+                        content.Add(new StreamContent(mfile.InputStream), "file", mfile.FileName);
+                        reqmessage.Method = HttpMethod.Post;
+                        reqmessage.Content = content;
+                        reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Store"));
+
+                        using (var client = new HttpClient())
+                        {
+                            var reqresult = client.SendAsync(reqmessage).Result;
+                            if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                            {
+                                tr = mdl.SimpanDraftNaskahDinas(data, pNama, kantorid);
+                                return Json(new { Status = tr.Status, Pesan = tr.Pesan }, JsonRequestBehavior.AllowGet);
+                            }
+                            else
+                            {
+                                return Json(new { Status = false, Pesan = string.Concat("Gagal mengunggah lampiran, \n", reqresult.ReasonPhrase) }, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tr = mdl.SimpanDraftNaskahDinas(data, pNama, kantorid);
+                        return Json(new { Status = tr.Status, Pesan = tr.Pesan }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(data.LampiranId) && data.islampiranChange) {
+                    data.LampiranId = "hapus|" + data.LampiranId;
+                    tr = mdl.SimpanDraftNaskahDinas(data, pNama, kantorid);
+                    return Json(new { Status = tr.Status, Pesan = tr.Pesan }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    tr = mdl.SimpanDraftNaskahDinas(data, pNama, kantorid);
+                    return Json(new { Status = tr.Status, Pesan = tr.Pesan }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Status = false, Pesan = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult HapusDraft(string id, string alasan)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+            try
+            {
+                if (!String.IsNullOrEmpty(id))
+                {
+                    var usr = HttpContext.User.Identity as InternalUserIdentity;
+                    result = mdl.HapusDraft(id, usr.UnitKerjaId, usr.UserId, alasan);
+                    if (!result.Status)
+                    {
+                        return Json(result, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Status = false;
+                result.Pesan = ex.Message;
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult PengajuanDraft(string id)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+            try
+            {
+                if (!String.IsNullOrEmpty(id))
+                {
+                    var usr = HttpContext.User.Identity as InternalUserIdentity;
+                    result = mdl.PengajuanDraft(id, usr.UnitKerjaId, usr.UserId, usr.ProfileIdTU);
+                    if (!result.Status)
+                    {
+                        return Json(result, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Status = false;
+                result.Pesan = ex.Message;
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public TransactionResult SimpanNaskahDinas(string dokid, string id, Stream surat, string kantorid, string userid, string nama)
+        {
+            TransactionResult result = new TransactionResult() { Status = false, Pesan = "" };
+            try
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                var tipe = "DokumenTTE";
+                content.Add(new StringContent(kantorid), "kantorId");
+                content.Add(new StringContent(tipe), "tipeDokumen");
+                content.Add(new StringContent(dokid), "dokumenId");
+                content.Add(new StringContent(".pdf"), "fileExtension");
+                content.Add(new StringContent("0"), "versionNumber");
+                content.Add(new StreamContent(surat), "file", string.Concat(id, ".pdf"));
+                reqmessage.Method = HttpMethod.Post;
+                reqmessage.Content = content;
+                reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Store"));
+
+                using (var client = new HttpClient())
+                {
+                    var reqresult = client.SendAsync(reqmessage).Result;
+                    if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                    {
+                        result.Status = true;
+                        result.Pesan = dokid;
+                    }
+                    else
+                    {
+                        mdl.HapusDokumen(dokid, userid, nama, string.Concat("Gagal Upload ", reqresult.ReasonPhrase.ToString()));
+
+                        result.Status = false;
+                        result.Pesan = reqresult.ReasonPhrase;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Pesan = String.Concat("Gagal Menyiapkan Dokumen \n", ex.Message);
+            }
+            return result;
+        }
+
+        public ActionResult GenerateDokumenElektronik(string id, string tp)
+        {
+            FileStreamResult result = null;
+            tp = string.IsNullOrEmpty(tp) ? "Nota Dinas" : tp;
+            if (!string.IsNullOrEmpty(id))
+            {
+                if (tp.Equals("Nota Dinas"))
+                {
+                    result = GenerateNotaDinasElektronik(id, HttpContext.User.Identity as InternalUserIdentity);
+                }
+                else if (tp.Equals("Surat Undangan"))
+                {
+                    result = GenerateSuratUndanganElektronik(id, HttpContext.User.Identity as InternalUserIdentity);
+                }
+            }
+
+            ViewBag.FileSP = result;
+
+            return result;
+        }
+
+        public FileStreamResult GenerateNotaDinasElektronik(string id, InternalUserIdentity usr)
+        {
+            var sm = new SuratModel();
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+
+            var dokumen = mdl.GetDraftSurat(id, unitkerjaid);
+
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            PdfUtil objPdf = new PdfUtil();
+
+            string path = Server.MapPath("~/Reports/myfile.pdf");
+            if (!Directory.Exists(Server.MapPath("~/Reports")))
+                Directory.CreateDirectory(Server.MapPath("~/Reports"));
+
+            Document doc = new Document(PageSize.A4, 20, 20, 40, 60);
+            MemoryStream ms = new MemoryStream();
+            PdfWriter pw = PdfWriter.GetInstance(doc, ms);
+            doc.Open();
+
+
+            Chunk chunk = new Chunk();
+            PdfPTable table = new PdfPTable(1);
+            PdfPTable tableSub = new PdfPTable(1);
+            PdfPTable tableIn = new PdfPTable(1);
+            PdfPCell cell = new PdfPCell();
+            Paragraph paragraph = new Paragraph();
+            float[] columnWidths = new float[] { 0f, 0f };
+            Phrase phrase = new Phrase();
+
+            // KOP SURAT
+            var kopsurat = sm.getKopDetail(unitkerjaid);
+            if (string.IsNullOrEmpty(kopsurat.UnitKerjaId))
+            {
+                Kantor kantor = dataMasterModel.GetKantor(kantorid);
+                TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                kopsurat.NamaKantor_L1 = (tipekantorid == 1) ? dataMasterModel.GetNamaUnitKerjaById(unitkerjaid).ToUpper() : kantor.NamaKantor.ToUpper();
+                kopsurat.NamaKantor_L2 = "";
+                kopsurat.Alamat = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                kopsurat.Telepon = kantor.Telepon;
+                kopsurat.Email = kantor.Email;
+                kopsurat.FontSize = 11;
+            }
+            table = new PdfPTable(2);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            // Cell LOGO
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.PaddingTop = -30f;
+            Image image = Image.GetInstance(Server.MapPath("~/Reports/logobpn.png"));
+            image.ScaleAbsolute(80, 78);
+            cell.AddElement(image);
+            table.AddCell(cell);
+
+            tableIn = new PdfPTable(1);
+            tableIn.WidthPercentage = 100;
+            tableIn.DefaultCell.Border = 0;
+
+            // Cell NAMA KANTOR
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -25f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("KEMENTERIAN AGRARIA DAN TATA RUANG/", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -8f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("BADAN PERTANAHAN NASIONAL", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L1, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L2, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+
+            columnWidths = new float[] { 100f, 540f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            string fullAlamat = string.Concat("<p>", kopsurat.Alamat);
+            if (!string.IsNullOrEmpty(kopsurat.Telepon))
+            {
+                fullAlamat += string.Concat(" Telepon: ", kopsurat.Telepon);
+            }
+            if (!string.IsNullOrEmpty(kopsurat.Email))
+            {
+                fullAlamat += string.Concat(" <i>email: ", kopsurat.Email, "</i>");
+            }
+            fullAlamat += "</p>";
+
+            foreach (IElement element in XMLWorkerHelper.ParseToElementList(fullAlamat, "p { font-family: Arial Narrow; font-size: " + kopsurat.FontSize + "px; text-align: center; }"))
+            {
+                table = new PdfPTable(1);
+                table.WidthPercentage = 100;
+                cell = new PdfPCell();
+                cell.Border = 0;
+                cell.Padding = 0f;
+                cell.AddElement(element);
+                table.AddCell(cell);
+                doc.Add(table);
+            }
+
+            doc.Add(objPdf.HorizontalLine());
+            doc.Add(objPdf.AddLineSeparator(10f));
+
+
+            // TITLE
+            doc.Add(objPdf.AddTitleSurat(dokumen.TipeSurat.ToUpper(), Element.ALIGN_CENTER, 12f, Font.BOLD, 0f, 0f, 0f, "Bookman Old Style"));
+            doc.Add(objPdf.AddTitleSurat("\n", Element.ALIGN_CENTER, 12f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+
+            TextField nomorField = new TextField(pw, new Rectangle(200, 705, PageSize.A4.Width - 200, 685), "fnomor");
+            nomorField.Text = "Nomor : ";
+            nomorField.Alignment = Element.ALIGN_CENTER;
+            var fontPath = Environment.GetEnvironmentVariable("SystemRoot") + "\\fonts\\BOOKOS.TTF";
+            nomorField.Font = BaseFont.CreateFont(fontPath, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            nomorField.FontSize = 12f;
+
+            pw.AddAnnotation(nomorField.GetTextField());
+            // Eof TITLE
+
+            //----- BODY
+
+            // line separator
+            doc.Add(objPdf.AddLineSeparator(20f));
+
+            // Penerima Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            foreach (var str in dokumen.Tujuan)
+            {
+                dokumen.Penerima += (string.IsNullOrEmpty(dokumen.Penerima)) ? "" : "\n";
+                dokumen.Penerima += str;
+            }
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Yth", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Penerima) ? "<<Penerima Surat>>" : dokumen.Penerima, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // Pengirim Surat
+
+            dokumen.Pengirim = dataMasterModel.GetProfileNameFromId(dokumen.ProfilePengirim);
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Dari", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Pengirim) ? "<<Pengirim Surat>>" : dokumen.Pengirim, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Tanggal Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Tanggal", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            //table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.TanggalSurat) ? string.Concat("<<",DateTime.Now.ToString("dd MMMM yyyy"),">>") : dokumen.TanggalSurat, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            float start = 50 + 65 + 18;
+            float end = start + 100;
+            TextField tanggalField = new TextField(pw, new Rectangle(start, 647.5f, end, 627.5f), "ftanggal");
+            tanggalField.Text = "";
+            tanggalField.Alignment = Element.ALIGN_LEFT;
+            tanggalField.Font = BaseFont.CreateFont(fontPath, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            tanggalField.FontSize = 10f;
+            pw.AddAnnotation(tanggalField.GetTextField());
+
+            // Sifat Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Sifat", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.SifatSurat) ? "<<Biasa>>" : dokumen.SifatSurat, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Lampiran Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Lampiran", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.LampiranId) ? "-" : "1", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Hal Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Hal", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Perihal) ? "<<Ringkasan Pengenal Surat>>" : HttpUtility.UrlDecode(dokumen.Perihal), Element.ALIGN_JUSTIFIED, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.HorizontalLine());
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 540f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // line separator
+            doc.Add(objPdf.AddLineSeparator(15f));
+
+            // Isi Surat
+            string isisurat = HttpUtility.UrlDecode(dokumen.IsiSurat);
+            isisurat = isisurat.Replace("<div", "<p");
+            isisurat = isisurat.Replace("</div>", "</p>");
+            isisurat = isisurat.Replace("<br>", "<br/>");
+            if (!isisurat.Substring(0, 1).Equals("<p"))
+            {
+                int pos = isisurat.IndexOf("<p");
+                if (pos > -1)
+                {
+                    isisurat = "<p>" + isisurat.Substring(0, pos) + "</p>" + isisurat.Substring(pos, isisurat.Length - pos);
+                }
+                else
+                {
+                    isisurat = "<p>" + isisurat + "</p>";
+                }
+            }
+            string styles = "p { font-family: Bookman Old Style; font-size: 10pt; text-indent: 100px; text-align: justify; }";
+            foreach (IElement element in XMLWorkerHelper.ParseToElementList(isisurat, styles))
+            {
+                table = new PdfPTable(3);
+                table.WidthPercentage = 100;
+                table.DefaultCell.Border = 0;
+                table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+                cell = new PdfPCell();
+                cell.Border = 0;
+                cell.Padding = 0f;
+                cell.AddElement(element);
+                table.AddCell(cell);
+                table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+                columnWidths = new float[] { 50f, 540f, 50f };
+                table.SetWidths(columnWidths);
+
+                doc.Add(table);
+            }
+
+            // Penandatangan
+            table = new PdfPTable(4);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+
+
+            tableIn = new PdfPTable(1);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.AddElement(objPdf.AddTitleSurat(dokumen.Pengirim, Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            var penandatangan = dataMasterModel.GetPegawaiByProfileId(dokumen.ProfilePengirim)[0];
+            string nama = penandatangan.NamaLengkap;
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.PaddingTop = 20f;
+            cell.AddElement(objPdf.AddTitleSurat(nama, Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            string nip = penandatangan.PegawaiId;
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.AddElement(objPdf.AddTitleSurat(string.Concat("NIP. ", nip), Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 240f, 300f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // Tembusan Surat
+            int n = 1;
+            foreach (var str in dokumen.Tembusan)
+            {
+                dokumen.listTembusan += (string.IsNullOrEmpty(dokumen.listTembusan)) ? "" : "\n";
+                dokumen.listTembusan += string.Concat(n.ToString(),". ",str);
+                n += 1;
+            }
+            if (dokumen.Tembusan.Count > 0)
+            {
+                dokumen.listTembusan = string.Concat("Tembusan : \n", dokumen.listTembusan);
+                table = new PdfPTable(1);
+                table.WidthPercentage = 100;
+                table.DefaultCell.Border = 0;
+                table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.listTembusan) ? "<<Tembusan Surat>>" : dokumen.listTembusan, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+                columnWidths = new float[] { 640f };
+                table.SetWidths(columnWidths);
+
+                doc.Add(table);
+            }
+
+            doc.Close();
+
+            // WRITE IN MEMORYSTREAM
+
+            byte[] byteArray = ms.ToArray();
+
+            MemoryStream mss = new MemoryStream();
+
+            mss.Write(byteArray, 0, byteArray.Length);
+            mss.Position = 0;
+
+            var resultAddFooter = new PDFBuilder().Build(
+               streamPdf: mss,
+               template: PDFBuilder.Template.FOOTER,
+               pageTte: 0);
+
+            //resultAddFooter = new PDFBuilder().BuildKalimatSambung(resultAddFooter.Output);
+
+            var docfile = new FileStreamResult(
+                resultAddFooter.Output,
+                MediaTypeNames.Application.Pdf);
+            docfile.FileDownloadName = String.Concat("DokumenElektronik", ".pdf");
+
+            return docfile;
+        }
+
+        public FileStreamResult GenerateSuratUndanganElektronik(string id, InternalUserIdentity usr)
+        {
+            var sm = new SuratModel();
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+
+            var dokumen = mdl.GetDraftSurat(id, unitkerjaid);
+
+            int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+
+            PdfUtil objPdf = new PdfUtil();
+
+            string path = Server.MapPath("~/Reports/myfile.pdf");
+            if (!Directory.Exists(Server.MapPath("~/Reports")))
+                Directory.CreateDirectory(Server.MapPath("~/Reports"));
+
+            Document doc = new Document(PageSize.A4, 20, 20, 40, 60);
+            MemoryStream ms = new MemoryStream();
+            PdfWriter pw = PdfWriter.GetInstance(doc, ms);
+            doc.Open();
+
+
+            Chunk chunk = new Chunk();
+            PdfPTable table = new PdfPTable(1);
+            PdfPTable tableSub = new PdfPTable(1);
+            PdfPTable tableIn = new PdfPTable(1);
+            PdfPCell cell = new PdfPCell();
+            Paragraph paragraph = new Paragraph();
+            float[] columnWidths = new float[] { 0f, 0f };
+            Phrase phrase = new Phrase();
+
+            // KOP SURAT
+            var kopsurat = sm.getKopDetail(unitkerjaid);
+            if (string.IsNullOrEmpty(kopsurat.UnitKerjaId))
+            {
+                Kantor kantor = dataMasterModel.GetKantor(kantorid);
+                TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+                kopsurat.NamaKantor_L1 = (tipekantorid == 1) ? dataMasterModel.GetNamaUnitKerjaById(unitkerjaid).ToUpper() : kantor.NamaKantor.ToUpper();
+                kopsurat.NamaKantor_L2 = "";
+                kopsurat.Alamat = myTI.ToTitleCase(kantor.Alamat.ToLower());
+                kopsurat.Telepon = kantor.Telepon;
+                kopsurat.Email = kantor.Email;
+                kopsurat.FontSize = 11;
+            }
+            table = new PdfPTable(2);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            // Cell LOGO
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.PaddingTop = -30f;
+            Image image = Image.GetInstance(Server.MapPath("~/Reports/logobpn.png"));
+            image.ScaleAbsolute(80, 78);
+            cell.AddElement(image);
+            table.AddCell(cell);
+
+            tableIn = new PdfPTable(1);
+            tableIn.WidthPercentage = 100;
+            tableIn.DefaultCell.Border = 0;
+
+            // Cell NAMA KANTOR
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -25f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("KEMENTERIAN AGRARIA DAN TATA RUANG/", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingTop = -8f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat("BADAN PERTANAHAN NASIONAL", Element.ALIGN_CENTER, 17f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L1, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.Padding = 0f;
+            cell.PaddingRight = 80f;
+            cell.AddElement(objPdf.AddTitleSurat(kopsurat.NamaKantor_L2, Element.ALIGN_CENTER, 15f, Font.BOLD, 0f, 0f, 0f));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+
+            columnWidths = new float[] { 100f, 540f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            string fullAlamat = string.Concat("<p>", kopsurat.Alamat);
+            if (!string.IsNullOrEmpty(kopsurat.Telepon))
+            {
+                fullAlamat += string.Concat(" Telepon: ", kopsurat.Telepon);
+            }
+            if (!string.IsNullOrEmpty(kopsurat.Email))
+            {
+                fullAlamat += string.Concat(" <i>email: ", kopsurat.Email, "</i>");
+            }
+            fullAlamat += "</p>";
+
+            foreach (IElement element in XMLWorkerHelper.ParseToElementList(fullAlamat, "p { font-family: Arial Narrow; font-size: " + kopsurat.FontSize + "px; text-align: center; }"))
+            {
+                table = new PdfPTable(1);
+                table.WidthPercentage = 100;
+                cell = new PdfPCell();
+                cell.Border = 0;
+                cell.Padding = 0f;
+                cell.AddElement(element);
+                table.AddCell(cell);
+                doc.Add(table);
+            }
+
+            doc.Add(objPdf.HorizontalLine());
+            doc.Add(objPdf.AddLineSeparator(10f));
+
+
+            // TITLE
+            doc.Add(objPdf.AddTitleSurat(dokumen.TipeSurat.ToUpper(), Element.ALIGN_CENTER, 12f, Font.BOLD, 0f, 0f, 0f, "Bookman Old Style"));
+            doc.Add(objPdf.AddTitleSurat("\n", Element.ALIGN_CENTER, 12f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+
+            TextField nomorField = new TextField(pw, new Rectangle(200, 705, PageSize.A4.Width - 200, 685), "fnomor");
+            nomorField.Text = "Nomor : ";
+            nomorField.Alignment = Element.ALIGN_CENTER;
+            var fontPath = Environment.GetEnvironmentVariable("SystemRoot") + "\\fonts\\BOOKOS.TTF";
+            nomorField.Font = BaseFont.CreateFont(fontPath, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            nomorField.FontSize = 12f;
+
+            pw.AddAnnotation(nomorField.GetTextField());
+            // Eof TITLE
+
+            //----- BODY
+
+            // line separator
+            doc.Add(objPdf.AddLineSeparator(20f));
+
+            // Penerima Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            foreach (var str in dokumen.Tujuan)
+            {
+                dokumen.Penerima += (string.IsNullOrEmpty(dokumen.Penerima)) ? "" : "\n";
+                dokumen.Penerima += str;
+            }
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Yth", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Penerima) ? "<<Penerima Surat>>" : dokumen.Penerima, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // Pengirim Surat
+
+            dokumen.Pengirim = dataMasterModel.GetProfileNameFromId(dokumen.ProfilePengirim);
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Dari", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Pengirim) ? "<<Pengirim Surat>>" : dokumen.Pengirim, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Tanggal Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Tanggal", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            //table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.TanggalSurat) ? string.Concat("<<",DateTime.Now.ToString("dd MMMM yyyy"),">>") : dokumen.TanggalSurat, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            float start = 50 + 65 + 18;
+            float end = start + 100;
+            TextField tanggalField = new TextField(pw, new Rectangle(start, 647.5f, end, 627.5f), "ftanggal");
+            tanggalField.Text = "";
+            tanggalField.Alignment = Element.ALIGN_LEFT;
+            tanggalField.Font = BaseFont.CreateFont(fontPath, BaseFont.WINANSI, BaseFont.EMBEDDED);
+            tanggalField.FontSize = 10f;
+            pw.AddAnnotation(tanggalField.GetTextField());
+
+            // Sifat Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Sifat", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.SifatSurat) ? "<<Biasa>>" : dokumen.SifatSurat, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Lampiran Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Lampiran", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.LampiranId) ? "-" : "1", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+
+            // Hal Surat
+            table = new PdfPTable(5);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("Hal", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable(":", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.Perihal) ? "<<Ringkasan Pengenal Surat>>" : HttpUtility.UrlDecode(dokumen.Perihal), Element.ALIGN_JUSTIFIED, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 65f, 15f, 460f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+            table = new PdfPTable(3);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.HorizontalLine());
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 540f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // line separator
+            doc.Add(objPdf.AddLineSeparator(15f));
+
+            // Isi Surat
+            string isisurat = HttpUtility.UrlDecode(dokumen.IsiSurat);
+            isisurat = isisurat.Replace("<div", "<p");
+            isisurat = isisurat.Replace("</div>", "</p>");
+            isisurat = isisurat.Replace("<br>", "<br/>");
+            if (!isisurat.Substring(0, 1).Equals("<p"))
+            {
+                int pos = isisurat.IndexOf("<p");
+                if (pos > -1)
+                {
+                    isisurat = "<p>" + isisurat.Substring(0, pos) + "</p>" + isisurat.Substring(pos, isisurat.Length - pos);
+                }
+                else
+                {
+                    isisurat = "<p>" + isisurat + "</p>";
+                }
+            }
+            string styles = "p { font-family: Bookman Old Style; font-size: 10pt; text-indent: 100px; text-align: justify; }";
+            foreach (IElement element in XMLWorkerHelper.ParseToElementList(isisurat, styles))
+            {
+                table = new PdfPTable(3);
+                table.WidthPercentage = 100;
+                table.DefaultCell.Border = 0;
+                table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+                cell = new PdfPCell();
+                cell.Border = 0;
+                cell.Padding = 0f;
+                cell.AddElement(element);
+                table.AddCell(cell);
+                table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+                columnWidths = new float[] { 50f, 540f, 50f };
+                table.SetWidths(columnWidths);
+
+                doc.Add(table);
+            }
+
+            // Penandatangan
+            table = new PdfPTable(4);
+            table.WidthPercentage = 100;
+            table.DefaultCell.Border = 0;
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+
+
+            tableIn = new PdfPTable(1);
+
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cell.AddElement(objPdf.AddTitleSurat(dokumen.Pengirim, Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            var penandatangan = dataMasterModel.GetPegawaiByProfileId(dokumen.ProfilePengirim)[0];
+            string nama = penandatangan.NamaLengkap;
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.PaddingTop = 20f;
+            cell.AddElement(objPdf.AddTitleSurat(nama, Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            string nip = penandatangan.PegawaiId;
+            cell = new PdfPCell();
+            cell.Border = 0;
+            cell.AddElement(objPdf.AddTitleSurat(string.Concat("NIP. ", nip), Element.ALIGN_CENTER, 10f, Font.NORMAL, 0f, 0f, 0f, "Bookman Old Style"));
+            tableIn.AddCell(cell);
+
+            table.AddCell(tableIn);
+            table.AddCell(objPdf.CreateCellTable("", Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, ""));
+            columnWidths = new float[] { 50f, 240f, 300f, 50f };
+            table.SetWidths(columnWidths);
+
+            doc.Add(table);
+
+            // Tembusan Surat
+            int n = 1;
+            foreach (var str in dokumen.Tembusan)
+            {
+                dokumen.listTembusan += (string.IsNullOrEmpty(dokumen.listTembusan)) ? "" : "\n";
+                dokumen.listTembusan += string.Concat(n.ToString(), ". ", str);
+                n += 1;
+            }
+            if (dokumen.Tembusan.Count > 0)
+            {
+                dokumen.listTembusan = string.Concat("Tembusan : \n", dokumen.listTembusan);
+                table = new PdfPTable(1);
+                table.WidthPercentage = 100;
+                table.DefaultCell.Border = 0;
+                table.AddCell(objPdf.CreateCellTable(string.IsNullOrEmpty(dokumen.listTembusan) ? "<<Tembusan Surat>>" : dokumen.listTembusan, Element.ALIGN_LEFT, Element.ALIGN_TOP, 0, 10f, Font.NORMAL, true, "Bookman Old Style"));
+                columnWidths = new float[] { 640f };
+                table.SetWidths(columnWidths);
+
+                doc.Add(table);
+            }
+
+            doc.Close();
+
+            // WRITE IN MEMORYSTREAM
+
+            byte[] byteArray = ms.ToArray();
+
+            MemoryStream mss = new MemoryStream();
+
+            mss.Write(byteArray, 0, byteArray.Length);
+            mss.Position = 0;
+
+            var resultAddFooter = new PDFBuilder().Build(
+               streamPdf: mss,
+               template: PDFBuilder.Template.FOOTER,
+               pageTte: 0);
+
+            //resultAddFooter = new PDFBuilder().BuildKalimatSambung(resultAddFooter.Output);
+
+            var docfile = new FileStreamResult(
+                resultAddFooter.Output,
+                MediaTypeNames.Application.Pdf);
+            docfile.FileDownloadName = String.Concat("DokumenElektronik", ".pdf");
+
+            return docfile;
+        }
+
+        [HttpPost]
+        public ActionResult CekNomorSurat(string nmr, string pengirim)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "", ReturnValue = "error" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            try
+            {
+                if (string.IsNullOrEmpty(nmr))
+                {
+                    result.Pesan = "Nomor Surat wajib diisi";
+                    return Json(result, JsonRequestBehavior.AllowGet);
+                }
+                if (string.IsNullOrEmpty(pengirim))
+                {
+                    result.Pesan = "Asal Surat wajib diisi";
+                    return Json(result, JsonRequestBehavior.AllowGet);
+                }
+                if (mdl.cekNomorSuratGanda(nmr, pengirim))
+                {
+                    string kantorid = usr.KantorId;
+                    string unitkerjaid = usr.UnitKerjaId;
+                    string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+                    if (mdl.cekNomorSuratGanda(nmr, pengirim, satkerid))
+                    {
+                        result.Pesan = string.Format("Nomor Surat : ", nmr, "\nPengirim : ", pengirim, "\nsudah terdaftar didalam system");
+                    }
+                    else
+                    {
+                        result.Pesan = string.Format("Nomor Surat : ", nmr, "\nPengirim : ", pengirim, "\nsudah didaftarkan oleh unit lain");
+                        result.ReturnValue = "ganda";
+                    }
+                }
+                else
+                {
+                    result.Status = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Status = false;
+                result.Pesan = ex.Message;
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertSuratMasuk(Models.Entities.Surat data, string daftarTujuan, List<HttpPostedFileBase> fileUploadStream)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "", ReturnValue = "", ReturnValue2 = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string pegawaiid = usr.PegawaiId;
+            string namapegawaipengirim = usr.NamaPegawai;
+            string myProfileId = functions.MyProfiles(pegawaiid, kantorid).Replace("'", "");
+
+            //string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+            //int tipekantorid = dataMasterModel.GetTipeKantor(kantorid);
+            //if (tipekantorid == 1)
+            //{
+            //    satkerid = unitkerjaid;
+            //}
+
+            data.SuratId = mdl.NewGuID();
+            data.UserId = userid;
+            data.PegawaiId = pegawaiid;
+            data.NamaPengirim = namapegawaipengirim;
+
+            // Cek Tujuan Surat
+            var dataSessionTujuanSurat = new List<SessionTujuanSurat>();
+            try
+            {
+                dynamic json = JsonConvert.DeserializeObject(daftarTujuan);
+
+                foreach (var js in json)
+                {
+                    dataSessionTujuanSurat.Add(JsonConvert.DeserializeObject<SessionTujuanSurat>(JsonConvert.SerializeObject(js.Value)));
+                }
+            }
+            catch
+            {
+                tr.Pesan = "Data yang dikirimkan tidak sesuai";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+            if (dataSessionTujuanSurat.Count == 0)
+            {
+                tr.Pesan = "Tujuan Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            data.PenerimaSurat = "";
+            foreach(var tj in dataSessionTujuanSurat)
+            {
+                if (tj.Redaksi.Equals("Asli"))
+                {
+                    data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat)?"":", ", tj.NamaJabatan);
+                }
+            }
+
+            string judul = "Surat masuk untuk " + data.PenerimaSurat + " nomor: " + data.NomorSurat;
+
+            var dataSessionLampiran = new List<SessionLampiranSurat>();
+            int urutLampiran = 1;
+            foreach (HttpPostedFileBase file in fileUploadStream)
+            {
+                if (file != null)
+                {
+                    var datafile = new SessionLampiranSurat();
+                    if(file.FileName.Length > 100)
+                    {
+                        tr.Pesan = "Nama File Maksimal 100 karakter";
+                        return Json(tr, JsonRequestBehavior.AllowGet);
+                    }
+                    datafile.NamaFile = urutLampiran.ToString() + "|" + file.FileName;
+                    MemoryStream ms1 = new MemoryStream();
+                    file.InputStream.CopyTo(ms1);
+                    datafile.ObjectFile = ms1.ToArray();
+                    datafile.LampiranSuratId = mdl.GetUID();
+                    datafile.Nip = pegawaiid;
+                    dataSessionLampiran.Add(datafile);
+                    urutLampiran++;
+                }
+            }
+            data.JumlahLampiran = dataSessionLampiran.Count;
+
+            string isFileAttMandatory = ConfigurationManager.AppSettings["IsFileAttMandatory"].ToString();
+            if (isFileAttMandatory == "true")
+            {
+                if (dataSessionLampiran.Count == 0)
+                {
+                    tr.Pesan = "File Surat wajib diupload";
+                    return Json(tr, JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            var listProfilePegawai = dataMasterModel.GetProfilePegawai_Simpeg(pegawaiid, kantorid);
+            if (listProfilePegawai.Count > 0)
+            {
+                data.ProfileIdPengirim = listProfilePegawai[0].ProfileId;
+                data.NamaProfilePengirim = listProfilePegawai[0].NamaProfile;
+            }
+
+            string suratid_duplikat = string.Empty;
+            if (!string.IsNullOrEmpty(data.NomorSurat))
+            {
+                Regex sWhitespace = new Regex(@"[^0-9a-zA-Z-./]+");
+
+                string nomorsurat = sWhitespace.Replace(data.NomorSurat, "");
+                data.NomorSurat = nomorsurat;
+                suratid_duplikat = mdl.GetSuratIdFromNomorSuratDanPengirim(data.NomorSurat, data.PengirimSurat);
+                //if (data.NomorSurat.Equals(data.NomorUmum))
+                //{
+                //    int nmr = int.Parse(nomorsurat.Substring(0,4));
+                //    bool reCheck = mdl.cekNomorSuratGanda(nomorsurat, data.PengirimSurat, satkerid);
+                //    do
+                //    {
+                //        nmr += 1;
+                //        nomorsurat = string.Concat(nmr.ToString(),nomorsurat.Substring(5));
+                //        reCheck = mdl.cekNomorSuratGanda(nomorsurat, data.PengirimSurat, satkerid);
+                //    } while (reCheck);
+                //    data.NomorSurat = nomorsurat;
+                //}
+                //else
+                //{
+                //    //if (mdl.cekNomorSuratGanda(nomorsurat, data.PengirimSurat, satkerid))
+                //    //{
+                //    //    tr.Pesan = string.Concat("Nomor Surat : ", data.NomorSurat, "\nPengirim : ", data.PengirimSurat, "\nsudah terdaftar didalam system");
+                //    //    return Json(tr, JsonRequestBehavior.AllowGet);
+                //    //}
+                //    suratid_duplikat = mdl.GetSuratIdFromNomorSuratDanPengirim(data.NomorSurat, data.PengirimSurat);
+                //}
+            }
+
+            #region Simpan File Fisik
+            foreach (var lampiranSurat in dataSessionLampiran)
+            {
+                if (lampiranSurat.ObjectFile.Length > 0)
+                {
+                    int versi = 0;
+                    string id = lampiranSurat.LampiranSuratId;
+
+                    Stream stream = new MemoryStream(lampiranSurat.ObjectFile);
+
+                    var reqmessage = new HttpRequestMessage();
+                    var content = new MultipartFormDataContent();
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent("Surat"), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(versi.ToString()), "versionNumber");
+                    content.Add(new StreamContent(stream), "file", lampiranSurat.NamaFile);
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Store"));
+
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            tr = kontentmodel.SimpanKontenFile(kantorid, id, judul, namapegawaipengirim, data.TanggalSurat, "Surat", out versi);
+                        }
+                        else
+                        {
+                            tr.Status = false;
+                            tr.Pesan = "Gagal Membuat Surat, ada file lampiran yang bermasalah\nHarap cek ulang lampiran anda.";
+                            tr.ReturnValue = reqresult.ReasonPhrase;
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+            }
+            #endregion
+            if (string.IsNullOrEmpty(suratid_duplikat))
+            {
+                tr = mdl.InsertSuratMasuk(data, kantorid, unitkerjaid, myProfileId, profileidtu, pegawaiid, namapegawaipengirim, dataSessionTujuanSurat, dataSessionLampiran);
+            }
+            else
+            {
+                data.SuratId = suratid_duplikat;
+                tr = mdl.MergeSuratMasuk(data, kantorid, unitkerjaid, myProfileId, profileidtu, pegawaiid, namapegawaipengirim, dataSessionTujuanSurat, dataSessionLampiran);
+            }
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertSuratKeluar(Models.Entities.Surat data)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string pegawaiid = usr.PegawaiId;
+            string namapegawaipengirim = usr.NamaPegawai;
+            string myProfileId = functions.MyProfiles(pegawaiid, kantorid).Replace("'", "");
+
+            string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+
+            data.SuratId = mdl.NewGuID();
+            data.UserId = userid;
+            data.PegawaiId = pegawaiid;
+            data.NamaPengirim = namapegawaipengirim;
+
+            //data.ListTujuanSurat = new List<SessionTujuanSurat>();
+
+            //if (data.kirimPusat)
+            //{
+            //    data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(1));
+            //}
+            //if (data.kirimKanwil)
+            //{
+            //    data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(2));
+            //}
+            //if (data.kirimKantah)
+            //{
+            //    data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(3));
+            //}
+            //if(data.ListTujuan != null)
+            //{
+            //    foreach (var _tujuan in data.ListTujuan)
+            //    {
+            //        data.ListTujuanSurat.Add(new SessionTujuanSurat()
+            //        {
+            //            ProfileId = _tujuan.ProfileId,
+            //            NIP = _tujuan.NIP,
+            //            Redaksi = _tujuan.Redaksi,
+            //            NamaJabatan = Server.UrlEncode(mdl.GetNamaJabatan(_tujuan.ProfileId)),
+            //            NamaPegawai = Server.UrlEncode(mdl.GetNamaPegawai(_tujuan.NIP))
+            //        });
+            //    }
+            //}
+            //if (data.ListTujuanSurat.Count == 0)
+            //{
+            //    tr.Pesan = "Tujuan Surat wajib diisi";
+            //    return Json(tr, JsonRequestBehavior.AllowGet);
+            //}
+
+            List<ProfilePegawai> listProfilePegawai = dataMasterModel.GetProfilePegawai_Simpeg(pegawaiid, kantorid);
+            if (listProfilePegawai.Count > 0)
+            {
+                data.ProfileIdPengirim = listProfilePegawai[0].ProfileId;
+                data.NamaProfilePengirim = listProfilePegawai[0].NamaProfile;
+            }
+
+            data.JumlahLampiran = data.ListFiles.Count;
+
+            if (string.IsNullOrEmpty(data.NomorSurat))
+            {
+                tr.Pesan = "Nomor Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+            //if (!string.IsNullOrEmpty(data.NomorSurat))
+            //{
+            //    Regex sWhitespace = new Regex(@"[^0-9a-zA-Z-./]+");
+
+            //    string nomorsurat = sWhitespace.Replace(data.NomorSurat, "");
+            //    data.NomorSurat = nomorsurat;
+            //}
+
+            data.PenerimaSurat = "";
+            data.ListTujuanSurat = new List<SessionTujuanSurat>();
+            if (data.ListTujuan != null)
+            {
+                foreach (var _tujuan in data.ListTujuan)
+                {
+                    string jabatan = mdl.GetNamaJabatan(_tujuan.ProfileId);
+                    if (_tujuan.Redaksi.Equals("Asli"))
+                    {
+                        data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", jabatan);
+                    }
+                    data.ListTujuanSurat.Add(new SessionTujuanSurat()
+                    {
+                        ProfileId = _tujuan.ProfileId,
+                        NIP = _tujuan.NIP,
+                        Redaksi = _tujuan.Redaksi,
+                        NamaJabatan = Server.UrlEncode(jabatan),
+                        NamaPegawai = Server.UrlEncode(mdl.GetNamaPegawai(_tujuan.NIP))
+                    });
+                }
+            }
+
+            if (data.kirimPusat)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Unit Kerja Pusat");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(1));
+            }
+            if (data.kirimKanwil)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Kantor Wilayah");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(2));
+            }
+            if (data.kirimKantah)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Kantor Pertanahan");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(3));
+            }
+            if (data.ListTujuanSurat.Count == 0)
+            {
+                tr.Pesan = "Tujuan Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            string judul = "Surat keluar untuk " + data.PenerimaSurat + " nomor: " + data.NomorSurat;
+
+            data.NomorSurat = Server.UrlEncode(data.NomorSurat);
+            data.PenerimaSurat = data.PenerimaSurat.Length > 500 ? data.PenerimaSurat.Substring(0, 500) : data.PenerimaSurat;
+
+            #region Simpan File Fisik
+
+            foreach (var lampiranSurat in data.ListFiles)
+            {
+                if (lampiranSurat.ObjectFile != null && lampiranSurat.ObjectFile.Length > 0)
+                {
+                    int versi = 0;
+                    string id = lampiranSurat.FilesId = mdl.GetUID();
+
+                    Stream stream = new MemoryStream(lampiranSurat.ObjectFile);
+
+                    var reqmessage = new HttpRequestMessage();
+                    var content = new MultipartFormDataContent();
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent("Surat"), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(versi.ToString()), "versionNumber");
+                    content.Add(new StreamContent(stream), "file", lampiranSurat.PengenalFile);
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Store"));
+
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            tr = kontentmodel.SimpanKontenFile(kantorid, id, judul, namapegawaipengirim, data.TanggalSurat, "Surat", out versi);
+                        }
+                        else
+                        {
+                            tr.Status = false;
+                            tr.Pesan = "Gagal Membuat Surat, ada file lampiran yang bermasalah\nHarap cek ulang lampiran anda.";
+
+                            string msg = reqresult.ReasonPhrase;
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            tr = mdl.InsertSuratKeluar(data, kantorid, unitkerjaid, myProfileId, profileidtu, pegawaiid, namapegawaipengirim);
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult InsertSuratInisiatif(Models.Entities.Surat data, string daftarTujuan, List<HttpPostedFileBase> fileUploadStream)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "", ReturnValue = "", ReturnValue2 = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string pegawaiid = usr.PegawaiId;
+            string namapegawaipengirim = usr.NamaPegawai;
+            string myProfileId = functions.MyProfiles(pegawaiid, kantorid).Replace("'", "");
+
+            data.UserId = pegawaiid;
+            data.NamaPengirim = namapegawaipengirim;
+
+            var dataSessionTujuanSurat = new List<SessionTujuanSurat>();
+            try
+            {
+                dynamic json = JsonConvert.DeserializeObject(daftarTujuan);
+
+                foreach (var js in json)
+                {
+                    dataSessionTujuanSurat.Add(JsonConvert.DeserializeObject<SessionTujuanSurat>(JsonConvert.SerializeObject(js.Value)));
+                }
+            }
+            catch
+            {
+                tr.Pesan = "Data yang dikirimkan tidak sesuai";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+            if (dataSessionTujuanSurat.Count == 0)
+            {
+                tr.Pesan = "Tujuan Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            var dataSessionLampiran = new List<SessionLampiranSurat>();
+            foreach (HttpPostedFileBase file in fileUploadStream)
+            {
+                if (file != null)
+                {
+                    var datafile = new SessionLampiranSurat();
+                    datafile.NamaFile = file.FileName;
+                    MemoryStream ms1 = new MemoryStream();
+                    file.InputStream.CopyTo(ms1);
+                    datafile.ObjectFile = ms1.ToArray();
+                    datafile.LampiranSuratId = mdl.GetUID();
+                    datafile.Nip = pegawaiid;
+                    datafile.Ext = Path.GetExtension(file.FileName).Replace(".","");
+                    dataSessionLampiran.Add(datafile);
+                }
+            }
+
+            data.JumlahLampiran = dataSessionLampiran.Count;
+
+            string judul = "Surat Inisiatif untuk " + data.PenerimaSurat;
+
+            //if (data.ArahSuratKeluar == "Internal")
+            //{
+            //    if (dataSessionLampiran.Count == 0)
+            //    {
+            //        tr.Pesan = "File Surat wajib diupload";
+            //        return Json(tr, JsonRequestBehavior.AllowGet);
+            //    }
+            //}
+
+            var listProfilePegawai = dataMasterModel.GetProfilePegawai_Simpeg(pegawaiid, kantorid);
+            if (listProfilePegawai.Count > 0)
+            {
+                data.ProfileIdPengirim = listProfilePegawai[0].ProfileId;
+                data.NamaProfilePengirim = listProfilePegawai[0].NamaProfile;
+            }
+
+            foreach (var lampiranSurat in dataSessionLampiran)
+            {
+                if (lampiranSurat.ObjectFile.Length > 0)
+                {
+                    int versi = 0;
+                    string id = lampiranSurat.LampiranSuratId;
+
+                    Stream stream = new MemoryStream(lampiranSurat.ObjectFile);
+
+                    string namafile = lampiranSurat.NamaFile;
+                    string fileExtension = lampiranSurat.Ext;
+
+                    var reqmessage = new HttpRequestMessage();
+                    var content = new MultipartFormDataContent();
+
+                    DateTime tglSunting = DateTime.Now;
+                    string serviceurl = persuratanmodel.GetServiceKonten(tglSunting);
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent("Surat"), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(versi.ToString()), "versionNumber");
+                    content.Add(new StreamContent(stream), "file", lampiranSurat.NamaFile);
+                    if (!string.IsNullOrEmpty(fileExtension))
+                    {
+                        content.Add(new StringContent(fileExtension), "fileExtension");
+                    }
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings[serviceurl].ToString(), "Store"));
+
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            tr = kontentmodel.SimpanKontenFile(kantorid, id, judul, namapegawaipengirim, data.TanggalSurat, "Surat", out versi);
+                        }
+                        else
+                        {
+                            tr.Status = false;
+                            tr.Pesan = "Gagal Membuat Surat, ada file lampiran yang bermasalah\nHarap cek ulang lampiran anda.";
+                            tr.ReturnValue = reqresult.ReasonPhrase;
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+            }
+
+            tr = mdl.InsertSuratInisiatif(data, kantorid, unitkerjaid, myProfileId, profileidtu, pegawaiid, namapegawaipengirim, dataSessionTujuanSurat, dataSessionLampiran);
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FileList(int? draw, int? start, int? length)
+        {
+            var result = new List<Files>();
+            decimal? total = 0;
+            string metadata = Server.UrlEncode(Request.Form["metadata"].ToString());
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+
+            string unitkerjaid = usr.UnitKerjaId;
+            string kantorid = usr.KantorId;
+            string pegawaiid = usr.PegawaiId;
+            string userid = usr.UserId;
+            string profiletu = usr.ProfileIdTU;
+            bool isTU = OtorisasiUser.isTU();
+
+            if (!string.IsNullOrEmpty(userid))
+            {
+                int recNumber = start ?? 0;
+                int RecordsPerPage = length ?? 10;
+                int from = recNumber + 1;
+                int to = from + RecordsPerPage - 1;
+
+                //result = mdl.getListSurat(userid, pegawaiid, unitkerjaid, metadata, from, to);
+                result = mdl.getListDokumenTTE(userid, profiletu, kantorid, isTU, metadata, from, to);
+                foreach(var r in result)
+                {
+                    r.PengenalFile = Server.UrlDecode(r.PengenalFile);
+                    r.Keterangan = Server.UrlDecode(Server.UrlDecode(r.Keterangan));
+                }
+
+                if (result.Count > 0)
+                {
+                    total = result[0].Total;
+                }
+            }
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        public async Task<ActionResult> GetFilePdf(string id, string kd, string tp, string nm)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                string ext = new SuratModel().GetExt(id);
+                ext = string.IsNullOrEmpty(ext) ? ".pdf" : ext;
+                string kantorid = kd;
+                if (string.IsNullOrEmpty(kantorid))
+                {
+                    kantorid = usr.KantorId;
+                }
+                string tipe = tp;
+                string versi = new KontentModel().CekVersi(id).ToString();
+
+                if (kantorid.Length < 32)
+                {
+                    kantorid = dataMasterModel.GetKantorIdFromUnitKerjaId(kantorid);
+                }
+
+                content.Add(new StringContent(kantorid), "kantorId");
+                content.Add(new StringContent(tipe), "tipeDokumen");
+                content.Add(new StringContent(id), "dokumenId");
+                content.Add(new StringContent(ext), "fileExtension");
+                content.Add(new StringContent(versi), "versionNumber");
+
+                reqmessage.Method = HttpMethod.Post;
+                reqmessage.Content = content;
+                reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Retrieve"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            var strm = await reqresult.Content.ReadAsStreamAsync();
+                            var docfile = new FileStreamResult(strm, MediaTypeNames.Application.Pdf);
+                            if (tp.Equals("Surat"))
+                            {
+                                docfile.FileDownloadName = string.Concat(nm);
+                            }
+                            else
+                            {
+                                docfile.FileDownloadName = string.Concat(nm, ".pdf");
+                            }
+
+                            result.Status = true;
+                            result.StreamResult = docfile;
+
+                            return docfile;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Pesan = ex.Message;
+                }
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult BukaSurat(string suratid, string suratinboxid, string nomorsurat, string arah)
+         {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            if(usr == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            if (!String.IsNullOrEmpty(suratinboxid))
+            {
+                string referensiUnitKerjaId = "";
+
+                ViewBag.UnitKerjaId = usr.UnitKerjaId;
+
+                string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+
+                var surat = mdl.GetSuratBySuratInboxId(suratinboxid, satkerid, suratid);
+                surat.ListSifatSurat = persuratanmodel.GetSifatSurat();
+                surat.ListTipeSurat = persuratanmodel.GetTipeSurat();
+                surat.ListPerintahDisposisi = persuratanmodel.GetPerintahDisposisi();
+                surat.ListUnitKerja = dataMasterModel.GetListUnitKerja("", "", "", true);
+                surat.ListUnitKerjaHistoriSurat = persuratanmodel.GetUnitKerjaSuratHistory(suratid);
+                surat.ListProfileTujuan = new List<Profile>();
+                surat.ListTujuanPegawai = new List<Pegawai>();
+                surat.CatatanSebelumnya = mdl.GetCatatanSebelumnya(suratinboxid,satkerid);
+                surat.PerintahDisposisiSebelumnya = persuratanmodel.GetDisposisiSebelumnya(suratinboxid);
+                surat.IsBedaUnitKerja = "0";
+                if (string.IsNullOrEmpty(arah))
+                {
+                    surat.LabelTitleJenisSurat = "SURAT MASUK";
+                }
+                else
+                {
+                    if (arah.ToLower().Equals("masuk"))
+                    {
+                        surat.LabelTitleJenisSurat = "SURAT MASUK";
+                    }
+                    else if (arah.ToLower().Equals("keluar"))
+                    {
+                        surat.LabelTitleJenisSurat = "SURAT KELUAR";
+                    }
+                    else if (arah.ToLower().Equals("inisiatif"))
+                    {
+                        surat.LabelTitleJenisSurat = "SURAT INISIATIF";
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(surat.ReferensiSurat))
+                {
+                    // ambil data surat sebagai referensi
+                    var referensisurat = persuratanmodel.GetSuratBySuratId(surat.ReferensiSurat, satkerid);
+                    surat.ReferensiAsalSurat = referensisurat.PengirimSurat;
+                    surat.ReferensiTujuanSurat = referensisurat.PenerimaSurat;
+                    surat.ReferensiNomorAgenda = referensisurat.NomorAgenda;
+                    surat.ReferensiNomorSurat = referensisurat.NomorSurat;
+                    surat.ReferensiTanggalSurat = referensisurat.TanggalSurat;
+                    surat.ReferensiPerihal = referensisurat.Perihal;
+                    surat.ReferensiKategori = referensisurat.Kategori;
+                    surat.ReferensiUnitKerjaId = referensisurat.ReferensiUnitKerjaId;
+
+                    if (referensiUnitKerjaId != usr.UnitKerjaId)
+                    {
+                        surat.IsBedaUnitKerja = "1";
+                        surat.LabelTitleJenisSurat = "SURAT MASUK";
+                    }
+                }
+
+                if (surat.KeteranganSuratRedaksi.ToLower().Contains("tembusan"))
+                {
+                    surat.PenanggungJawab = persuratanmodel.GetPenanggungJawab(suratid, satkerid, usr.PegawaiId);
+                }
+
+                // Update Flag Buka Surat
+                persuratanmodel.BukaSuratInbox(surat.SuratId, surat.SuratInboxId, usr.PegawaiId, usr.NamaPegawai);
+                surat.Waktu = persuratanmodel.GetWaktuProses(suratinboxid);
+                surat.WaktuTunggak = persuratanmodel.GetWaktuTunggak(suratinboxid);
+                surat.ListKantor = dataMasterModel.GetAllKantor();
+
+                return View("ViewSurat", surat);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(arah))
+                {
+                    return View("Index", "Home");
+                }
+                else
+                {
+                    if (arah.ToLower().Equals("masuk"))
+                    {
+                        return RedirectToAction("KotakMasuk", "Surat");
+                    }
+                    else if (arah.ToLower().Equals("keluar"))
+                    {
+                        return RedirectToAction("KotakTerkirim", "Surat");
+                    }
+                    else if (arah.ToLower().Equals("inisiatif"))
+                    {
+                        return RedirectToAction("KotakInisiatif", "Surat");
+                    }
+                    else
+                    {
+                        return View("Index", "Home");
+                    }
+                }
+            }
+        }
+
+        public async Task<ActionResult> GetFileSuratWithExt(string id, string kantorid, string namafile, string extension)
+        {
+            var result = new { Status = false, Message = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+
+            if (!String.IsNullOrEmpty(id))
+            {
+                var reqmessage = new HttpRequestMessage();
+                var content = new MultipartFormDataContent();
+                if (string.IsNullOrEmpty(kantorid))
+                {
+                    kantorid = usr.KantorId;
+                }
+                string tipe = "Surat";
+                string versi = kontentmodel.CekVersi(id).ToString();
+
+                DateTime tglSunting = persuratanmodel.getTglSunting(id, tipe);
+                string serviceurl = persuratanmodel.GetServiceKonten(tglSunting);
+                string ext = new Models.SuratModel().GetExt(id);
+                ext = string.IsNullOrEmpty(ext) ? extension : ext;
+
+                content.Add(new StringContent(kantorid), "kantorId");
+                content.Add(new StringContent(tipe), "tipeDokumen");
+                content.Add(new StringContent(id), "dokumenId");
+                content.Add(new StringContent(ext), "fileExtension");
+                content.Add(new StringContent(versi), "versionNumber");
+
+                reqmessage.Method = HttpMethod.Post;
+                reqmessage.Content = content;
+                reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings[serviceurl].ToString(), "Retrieve"));
+
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            var strm = await reqresult.Content.ReadAsStreamAsync();
+                            var docfile = new FileStreamResult(strm, MediaTypeNames.Application.Pdf);
+                            docfile.FileDownloadName = namafile;
+                            if (extension == ".jpg")
+                            {
+                                docfile = new FileStreamResult(strm, "image/jpeg");
+                            }
+                            else if (extension == ".png")
+                            {
+                                docfile = new FileStreamResult(strm, "image/png");
+                            }
+                            else if (extension == ".xls")
+                            {
+                                docfile = new FileStreamResult(strm, "application/vnd.ms-excel");
+                            }
+                            else if (extension == ".xlsx")
+                            {
+                                docfile = new FileStreamResult(strm, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                            }
+                            else if (extension == ".doc")
+                            {
+                                docfile = new FileStreamResult(strm, "application/msword");
+                            }
+                            else if (extension == ".docx")
+                            {
+                                docfile = new FileStreamResult(strm, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                            }
+                            return docfile;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = new { Status = false, Message = ex.Message };
+                }
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> KirimSuratKMS(string suratid, string suratinboxid)
+        {
+            var result = new TransactionResult() { Status = false, Pesan = "" };
+
+            try
+            {
+                var usr = HttpContext.User.Identity as InternalUserIdentity;
+                string userid = usr.UserId;
+
+                string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+                Models.Entities.Surat surat = persuratanmodel.GetSuratBySuratInboxId(suratinboxid, satkerid, suratid);
+                var _listLampiran = persuratanmodel.GetListLampiranSurat(suratid, "");
+
+                string _url = string.Concat(ConfigurationManager.AppSettings["UrlKMS"].ToString(),"/kotak-masuk/create");
+                string _key = "Api-Key";
+                string _value = "n580h77d-b9y7-42c9-adf0-e6ac9g017jc7";
+                var kvp = new[] {
+                                    new KeyValuePair<string, string>("no_surat",surat.NomorSurat),
+                                    new KeyValuePair<string, string>("no_agenda", surat.NomorAgenda),
+                                    new KeyValuePair<string, string>("asal_surat", string.IsNullOrEmpty(surat.ReferensiAsalSurat)?surat.PengirimSurat:surat.ReferensiAsalSurat),
+                                    new KeyValuePair<string, string>("tujuan_surat", string.IsNullOrEmpty(surat.ReferensiTujuanSurat)?surat.PenerimaSurat:surat.ReferensiTujuanSurat),
+                                    new KeyValuePair<string, string>("sifat_surat", surat.SifatSurat),
+                                    new KeyValuePair<string, string>("jenis_surat", surat.TipeSurat),
+                                    new KeyValuePair<string, string>("perihal", surat.Perihal), 
+                                    //new KeyValuePair<string, string>("metode_pengiriman", string.IsNullOrEmpty(surat.Sumber_Keterangan)?"":surat.),
+                                    new KeyValuePair<string, string>("keterangan", surat.Keterangan),
+                                    new KeyValuePair<string, string>("target_selesai", string.IsNullOrEmpty(surat.TargetSelesai)?"":surat.TargetSelesai),
+                                    new KeyValuePair<string, string>("tgl_surat", Convert.ToDateTime(surat.TanggalSurat).ToString("yyyy/MM/dd")),
+                                    new KeyValuePair<string, string>("penanggung_jawab", string.IsNullOrEmpty(surat.PenanggungJawab)?"":surat.PenanggungJawab)
+                            };
+                var address = string.Format(_url + "?{0}", string.Join("&", kvp.Select(kv => string.Format("{0}={1}", kv.Key, kv.Value))));
+
+                var request = WebRequest.Create(address);
+                string auth = Convert.ToBase64String(Encoding.Default.GetBytes(_key + ":" + _value));
+                //request.Headers.Add("x-api-key", auth);
+                //request.Headers.Add("Authorization", string.Concat("key=",_key, ":", _value));
+                request.Headers.Add(_key, _value);
+                //request.Headers.Add(functions.bsreEncode(_key), Convert.ToBase64String(Encoding.UTF8.GetBytes(_value)));
+                request.Method = "POST";
+                //request.ContentType = "application/json";
+                var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
+                request.ContentType = "multipart/form-data; boundary=" + boundary;
+                boundary = "--" + boundary;
+                if (_listLampiran.Count > 0)
+                {
+                    Stream memStream = new MemoryStream();
+                    byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                    memStream.Write(boundarybytes, 0, boundarybytes.Length);
+                    foreach(var _lampiran in _listLampiran)
+                    {
+                        using (var requestStream = request.GetRequestStream())
+                        {
+                            var mss = new MemoryStream();
+                            var reqmessage = new HttpRequestMessage();
+                            var content = new MultipartFormDataContent();
+                            string id = _lampiran.LampiranSuratId;
+                            string tipe = "Surat";
+                            string versi = "0";
+                            var file = new SuratModel().getFileLampiran(id);
+                            string kantorid = file.KantorId;
+                            string namafile = file.PengenalFile;
+                            var filePath = file.Path.Split('|');
+                            DateTime tglSunting = persuratanmodel.getTglSunting(id, tipe);
+                            string serviceurl = persuratanmodel.GetServiceKonten(tglSunting);
+                            if (filePath.Length == 2)
+                            {
+                                tipe = filePath[0];
+                                id = filePath[1];
+                                versi = new TandaTanganElektronikModel().CekVersi(id).ToString();
+                                file.PengenalFile = string.Concat(file.PengenalFile, ".pdf");
+                                serviceurl = "ServiceEofficeUrl";
+                            }
+
+                            content.Add(new StringContent(kantorid), "kantorId");
+                            content.Add(new StringContent(tipe), "tipeDokumen");
+                            content.Add(new StringContent(id), "dokumenId");
+                            content.Add(new StringContent(".pdf"), "fileExtension");
+                            content.Add(new StringContent(versi), "versionNumber");
+
+                            reqmessage.Method = HttpMethod.Post;
+                            reqmessage.Content = content;
+                            reqmessage.RequestUri = new System.Uri(string.Concat(ConfigurationManager.AppSettings[serviceurl].ToString(), "Retrieve"));
+
+                            try
+                            {
+                                using (var client = new HttpClient())
+                                {
+                                    var reqresult = client.SendAsync(reqmessage).Result;
+                                    if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == System.Net.HttpStatusCode.OK)
+                                    {
+                                        var strm = await reqresult.Content.ReadAsStreamAsync();
+
+                                        byte[] byt = new byte[strm.Length];
+                                        strm.Read(byt, 0, byt.Length);
+                                        mss = new MemoryStream(byt.ToArray());
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                result.Status = false;
+                                result.Pesan = string.Concat("Gagal Mengambil File Lampiran", ex.Message);
+                            }
+
+                            var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                            requestStream.Write(buffer, 0, buffer.Length);
+                            buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", "file", namafile, Environment.NewLine));
+                            requestStream.Write(buffer, 0, buffer.Length);
+                            buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", MediaTypeNames.Application.Pdf, Environment.NewLine));
+                            requestStream.Write(buffer, 0, buffer.Length);
+                            mss.CopyTo(requestStream);
+                            buffer = Encoding.ASCII.GetBytes(Environment.NewLine);
+                            requestStream.Write(buffer, 0, buffer.Length);
+
+                            var boundaryBuffer = Encoding.ASCII.GetBytes(boundary + "--");
+                            requestStream.Write(boundaryBuffer, 0, boundaryBuffer.Length);
+                        }
+                    }
+                }
+                //    using (var requestStream = request.GetRequestStream())
+                //    {
+                //        var mss = new MemoryStream();
+                //        var reqmessage = new HttpRequestMessage();
+                //        var content = new MultipartFormDataContent();
+                //        string id = _listLampiran[0].LampiranSuratId;
+                //        string tipe = "Surat";
+                //        string versi = "0";
+                //        var file = new SuratModel().getFileLampiran(id);
+                //        string kantorid = file.KantorId;
+                //        string namafile = file.PengenalFile;
+                //        var filePath = file.Path.Split('|');
+                //        DateTime tglSunting = persuratanmodel.getTglSunting(id, tipe);
+                //        string serviceurl = persuratanmodel.GetServiceKonten(tglSunting);
+                //        if (filePath.Length == 2)
+                //        {
+                //            tipe = filePath[0];
+                //            id = filePath[1];
+                //            versi = new TandaTanganElektronikModel().CekVersi(id).ToString();
+                //            file.PengenalFile = string.Concat(file.PengenalFile, ".pdf");
+                //            serviceurl = "ServiceEofficeUrl";
+                //        }
+
+                //        content.Add(new StringContent(kantorid), "kantorId");
+                //        content.Add(new StringContent(tipe), "tipeDokumen");
+                //        content.Add(new StringContent(id), "dokumenId");
+                //        content.Add(new StringContent(".pdf"), "fileExtension");
+                //        content.Add(new StringContent(versi), "versionNumber");
+
+                //        reqmessage.Method = HttpMethod.Post;
+                //        reqmessage.Content = content;
+                //        reqmessage.RequestUri = new System.Uri(string.Concat(ConfigurationManager.AppSettings[serviceurl].ToString(), "Retrieve"));
+
+                //        try
+                //        {
+                //            using (var client = new HttpClient())
+                //            {
+                //                var reqresult = client.SendAsync(reqmessage).Result;
+                //                if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == System.Net.HttpStatusCode.OK)
+                //                {
+                //                    var strm = await reqresult.Content.ReadAsStreamAsync();
+
+                //                    byte[] byt = new byte[strm.Length];
+                //                    strm.Read(byt, 0, byt.Length);
+                //                    mss = new MemoryStream(byt.ToArray());
+                //                }
+                //            }
+                //        }
+                //        catch (Exception ex)
+                //        {
+                //            result.Status = false;
+                //            result.Pesan = string.Concat("Gagal Mengambil File Lampiran", ex.Message);
+                //        }
+
+                //        var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                //        requestStream.Write(buffer, 0, buffer.Length);
+                //        buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", "file", namafile, Environment.NewLine));
+                //        requestStream.Write(buffer, 0, buffer.Length);
+                //        buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", MediaTypeNames.Application.Pdf, Environment.NewLine));
+                //        requestStream.Write(buffer, 0, buffer.Length);
+                //        mss.CopyTo(requestStream);
+                //        buffer = Encoding.ASCII.GetBytes(Environment.NewLine);
+                //        requestStream.Write(buffer, 0, buffer.Length);
+
+                //        var boundaryBuffer = Encoding.ASCII.GetBytes(boundary + "--");
+                //        requestStream.Write(boundaryBuffer, 0, boundaryBuffer.Length);
+
+
+                //        requestStream.Write(boundarybytes, 0, boundarybytes.Length);
+                //    }
+                //}
+
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                var responseStream = response.GetResponseStream();
+                HttpStatusCode wRespStatusCode = response.StatusCode;
+                WebHeaderCollection responseHeader = request.GetResponse().Headers;
+                var _message = responseHeader["message"];
+                string hasil = responseHeader.ToString();
+                string status = wRespStatusCode == HttpStatusCode.OK ? "T" : "F";
+                result.Status = wRespStatusCode == HttpStatusCode.OK;
+            }
+            catch (WebException wex)
+            {
+                using (var stream = wex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    string responseFromServer = reader.ReadToEnd();
+                    if (!String.IsNullOrEmpty(responseFromServer))
+                    {
+                        result.Status = false;
+                        StatusErrorResponse responseResult = JsonConvert.DeserializeObject<StatusErrorResponse>(responseFromServer);
+                        result.Pesan = string.Concat("Gagal Kirim ke KMS : ", responseResult.message);
+                    }
+                    else
+                    {
+                        result.Status = false;
+                        result.Pesan = "Gagal Kirim ke KMS";
+                    }
+                    return Json(result, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Status = false;
+                result.Pesan = ex.Message;
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ListSurat(int? start, int? length, FindSurat f)
+        {
+            int recNumber = start ?? 0;
+            int RecordsPerPage = length ?? 10;
+            int from = recNumber + 1;
+            int to = from + RecordsPerPage - 1;
+
+            decimal? total = 0;
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string pegawaiid = usr.PegawaiId;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+
+            string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+
+            string myProfiles = functions.MyProfiles(pegawaiid, kantorid);
+
+            string metadata = string.IsNullOrEmpty(f.Metadata) ? string.Empty : new Functions().TextEncode(f.Metadata);
+            string nomorsurat = f.NomorSurat;
+            string nomoragenda = f.NomorAgenda;
+            string perihal = f.Perihal;
+            string tanggalsurat = f.TanggalSurat;
+            string tipesurat = f.TipeSurat;
+            string sifatsurat = f.SifatSurat;
+            string sortby = f.SortBy;
+            string sorttype = f.SortType;
+            string spesificprofileid = f.SpesificProfileId;
+            string sumber = f.Sumber_Keterangan;
+            string arah = f.Arah;
+
+            var result = mdl.GetDaftarSurat(satkerid, pegawaiid, "1", arah, myProfiles, metadata, nomorsurat, nomoragenda, perihal, tanggalsurat, tipesurat, sifatsurat, sortby, sorttype, spesificprofileid, from, to, sumber);
+
+            if (result.Count > 0)
+            {
+                foreach (var dt in result)
+                {
+                    dt.NomorSurat = string.IsNullOrEmpty(dt.NomorSurat) ? dt.NomorSurat : HttpUtility.UrlDecode(dt.NomorSurat);
+                    dt.NamaPengirim = string.IsNullOrEmpty(dt.NamaPengirim) ? dt.NamaPengirim : HttpUtility.UrlDecode(dt.NamaPengirim);
+                    dt.NamaPegawai = string.IsNullOrEmpty(dt.NamaPegawai) ? dt.NamaPegawai : HttpUtility.UrlDecode(dt.NamaPegawai);
+                    if (string.IsNullOrEmpty(dt.NomorAgendaSurat))
+                    {
+                        var tr = mdl.GetNomorAgenda(dt.SuratId, satkerid, unitkerjaid, dt.SuratInboxId);
+                        if (tr.Status)
+                            dt.NomorAgendaSurat = tr.ReturnValue;
+                    }
+                }
+                total = result[0].Total;
+            }
+
+            return Json(new { data = result, recordsTotal = result.Count, recordsFiltered = total }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult KirimDisposisi(Models.Entities.Surat data)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string pegawaiid = usr.PegawaiId;
+            string namapengirim = usr.NamaPegawai;
+
+            string myClientId = Functions.MyClientId;
+
+            data.UserId = pegawaiid;
+            data.NamaPengirim = namapengirim;
+
+            // Cek Tujuan Surat
+            var dataSessionTujuanSurat = persuratanmodel.GetListSessionTujuanSurat(myClientId);
+            if (dataSessionTujuanSurat.Count == 0)
+            {
+                tr.Pesan = "Tujuan Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            var _profile = dataMasterModel.getDataPengirimBySuratInboxId(data.SuratInboxId);
+            if (_profile != null)
+            {
+                data.ProfileIdPengirim = _profile.ProfileId;
+                data.NamaProfilePengirim = _profile.NamaProfile;
+                unitkerjaid = _profile.UnitKerjaId;
+                profileidtu = _profile.ProfileIdTu;
+            }
+
+            tr = persuratanmodel.KirimSuratMasuk(data, kantorid, unitkerjaid, profileidtu, pegawaiid);
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult KotakMasuk(string t)
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var find = new FindSurat();
+            find.ListSifatSurat = persuratanmodel.GetSifatSurat();
+            find.ListMyProfiles = dataMasterModel.GetProfilePegawai_Simpeg(usr.PegawaiId, usr.KantorId);
+            find.JumlahMyProfiles = find.ListMyProfiles.Count;
+            if (find.JumlahMyProfiles == 1)
+            {
+                find.SpesificProfileId = find.ListMyProfiles[0].ProfileId;
+            }
+            find.Arah = "Masuk";
+            find.Sumber_Keterangan = (string.IsNullOrEmpty(t)) ? "Loket" : t;
+
+            return View("KotakSurat",find);
+        }
+
+        public ActionResult KotakTerkirim()
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var find = new FindSurat();
+            find.ListSifatSurat = persuratanmodel.GetSifatSurat();
+            find.ListMyProfiles = dataMasterModel.GetProfilePegawai_Simpeg(usr.PegawaiId, usr.KantorId);
+            find.JumlahMyProfiles = find.ListMyProfiles.Count;
+            if (find.JumlahMyProfiles == 1)
+            {
+                find.SpesificProfileId = find.ListMyProfiles[0].ProfileId;
+            }
+            find.Arah = "Keluar";
+            return View("KotakSurat", find);
+        }
+
+        public ActionResult KotakInisiatif()
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            var find = new FindSurat();
+            find.ListSifatSurat = persuratanmodel.GetSifatSurat();
+            find.ListMyProfiles = dataMasterModel.GetProfilePegawai_Simpeg(usr.PegawaiId, usr.KantorId);
+            find.JumlahMyProfiles = find.ListMyProfiles.Count;
+            if (find.JumlahMyProfiles == 1)
+            {
+                find.SpesificProfileId = find.ListMyProfiles[0].ProfileId;
+            }
+            find.Arah = "Inisiatif";
+            return View("KotakSurat", find);
+        }
+
+        public ActionResult DaftarLampiranSurat(string suratid)
+        {
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+            var result = mdl.GetListLampiranSurat(suratid, satkerid);
+
+            int custIndex = 1;
+            Dictionary<int, LampiranSurat> dict = result.ToDictionary(x => custIndex++, x => x);
+
+            if (result.Count > 0)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    return PartialView("DaftarLampiranSurat", dict);
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            else
+            {
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    Content = "noresults",
+                    ContentEncoding = System.Text.Encoding.UTF8
+                };
+            }
+        }
+
+        public ActionResult BuatSuratJawaban(string reff)
+        {
+            var persuratanmodel = new PersuratanModel();
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            if (usr != null && usr.UnitKerjaId.Equals("020116"))
+            {
+                var data = new Models.Entities.Surat();
+                //string reff = Request.Form["reff"];
+                if (!string.IsNullOrEmpty(reff))
+                {
+                    data.Referensi = reff;
+                    string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+                    var referensisurat = persuratanmodel.GetSuratBySuratId(reff, satkerid);
+                    data.ReferensiAsalSurat = referensisurat.PengirimSurat;
+                    data.ReferensiTujuanSurat = referensisurat.PenerimaSurat;
+                    data.ReferensiNomorAgenda = referensisurat.NomorAgenda;
+                    data.ReferensiNomorSurat = Server.UrlDecode(referensisurat.NomorSurat);
+                    data.ReferensiTanggalSurat = referensisurat.TanggalSurat;
+                    data.ReferensiPerihal = referensisurat.Perihal;
+                    data.ReferensiKategori = referensisurat.Kategori;
+                    data.ReferensiUnitKerjaId = referensisurat.ReferensiUnitKerjaId;
+
+                    data.ListSifatSurat = persuratanmodel.GetSifatSurat();
+                    data.ListTipeSurat = persuratanmodel.GetTipeSurat();
+                    data.ListUnitKerja = dataMasterModel.GetListUnitKerja("", "", "", true);
+                    data.ListProfileTujuan = new List<Profile>();
+                    data.ListTujuanPegawai = new List<Pegawai>();
+                    data.ListProfiles = new List<Profile>();
+                    ViewBag.Massal = usr.KantorId.Equals("980FECFC746D8C80E0400B0A9214067D");
+                    return View(data);
+                }
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public JsonResult InsertSuratJawaban(Models.Entities.Surat data, string daftarTujuan, string tujuanSurat, bool kirimPusat, bool kirimKanwil, bool kirimKantah, List<HttpPostedFileBase> fileUploadStream)
+        {
+            var tr = new TransactionResult() { Status = false, Pesan = "" };
+            var usr = HttpContext.User.Identity as InternalUserIdentity;
+            string kantorid = usr.KantorId;
+            string unitkerjaid = usr.UnitKerjaId;
+            string profileidtu = usr.ProfileIdTU;
+            string userid = usr.UserId;
+            string pegawaiid = usr.PegawaiId;
+            string namapegawaipengirim = usr.NamaPegawai;
+            string myProfileId = functions.MyProfiles(pegawaiid, kantorid).Replace("'", "");
+
+            string myClientId = Functions.MyClientId;
+
+            string satkerid = dataMasterModel.GetSatkerId(usr.UnitKerjaId);
+
+            data.SuratId = mdl.NewGuID();
+            data.UserId = userid;
+            data.PegawaiId = pegawaiid;
+            data.NamaPengirim = namapegawaipengirim;
+
+            List<ProfilePegawai> listProfilePegawai = dataMasterModel.GetProfilePegawai_Simpeg(pegawaiid, kantorid);
+            if (listProfilePegawai.Count > 0)
+            {
+                data.ProfileIdPengirim = listProfilePegawai[0].ProfileId;
+                data.NamaProfilePengirim = listProfilePegawai[0].NamaProfile;
+            }
+
+            if (string.IsNullOrEmpty(data.NomorSurat))
+            {
+                tr.Pesan = "Nomor Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+            //if (!string.IsNullOrEmpty(data.NomorSurat))
+            //{
+            //    Regex sWhitespace = new Regex(@"[^0-9a-zA-Z-./]+");
+
+            //    string nomorsurat = sWhitespace.Replace(data.NomorSurat, "");
+            //    data.NomorSurat = nomorsurat;
+            //}
+
+            data.ArahSuratKeluar = "Masuk";
+
+            data.PenerimaSurat = "";
+            data.ListTujuanSurat = new List<SessionTujuanSurat>();
+            try
+            {
+                dynamic json = JsonConvert.DeserializeObject(daftarTujuan);
+
+                foreach (var js in json)
+                {
+                    var _tujuan = new SessionTujuanSurat();
+                    _tujuan = JsonConvert.DeserializeObject<SessionTujuanSurat>(JsonConvert.SerializeObject(js.Value));
+                    if (_tujuan.Redaksi.Equals("Asli"))
+                    {
+                        data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", _tujuan.NamaJabatan);
+                    }
+                    data.ListTujuanSurat.Add(new SessionTujuanSurat()
+                    {
+                        ProfileId = _tujuan.ProfileId,
+                        NIP = _tujuan.NIP,
+                        Redaksi = _tujuan.Redaksi,
+                        NamaJabatan = Server.UrlEncode(mdl.GetNamaJabatan(_tujuan.ProfileId)),
+                        NamaPegawai = Server.UrlEncode(mdl.GetNamaPegawai(_tujuan.NIP))
+                    });
+                }
+            }
+            catch
+            {
+                tr.Pesan = "Data yang dikirimkan tidak sesuai";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            if (kirimPusat)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Unit Kerja Pusat");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(1));
+            }
+            if (kirimKanwil)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Kantor Wilayah");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(2));
+            }
+            if (kirimKantah)
+            {
+                data.PenerimaSurat = string.Concat(data.PenerimaSurat, string.IsNullOrEmpty(data.PenerimaSurat) ? "" : ", ", "Seluruh Kantor Pertanahan");
+                data.ListTujuanSurat.AddRange(mdl.getTujuanMassal(3));
+            }
+
+            if (data.ListTujuanSurat.Count == 0)
+            {
+                tr.Pesan = "Tujuan Surat wajib diisi";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            string judul = "Surat keluar untuk " + data.PenerimaSurat + " nomor: " + data.NomorSurat;
+
+            data.NomorSurat = Server.UrlEncode(data.NomorSurat);
+            data.PenerimaSurat = data.PenerimaSurat.Length > 500 ? data.PenerimaSurat.Substring(0, 500) : data.PenerimaSurat;
+
+            data.ListFiles = new List<Files>();
+            var dataSessionLampiran = new List<SessionLampiranSurat>();
+            int urutLampiran = 1;
+            foreach (HttpPostedFileBase file in fileUploadStream)
+            {
+                if (file != null)
+                {
+                    var datafile = new SessionLampiranSurat();
+                    if (file.FileName.Length > 100)
+                    {
+                        tr.Pesan = "Nama File Maksimal 100 karakter";
+                        return Json(tr, JsonRequestBehavior.AllowGet);
+                    }
+                    datafile.NamaFile = urutLampiran.ToString() + "|" + file.FileName;
+                    MemoryStream ms1 = new MemoryStream();
+                    file.InputStream.CopyTo(ms1);
+                    datafile.ObjectFile = ms1.ToArray();
+                    datafile.LampiranSuratId = mdl.GetUID();
+                    datafile.Nip = pegawaiid;
+                    dataSessionLampiran.Add(datafile);
+                    data.ListFiles.Add(new Files()
+                    {
+                        FilesId = datafile.LampiranSuratId,
+                        PengenalFile = file.FileName
+                    });
+                    urutLampiran++;
+                }
+            }
+            data.JumlahLampiran = dataSessionLampiran.Count;
+
+            if(data.JumlahLampiran.Equals(0))
+            {
+                tr.Pesan = "File Surat Tidak Ditemukan";
+                return Json(tr, JsonRequestBehavior.AllowGet);
+            }
+
+            #region Simpan File Fisik
+            foreach (var lampiranSurat in dataSessionLampiran)
+            {
+                if (lampiranSurat.ObjectFile.Length > 0)
+                {
+                    int versi = 0;
+                    string id = lampiranSurat.LampiranSuratId;
+
+                    Stream stream = new MemoryStream(lampiranSurat.ObjectFile);
+
+                    var reqmessage = new HttpRequestMessage();
+                    var content = new MultipartFormDataContent();
+
+                    content.Add(new StringContent(kantorid), "kantorId");
+                    content.Add(new StringContent("Surat"), "tipeDokumen");
+                    content.Add(new StringContent(id), "dokumenId");
+                    content.Add(new StringContent(versi.ToString()), "versionNumber");
+                    content.Add(new StreamContent(stream), "file", lampiranSurat.NamaFile);
+
+                    reqmessage.Method = HttpMethod.Post;
+                    reqmessage.Content = content;
+                    reqmessage.RequestUri = new Uri(string.Concat(ConfigurationManager.AppSettings["ServiceEofficeUrl"].ToString(), "Store"));
+
+                    using (var client = new HttpClient())
+                    {
+                        var reqresult = client.SendAsync(reqmessage).Result;
+                        if (reqresult.IsSuccessStatusCode && reqresult.StatusCode == HttpStatusCode.OK)
+                        {
+                            tr = kontentmodel.SimpanKontenFile(kantorid, id, judul, namapegawaipengirim, data.TanggalSurat, "Surat", out versi);
+                        }
+                        else
+                        {
+                            tr.Status = false;
+                            tr.Pesan = "Gagal Membuat Surat, ada file lampiran yang bermasalah\nHarap cek ulang lampiran anda.";
+                            tr.ReturnValue = reqresult.ReasonPhrase;
+                            return Json(tr, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            tr = mdl.InsertSuratKeluar(data, kantorid, unitkerjaid, myProfileId, profileidtu, pegawaiid, namapegawaipengirim);
+
+            return Json(tr, JsonRequestBehavior.AllowGet);
+        }
+    }
+}

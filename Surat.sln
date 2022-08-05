@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1169
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Surat", "Surat\Surat.csproj", "{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFEditor", "BPN-Itext\PDFEditor.csproj", "{F574A6BA-63E8-4ACF-9DD8-6B44843CD42E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95799344-FD0C-4C79-8DE8-E6F4BC1C92ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F574A6BA-63E8-4ACF-9DD8-6B44843CD42E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F574A6BA-63E8-4ACF-9DD8-6B44843CD42E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F574A6BA-63E8-4ACF-9DD8-6B44843CD42E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F574A6BA-63E8-4ACF-9DD8-6B44843CD42E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84B7F1B8-1546-42A4-964C-B1F0F8304A2F}
+	EndGlobalSection
+EndGlobal

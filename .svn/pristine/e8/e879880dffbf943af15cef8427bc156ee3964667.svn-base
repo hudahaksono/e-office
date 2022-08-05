@@ -1,0 +1,231 @@
+﻿@model Surat.Models.Entities.SetAdminSatker
+
+<script type="text/javascript">
+    $(function () {
+        $.validator.unobtrusive.parse(this);
+    });
+</script>
+
+<div class="" id="dynamic_content">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>
+                Pengaturan Administrator Satker
+            </h3>
+        </div>
+        <div class="title_right">
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="">
+
+                <form id="frmUserProfiles"></form>
+                <form class="form-horizontal form-label-left" id="frmSetAdminSatker" method="post">
+
+                    <div class="x_panel" style="padding-top: 20px; padding-bottom: 10px; margin-bottom: 10px;">
+
+                        @Html.HiddenFor(m => m.KantorId, new { @id = "KantorId" })
+                        @Html.HiddenFor(m => m.PegawaiId, new { @id = "PegawaiId" })
+                        @Html.HiddenFor(m => m.SatkerId, new { @id = "SatkerId" })
+                        @Html.HiddenFor(m => m.TipeKantorId, new { @id = "TipeKantorId" })
+
+                        <div class="">
+                            <div class="col-md-6 col-xs-12" style="padding-top:7px;">
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12">NIP</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        <div class='input-group' style="margin-bottom: 0px;">
+                                            @Html.TextBoxFor(model => model.PegawaiId, new { @class = "form-control", @id = "pegawaiid", @required = "required" })
+                                            <span class="input-group-addon btn btn-primary" id="BtnCariNIP" style="cursor:pointer;">
+                                                <span class="fa fa-search"></span>&nbsp;Cari
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc;">Nama</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.TextBoxFor(model => model.NamaLengkap, new { @class = "form-control", @id = "namalengkap", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc;">Jabatan</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.TextBoxFor(model => model.NamaJabatan, new { @class = "form-control", @id = "namajabatan", @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2 col-sm-2 col-xs-12" style="color:#cccccc;">Satker</label>
+                                    <div class="col-md-10 col-sm-10 col-xs-12">
+                                        @Html.TextAreaFor(model => model.NamaSatker, new { @class = "form-control", @id = "namasatker", @rows = 4, @readonly = "readonly", @style = "background-color:white; color:#b0b0b0;" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-xs-12">
+                                <div class="" style="padding-right:10px;">
+                                    <table id="myTableUserProfiles" class="table table-striped table-bordered dt-responsive" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:5%">#</th>
+                                                <th>Profile</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="">
+                        <div class="" style="padding-bottom:10px;">
+                            <button id="save-btn" type="submit" class="btn btn-success">Simpan</button>
+                            <button id="reset-btn" type="button" class="btn btn-warning">Reset</button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $.unblockUI();
+
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+        }
+
+        createPagingUserProfiles();
+    });
+
+    $("#reset-btn").on("click", function (e) {
+        ResetFormValues();
+        return false;
+    });
+
+    function ResetFormValues() {
+        $('#frmSetAdminSatker')[0].reset();
+
+        $('#KantorId').val('');
+        $('#PegawaiId').val('');
+        $('#TipeKantorId').val('');
+        $('#namalengkap').val('');
+        $('#namasatker').val('');
+        $('#namajabatan').val('');
+
+        dtableUserProfiles.ajax.reload(null, true);
+    };
+
+    var dtableUserProfiles;
+    var createPagingUserProfiles = function () {
+        dtableUserProfiles = $('#myTableUserProfiles').DataTable({
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "ordering": false,
+            "info": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                url: '@Url.Action("DaftarProfilePegawai", "Admin")',
+                type: "POST",
+                data: function (data, obj) { var ftp = $('#frmUserProfiles').serializeArray(); data.form = ftp; ftp.push({ name: "nip", value: $('#PegawaiId').val() }); return ftp; }
+            },
+            "columns": [
+                { "data": "RNumber", "className": "centertaligncolumn", "width": "5%" },
+                { "data": "NamaProfile", "width": "80%" }
+            ]
+        });
+    };
+
+    $("#BtnCariNIP").on("click", function (e) {
+
+        var nip = $('#pegawaiid').val();
+        if (nip !== null && nip !== '') {
+
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var frm = new FormData();
+            frm.append("PegawaiId", $('#pegawaiid').val());
+
+            // Cari Pegawai di Simpeg by NIP
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetPegawaiSimpegByNip", "Admin")',
+                data: frm,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+
+                    $('#namalengkap').val(data.NamaLengkap);
+                    $('#namasatker').val(data.NamaSatker);
+                    $('#namajabatan').val(data.NamaJabatan);
+                    $('#KantorId').val(data.KantorId);
+                    $('#PegawaiId').val(data.PegawaiId);
+                    $('#SatkerId').val(data.SatkerId);
+                    $('#TipeKantorId').val(data.TipeKantorId);
+
+                    dtableUserProfiles.ajax.reload(null, true);
+
+                    $.unblockUI();
+                },
+                error: function () { $.unblockUI(); }
+            });
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+    $("#frmSetAdminSatker").submit(function (e) {
+        if ($("#frmSetAdminSatker").valid()) {
+
+            $.blockUI({ message: '<div style=\"padding:10px\"><b>Sedang proses... </b><p>harap tunggu</p></div>' });
+
+            var frm = this, frmdata = new FormData(this);
+
+            // Simpan
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SimpanAdminSatker", "Admin")',
+                data: frmdata,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.Status) {
+
+                        // Reset Forms
+                        ResetFormValues();
+
+                        // Success message
+                        showinfo(data.Pesan);
+                    }
+                    else {
+                        showalert(data.Pesan);
+                    }
+                    $.unblockUI();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { $.unblockUI(); }
+            });
+        }
+
+        e.preventDefault();
+        return false;
+    });
+
+</script>
+
+
